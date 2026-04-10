@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>走走 👣 你的育兒好去處</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFDF6;--text-primary:#333333;--text-secondary:#666666;--text-tertiary:#999999;
+  --mint:#CCE2DC;--mint-dark:#a8cdc6;--lavender:#CDC8D3;--lavender-dark:#a9a3b0;
+  --coral:#E3AEAE;--coral-dark:#c98f8f;--tan:#E7CBA7;--tan-dark:#c9a97a;
+  --border:#E8E6E1;--divider:#F0EDE8;
+  --sh-sm:0 2px 8px rgba(0,0,0,.07);--sh-md:0 4px 16px rgba(0,0,0,.10);--sh-lg:0 8px 24px rgba(0,0,0,.14);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-3xl:24px;
+  --nav-h:70px;--safe-b:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto Sans TC','PingFang TC',sans-serif;color:var(--text-primary);}
+#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.08);}
+
+/* PAGES */
+.page{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.page.active{display:flex;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.scroll-area{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 12px);-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.scroll-area::-webkit-scrollbar{display:none;}
+
+/* BOTTOM NAV */
+#nav{position:relative;z-index:100;background:white;border-top:1px solid var(--border);padding:8px 0 calc(8px + var(--safe-b));display:flex;align-items:flex-start;justify-content:space-around;box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;transition:transform .15s;}
+.nav-item:active{transform:scale(.92);}
+.nav-item .ni{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s,transform .2s;font-size:18px;}
+.nav-item.active .ni{transform:scale(1.08);}
+.nav-item .nl{font-size:10px;color:var(--text-tertiary);font-weight:500;white-space:nowrap;line-height:1;transition:color .2s;}
+.nav-item.active .nl{font-weight:700;}
+.nav-item[data-page=home].active .ni{background:rgba(227,174,174,.22);}
+.nav-item[data-page=home].active .nl{color:var(--coral-dark);}
+.nav-item[data-page=attractions].active .ni{background:rgba(204,226,220,.30);}
+.nav-item[data-page=attractions].active .nl{color:var(--mint-dark);}
+.nav-item[data-page=restaurants].active .ni{background:rgba(227,174,174,.22);}
+.nav-item[data-page=restaurants].active .nl{color:var(--coral-dark);}
+.nav-item[data-page=shopping].active .ni{background:rgba(231,203,167,.28);}
+.nav-item[data-page=shopping].active .nl{color:var(--tan-dark);}
+.nav-item[data-page=accommodation].active .ni{background:rgba(205,200,211,.28);}
+.nav-item[data-page=accommodation].active .nl{color:var(--lavender-dark);}
+.nav-item[data-page=medical].active .ni{background:rgba(204,226,220,.30);}
+.nav-item[data-page=medical].active .nl{color:var(--mint-dark);}
+.nav-item[data-page=favorites].active .ni{background:rgba(227,174,174,.22);}
+.nav-item[data-page=favorites].active .nl{color:var(--coral-dark);}
+
+/* COMMON */
+.btn{border:none;cursor:pointer;font-family:inherit;font-weight:600;border-radius:var(--r-xl);transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.btn:active{transform:scale(.96);}
+.btn-coral{background:var(--coral);color:white;padding:13px 24px;font-size:14px;box-shadow:var(--sh-sm);}
+.btn-outline{background:white;color:var(--text-primary);border:1.5px solid var(--border);padding:13px 18px;font-size:14px;}
+.btn-mint{background:var(--mint-dark);color:white;padding:13px 18px;font-size:14px;}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--r-md);font-size:12px;font-weight:500;border:1.5px solid var(--border);background:white;cursor:pointer;transition:.15s;color:var(--text-secondary);white-space:nowrap;}
+.chip.active{background:var(--coral);border-color:var(--coral);color:white;}
+.chip:active{transform:scale(.95);}
+
+/* PAGE HEADER */
+.ph{padding:16px 20px 10px;display:flex;align-items:center;gap:12px;background:var(--bg);flex-shrink:0;}
+.ph h1{font-size:22px;font-weight:700;letter-spacing:-.5px;flex:1;}
+.ib{width:40px;height:40px;border-radius:var(--r-lg);background:white;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh-sm);font-size:16px;transition:.15s;flex-shrink:0;}
+.ib:active{transform:scale(.94);}
+
+/* SEARCH BAR */
+.sw{padding:0 20px 10px;flex-shrink:0;}
+.sb{display:flex;align-items:center;gap:10px;background:white;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:10px 14px;box-shadow:var(--sh-sm);}
+.sb input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:var(--text-primary);}
+.sb input::placeholder{color:var(--text-tertiary);}
+
+/* FILTER CHIPS ROW */
+.fr{padding:0 20px 10px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;}
+.fr::-webkit-scrollbar{display:none;}
+
+/* LOCATION CARD */
+.lc{margin:0 16px 12px;display:flex;gap:12px;padding:14px 16px;background:white;border-radius:var(--r-3xl);box-shadow:var(--sh-sm);cursor:pointer;transition:.2s;}
+.lc:active{transform:scale(.98);}
+.lc-icon{width:64px;height:64px;border-radius:var(--r-xl);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;overflow:hidden;}
+.lc-icon img{width:100%;height:100%;object-fit:cover;}
+.lc-body{flex:1;min-width:0;}
+.lc-body h3{font-size:15px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lc-body p{font-size:12px;color:var(--text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lc-meta{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.lt{font-size:11px;padding:3px 7px;border-radius:6px;background:var(--divider);color:var(--text-secondary);white-space:nowrap;}
+.lp{font-size:11px;font-weight:600;color:var(--coral-dark);}
+.ld{font-size:11px;color:var(--text-tertiary);margin-left:auto;}
+.lc-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+.fb{width:30px;height:30px;border-radius:50%;background:var(--divider);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.fb.on{background:#FFE4E4;}
+.fb:active{transform:scale(.85);}
+
+/* HOME */
+.hhb{background:linear-gradient(160deg,#F8D7D7 0%,var(--bg) 60%);padding:48px 24px 32px;text-align:center;position:relative;overflow:hidden;}
+.hhb::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='4' fill='%23E3AEAE' fill-opacity='.14'/%3E%3C/svg%3E");pointer-events:none;}
+.hb{font-size:52px;margin-bottom:12px;animation:hbounce 2.5s ease-in-out infinite;display:block;position:relative;}
+@keyframes hbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ht{font-size:24px;font-weight:900;margin-bottom:6px;letter-spacing:-.5px;position:relative;}
+.hs{font-size:14px;color:var(--text-secondary);margin-bottom:28px;position:relative;}
+.dmb{display:inline-flex;align-items:center;gap:8px;background:var(--coral);color:white;border:none;border-radius:100px;padding:16px 36px;font-family:inherit;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(227,174,174,.5);transition:transform .15s,box-shadow .15s;position:relative;z-index:1;}
+.dmb:active{transform:scale(.96);box-shadow:0 2px 10px rgba(227,174,174,.4);}
+
+/* SLOT */
+.sa{padding:20px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.sd{width:100%;max-width:390px;height:180px;overflow:hidden;border-radius:var(--r-3xl);background:white;box-shadow:0 4px 20px rgba(120,80,60,.14);position:relative;display:none;}
+.sd.show{display:block;}
+.si{display:flex;flex-direction:column;transition:transform .05s linear;}
+.sit{height:60px;display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.sit-ic{font-size:24px;}
+.sit-nm{font-size:16px;font-weight:700;}
+.sit-cy{font-size:12px;color:var(--text-tertiary);}
+.shl{position:absolute;top:50%;left:0;right:0;height:60px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(227,174,174,.18),transparent);border-top:2px solid var(--coral);border-bottom:2px solid var(--coral);pointer-events:none;}
+.sft,.sfb{position:absolute;left:0;right:0;height:60px;pointer-events:none;z-index:2;}
+.sft{top:0;background:linear-gradient(to bottom,white,transparent);}
+.sfb{bottom:0;background:linear-gradient(to top,white,transparent);}
+
+/* RESULT CARD */
+.rcw{width:100%;max-width:390px;display:none;}
+.rcw.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.rcard{background:white;border-radius:var(--r-3xl);box-shadow:0 8px 32px rgba(120,80,60,.14);overflow:hidden;cursor:pointer;transition:transform .2s;}
+.rcard:active{transform:scale(.98);}
+.rcb{height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.rcb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.rcb-em{position:relative;z-index:1;font-size:72px;}
+.rcc{padding:16px 18px 18px;}
+.rcbg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.rcbadge{border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;}
+.rb-rose{background:#F8D7D7;color:#8B5C5C;}
+.rb-mint{background:var(--mint);color:#3A6B62;}
+.rb-lav{background:var(--lavender);color:#5A5472;}
+.rb-stone{background:#EDE8E3;color:#6B5C52;}
+.rcn{font-size:20px;font-weight:900;margin-bottom:3px;}
+.rcy{font-size:13px;color:var(--text-secondary);margin-bottom:10px;}
+.rctg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.rctag{background:#F5F0E8;border-radius:8px;padding:3px 10px;font-size:11px;color:var(--text-secondary);}
+.rca{display:flex;gap:8px;}
+.rcbtn{flex:1;padding:11px;border-radius:14px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.rcbtn:active{opacity:.8;}
+.rcbtn-map{background:var(--lavender);color:var(--text-primary);}
+.rcbtn-more{background:var(--coral);color:white;}
+
+/* 再抽一次 */
+.daw{width:100%;max-width:390px;display:none;justify-content:center;}
+.daw.show{display:flex;}
+.dab{border:2px solid var(--coral);background:transparent;color:var(--coral-dark);border-radius:100px;padding:13px 40px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.dab:hover{background:var(--coral);color:white;}
+.dab:active{transform:scale(.97);}
+
+/* QUICK NAV */
+.st{font-size:16px;font-weight:700;padding:0 20px 12px;}
+.qn{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px 24px;}
+.qni{background:white;border-radius:var(--r-xl);padding:16px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:1.5px solid var(--border);box-shadow:var(--sh-sm);transition:.15s;}
+.qni:active{transform:scale(.95);}
+.qni .qe{font-size:28px;}
+.qni span{font-size:12px;font-weight:600;color:var(--text-secondary);}
+
+/* FILTER MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:none;align-items:flex-end;}
+.mo.open{display:flex;animation:ovIn .2s ease;}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.ms{background:white;border-radius:var(--r-3xl) var(--r-3xl) 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:shUp .28s cubic-bezier(.34,1.3,.64,1);}
+@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mh{width:36px;height:4px;background:var(--divider);border-radius:99px;margin:12px auto 0;flex-shrink:0;}
+.mhd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--divider);flex-shrink:0;}
+.mt{font-size:17px;font-weight:700;}
+.cb{background:var(--coral);color:white;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;}
+.mb{overflow-y:auto;flex:1;padding:0 20px 16px;}
+.mb::-webkit-scrollbar{display:none;}
+.msc{padding-top:18px;}
+.mst{font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.sd-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.cw{display:flex;flex-wrap:wrap;gap:8px;}
+.mf{padding:12px 20px calc(12px + var(--safe-b));border-top:1px solid var(--divider);display:flex;gap:10px;flex-shrink:0;}
+.mf .btn{flex:1;}
+
+/* GPS BTN */
+.gpsbtn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--r-lg);border:1.5px solid var(--mint-dark);background:rgba(204,226,220,.15);cursor:pointer;font-size:13px;font-weight:600;color:var(--mint-dark);transition:.15s;margin-bottom:10px;}
+.gpsbtn:active{transform:scale(.97);}
+.gpsbtn.on{background:var(--mint);color:white;border-color:var(--mint-dark);}
+
+/* RANGE SLIDER */
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--divider);border-radius:2px;outline:none;margin:8px 0;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--coral);cursor:pointer;box-shadow:var(--sh-sm);}
+.rl{display:flex;justify-content:space-between;font-size:12px;color:var(--text-tertiary);margin-top:2px;}
+
+/* DETAIL PAGE */
+#dp{position:absolute;top:0;left:0;right:0;bottom:0;z-index:200;background:var(--bg);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#dp.open{transform:translateX(0);}
+.dhr{min-height:220px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;background:#F0EDE8;overflow:hidden;}
+.dhr img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.dhe{font-size:80px;position:relative;z-index:1;}
+.dbk{position:absolute;top:16px;left:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);z-index:2;}
+.dfv{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);transition:.15s;z-index:2;}
+.dfv:active{transform:scale(.88);}
+.dfv.on{background:#FFE4E4;}
+.dbd{flex:1;overflow-y:auto;padding:20px 20px 120px;-webkit-overflow-scrolling:touch;}
+.dbd h1{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
+.dtgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.dtag{font-size:11px;padding:4px 10px;border-radius:8px;background:var(--divider);color:var(--text-secondary);font-weight:500;}
+.dpx{background:var(--coral);color:white;}
+.rrow{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.stars{color:#F4B942;font-size:14px;letter-spacing:1px;}
+.dir{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--divider);}
+.diic{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
+.dic .dlb{font-size:12px;color:var(--text-tertiary);margin-bottom:2px;}
+.dic .dvl{font-size:14px;font-weight:600;color:var(--text-primary);}
+.dic a.dvl{color:var(--coral-dark);text-decoration:none;}
+.ddsc{background:var(--divider);border-radius:var(--r-xl);padding:16px;margin:14px 0;}
+.ddsc p{font-size:14px;line-height:1.7;color:var(--text-secondary);}
+.dfeat{margin:14px 0;}
+.dfeat h3{font-size:14px;font-weight:700;margin-bottom:8px;}
+.fcw{display:flex;flex-wrap:wrap;gap:8px;}
+.fchip{font-size:12px;padding:6px 12px;border-radius:10px;background:white;border:1.5px solid var(--border);color:var(--text-secondary);}
+.dbot{position:absolute;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--divider);padding:12px 20px calc(12px + var(--safe-b));display:flex;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+.dbot .btn{flex:1;font-size:14px;padding:13px;}
+
+/* MISC */
+.empty-st{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;}
+.empty-st .ee{font-size:64px;}
+.empty-st h3{font-size:18px;font-weight:700;}
+.empty-st p{font-size:14px;color:var(--text-secondary);text-align:center;line-height:1.6;}
+.lw{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:12px;}
+.spin{width:32px;height:32px;border:3px solid var(--divider);border-top-color:var(--coral);border-radius:50%;animation:rot .8s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg)}}
+.nr{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;}
+.nr .ne{font-size:48px;}
+.nr p{font-size:14px;color:var(--text-tertiary);}
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%) translateY(12px);background:#333;color:white;font-size:13px;font-weight:500;padding:10px 20px;border-radius:var(--r-xl);z-index:1000;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="scroll-area">
+    <div class="hhb">
+      <span class="hb">🗺️</span>
+      <div class="ht">走走，今天去哪裡？</div>
+      <div class="hs">讓我們幫你抽一個育兒好去處 ✨</div>
+      <button class="dmb" onclick="startDraw()">🎲 幫我抽一張！</button>
+    </div>
+    <div class="sa">
+      <div class="sd" id="slot-drum">
+        <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
+        <div class="si" id="slot-inner"></div>
+      </div>
+      <div class="rcw" id="rcw">
+        <div class="rcard" onclick="openDetailFromResult()">
+          <div class="rcb" id="rcb"></div>
+          <div class="rcc">
+            <div class="rcbg" id="rcbg"></div>
+            <div class="rcn" id="rcn"></div>
+            <div class="rcy" id="rcy"></div>
+            <div class="rctg" id="rctg"></div>
+            <div class="rca">
+              <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
+              <button class="rcbtn rcbtn-more">📖 查看詳情</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="daw" id="daw">
+        <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
+      </div>
+    </div>
+    <div class="st">✨ 探索分類</div>
+    <div class="qn">
+      <div class="qni" onclick="goPage('attractions')" style="background:linear-gradient(135deg,#E8F5F0,#CCE2DC)"><div class="qe">🏞️</div><span>景點</span></div>
+      <div class="qni" onclick="goPage('restaurants')" style="background:linear-gradient(135deg,#FFE8E8,#E3AEAE44)"><div class="qe">🍽️</div><span>餐廳</span></div>
+      <div class="qni" onclick="goPage('shopping')"    style="background:linear-gradient(135deg,#FFFAEF,#E7CBA744)"><div class="qe">🛍️</div><span>購物</span></div>
+      <div class="qni" onclick="goPage('accommodation')" style="background:linear-gradient(135deg,#EDE8F5,#CDC8D344)"><div class="qe">🏨</div><span>住宿</span></div>
+      <div class="qni" onclick="goPage('medical')"     style="background:linear-gradient(135deg,#E8F5F0,#CCE2DC44)"><div class="qe">🏥</div><span>醫療</span></div>
+      <div class="qni" onclick="goPage('favorites')"   style="background:linear-gradient(135deg,#FFE8E8,#E3AEAE33)"><div class="qe">❤️</div><span>收藏</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRACTIONS -->
+<div class="page" id="page-attractions">
+  <div class="ph"><div style="font-size:24px">🏞️</div><h1>景點</h1><button class="ib" onclick="requestGPS()">📍</button><button class="ib" onclick="openFilter('attractions')">⚙️</button></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋景點名稱、標籤..." id="search-attractions" oninput="filterList('attractions')"></div></div>
+  <div class="fr" id="fr-attractions"></div>
+  <div class="scroll-area" id="list-attractions"></div>
+</div>
+
+<!-- RESTAURANTS -->
+<div class="page" id="page-restaurants">
+  <div class="ph"><div style="font-size:24px">🍽️</div><h1>餐廳</h1><button class="ib" onclick="requestGPS()">📍</button><button class="ib" onclick="openFilter('restaurants')">⚙️</button></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋餐廳名稱、特色..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
+  <div class="fr" id="fr-restaurants"></div>
+  <div class="scroll-area" id="list-restaurants"></div>
+</div>
+
+<!-- SHOPPING -->
+<div class="page" id="page-shopping">
+  <div class="ph"><div style="font-size:24px">🛍️</div><h1>購物</h1><button class="ib" onclick="requestGPS()">📍</button><button class="ib" onclick="openFilter('shopping')">⚙️</button></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋購物名稱..." id="search-shopping" oninput="filterList('shopping')"></div></div>
+  <div class="fr" id="fr-shopping"></div>
+  <div class="scroll-area" id="list-shopping"></div>
+</div>
+
+<!-- ACCOMMODATION -->
+<div class="page" id="page-accommodation">
+  <div class="ph"><div style="font-size:24px">🏨</div><h1>住宿</h1><button class="ib" onclick="requestGPS()">📍</button><button class="ib" onclick="openFilter('accommodation')">⚙️</button></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋住宿名稱..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
+  <div class="fr" id="fr-accommodation"></div>
+  <div class="scroll-area" id="list-accommodation"></div>
+</div>
+
+<!-- MEDICAL -->
+<div class="page" id="page-medical">
+  <div class="ph"><div style="font-size:24px">🏥</div><h1>醫療</h1><button class="ib" onclick="requestGPS()">📍</button><button class="ib" onclick="openFilter('medical')">⚙️</button></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋醫院、診所..." id="search-medical" oninput="filterList('medical')"></div></div>
+  <div class="fr" id="fr-medical"></div>
+  <div class="scroll-area" id="list-medical"></div>
+</div>
+
+<!-- FAVORITES -->
+<div class="page" id="page-favorites">
+  <div class="ph"><div style="font-size:24px">❤️</div><h1>我的收藏</h1></div>
+  <div class="scroll-area" id="list-favorites"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <div class="nav-item active" data-page="home" onclick="goPage('home')"><div class="ni">🏠</div><div class="nl">首頁</div></div>
+  <div class="nav-item" data-page="attractions" onclick="goPage('attractions')"><div class="ni">🏞️</div><div class="nl">景點</div></div>
+  <div class="nav-item" data-page="restaurants" onclick="goPage('restaurants')"><div class="ni">🍽️</div><div class="nl">餐廳</div></div>
+  <div class="nav-item" data-page="shopping" onclick="goPage('shopping')"><div class="ni">🛍️</div><div class="nl">購物</div></div>
+  <div class="nav-item" data-page="accommodation" onclick="goPage('accommodation')"><div class="ni">🏨</div><div class="nl">住宿</div></div>
+  <div class="nav-item" data-page="medical" onclick="goPage('medical')"><div class="ni">🏥</div><div class="nl">醫療</div></div>
+  <div class="nav-item" data-page="favorites" onclick="goPage('favorites')"><div class="ni">❤️</div><div class="nl">收藏</div></div>
+</nav>
+
+<!-- DETAIL PAGE -->
+<div id="dp">
+  <div class="dhr" id="dhr">
+    <button class="dbk" onclick="closeDetail()">←</button>
+    <button class="dfv" id="dfv" onclick="toggleFavDetail()">🤍</button>
+    <span class="dhe" id="dhe"></span>
+  </div>
+  <div class="dbd" id="dbd"></div>
+  <div class="dbot">
+    <button class="btn btn-mint" onclick="openMap()">🗺️ 導航</button>
+    <button class="btn btn-outline" onclick="openWebsite()">🔗 官網</button>
+    <button class="btn btn-outline" onclick="copyAddr()">📋 複製</button>
+  </div>
+</div>
+
+<!-- FILTER MODAL -->
+<div class="mo" id="fmo" onclick="handleOverlayClick(event)">
+  <div class="ms">
+    <div class="mh"></div>
+    <div class="mhd">
+      <div class="mt" id="fmo-title">篩選</div>
+      <div class="cb" id="fcb">找到 0 個</div>
+    </div>
+    <div class="mb" id="fmo-body"></div>
+    <div class="mf">
+      <button class="btn btn-outline" onclick="clearFilters()">清除全部</button>
+      <button class="btn btn-coral" onclick="applyFilters()">確認篩選 ✓</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+const SHEETS_ID = '18zR6LX5qCoTWivTKKDlKavVOBA6kVNAznU2qLgoe5C8';
+const SHEETS_URL = s=>`https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:csv&sheet=${s}`;
+const CATS = ['attractions','restaurants','shopping','accommodation','medical'];
+const CAT_INFO = {
+  attractions:   {label:'景點', emoji:'🏞️', bg:'#E8F5F0'},
+  restaurants:   {label:'餐廳', emoji:'🍽️', bg:'#FFE8E8'},
+  shopping:      {label:'購物', emoji:'🛍️', bg:'#FFFAEF'},
+  accommodation: {label:'住宿', emoji:'🏨', bg:'#EDE8F5'},
+  medical:       {label:'醫療', emoji:'🏥', bg:'#E8F5F0'},
+};
+const REGIONS = ['台北市','新北市','基隆市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣'];
+
+// 景點子分類選項
+const ATT_TYPES = [
+  {v:'zoo',       l:'🐾 動物園'},   {v:'farm',       l:'🐄 農場'},
+  {v:'outdoor',   l:'🌲 山林草地'},  {v:'water',      l:'💧 水域戲水'},
+  {v:'science',   l:'🔬 科學館'},   {v:'museum',     l:'🏺 博物館'},
+  {v:'art_museum',l:'🎨 美術館'},   {v:'themepark',  l:'🎡 遊樂園'},
+  {v:'cinema',    l:'🎬 親子影城'}, {v:'factory',    l:'🏭 觀光工廠'},
+  {v:'indoor',    l:'🏠 其他室內'}, {v:'other_out',  l:'🌤 其他戶外'},
+];
+// 餐廳特色選項 (值對應 features 欄位 / hasXxx 欄位)
+const REST_FEATS = [
+  {v:'playarea',   l:'🧸 兒童遊戲區'}, {v:'kidseat',    l:'🪑 兒童座椅'},
+  {v:'kidmeal',    l:'🍽 兒童餐/寶寶粥'},{v:'kidcutlery', l:'🔪 可提供兒童餐具'},
+  {v:'nursing',    l:'🤱🏻 哺乳空間'},  {v:'parking',    l:'🅿️ 附設停車場'},
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const data={attractions:[],restaurants:[],shopping:[],accommodation:[],medical:[]};
+let currentPage='home', currentDetail=null;
+let userLocation=null, isGPS=false;
+let favorites=loadFavs();
+let searchTimers={};
+const F={
+  attractions:{regions:[],subCats:[],distance:80},
+  restaurants:{regions:[],feats:[],distance:80},
+  shopping:{regions:[],distance:80},
+  accommodation:{regions:[],distance:80},
+  medical:{regions:[],distance:80},
+};
+let filterCat='attractions';
+let randomPool=[], drawnPlace=null, slotTimer=null;
+
+// ══════════════════════════════════════════════
+// CSV
+// ══════════════════════════════════════════════
+function parseCSV(txt){
+  const lines=txt.split('\n'), h=csvRow(lines[0]);
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const v=csvRow(l),o={};h.forEach((k,i)=>o[k.trim()]=(v[i]||'').trim());return o;
+  });
+}
+function csvRow(line){
+  const r=[];let c='',q=false;
+  for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}
+  r.push(c);return r;
+}
+
+// ══════════════════════════════════════════════
+// DEMO DATA
+// ══════════════════════════════════════════════
+function loadDemoData(){
+  const demo={
+    attractions:[
+      {id:'a001',cat:'attractions',name:'台北市立動物園',emoji:'🦁',region:'台北市',indoor:'FALSE',price:'low',priceLabel:'$300以下',desc:'台灣最大的動物園，逾400種動物親子必訪。',address:'台北市文山區新光路二段30號',lat:'25.0000',lng:'121.5800',hours:'09:00-17:00',closed:'週一',phone:'02-2938-2300',website:'https://www.zoo.taipei',features:'停車場,哺乳室,無障礙',tags:'戶外,動物,熱門',rating:'4.8',reviews:'2840',bg:'#FFE8E8',subCat:'zoo',imageUrl:''},
+      {id:'a002',cat:'attractions',name:'國立故宮博物院',emoji:'🏛️',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'世界四大博物館，收藏中華文物逾70萬件。',address:'台北市士林區至善路二段221號',lat:'25.1023',lng:'121.5484',hours:'09:00-17:00',closed:'週一',phone:'02-2881-2021',website:'https://www.npm.gov.tw',features:'停車場,無障礙,餐廳',tags:'室內,文化,藝術',rating:'4.7',reviews:'3520',bg:'#FFF5E8',subCat:'museum',imageUrl:''},
+      {id:'a003',cat:'attractions',name:'台北天文科學教育館',emoji:'🔭',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'探索宇宙星辰，適合親子同遊的科學場館。',address:'台北市士林區基河路363號',lat:'25.0968',lng:'121.5241',hours:'09:00-17:00',closed:'週一',phone:'02-2831-4551',website:'https://www.tam.gov.taipei',features:'停車場,哺乳室,無障礙',tags:'室內,科學,教育',rating:'4.5',reviews:'1280',bg:'#FFFAEF',subCat:'science',imageUrl:''},
+      {id:'a004',cat:'attractions',name:'新竹市立動物園',emoji:'🐘',region:'新竹市',indoor:'FALSE',price:'free',priceLabel:'免費',desc:'台灣最老的動物園，園區充滿歷史氣息，入場免費。',address:'新竹市東區食品路',lat:'24.8064',lng:'120.9747',hours:'09:00-17:00',closed:'週一',phone:'03-522-2194',website:'',features:'停車場,無障礙',tags:'戶外,動物,免費',rating:'4.3',reviews:'980',bg:'#FFE8E8',subCat:'zoo',imageUrl:''},
+      {id:'a005',cat:'attractions',name:'野柳地質公園',emoji:'🪨',region:'新北市',indoor:'FALSE',price:'low',priceLabel:'$300以下',desc:'海蝕地形奇景，女王頭是台灣最知名地標。',address:'新北市萬里區野柳里港東路167-1號',lat:'25.2028',lng:'121.6907',hours:'08:00-17:00',closed:'無',phone:'02-2492-2016',website:'https://www.ylgeopark.org.tw',features:'停車場,餐廳',tags:'戶外,自然,熱門',rating:'4.5',reviews:'4200',bg:'#E8F5F0',subCat:'outdoor',imageUrl:''},
+      {id:'a006',cat:'attractions',name:'台中兒童美術館',emoji:'🎨',region:'台中市',indoor:'TRUE',price:'free',priceLabel:'免費',desc:'專為兒童設計的藝術互動空間，激發小朋友創意。',address:'台中市西區五權西路二段2號',lat:'24.1353',lng:'120.6659',hours:'09:00-17:00',closed:'週一',phone:'04-2372-6311',website:'',features:'無障礙,哺乳室',tags:'室內,藝術,免費',rating:'4.4',reviews:'860',bg:'#FFF5E8',subCat:'art_museum',imageUrl:''},
+    ],
+    restaurants:[
+      {id:'r001',cat:'restaurants',name:'饗食天堂',emoji:'🍱',region:'台北市',indoor:'TRUE',price:'high',priceLabel:'$500+',desc:'台灣最知名自助餐廳，食材豐富適合家庭聚餐。',address:'台北市中山區樂群三路158號',lat:'25.0838',lng:'121.5576',hours:'11:30-21:30',closed:'無',phone:'02-8501-6363',website:'https://www.gourmetworld.com.tw',features:'停車場,兒童座椅,kidseat,parking',tags:'室內,自助餐,家庭',rating:'4.4',reviews:'5600',bg:'#FFE8E8',subCat:'buffet',imageUrl:'',hasPlayarea:'FALSE',hasKidSeat:'TRUE',hasNursing:'FALSE'},
+      {id:'r002',cat:'restaurants',name:'IKEA 餐廳',emoji:'🪑',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'附設兒童遊戲區，平價美食深受親子歡迎。',address:'台北市中山區敬業四路98號',lat:'25.0827',lng:'121.5590',hours:'11:00-21:00',closed:'無',phone:'02-2533-6888',website:'https://www.ikea.com/tw',features:'兒童遊戲區,哺乳室,停車場,playarea,nursing,parking',tags:'室內,家庭,便宜',rating:'4.2',reviews:'3800',bg:'#FFF5E8',subCat:'family',imageUrl:'',hasPlayarea:'TRUE',hasKidSeat:'TRUE',hasNursing:'TRUE'},
+      {id:'r003',cat:'restaurants',name:'小食光親子餐廳',emoji:'🧸',region:'台中市',indoor:'TRUE',price:'mid',priceLabel:'$300-500',desc:'寬敞的兒童遊戲區、提供兒童餐與寶寶粥，深受媽媽好評。',address:'台中市北屯區旅順路一段99號',lat:'24.1648',lng:'120.6878',hours:'11:00-21:00',closed:'週二',phone:'04-2234-5678',website:'',features:'兒童遊戲區,兒童座椅,哺乳室,停車場,playarea,kidseat,nursing,parking',tags:'室內,親子,兒童餐',rating:'4.6',reviews:'1240',bg:'#FFE8E8',subCat:'family',imageUrl:'',hasPlayarea:'TRUE',hasKidSeat:'TRUE',hasNursing:'TRUE'},
+    ],
+    shopping:[
+      {id:'s001',cat:'shopping',name:'誠品生活松菸',emoji:'📚',region:'台北市',indoor:'TRUE',price:'mid',priceLabel:'$300-500',desc:'文創複合商場，書店餐廳精品一應俱全。',address:'台北市信義區菸廠路88號',lat:'25.0443',lng:'121.5609',hours:'11:00-22:00',closed:'無',phone:'02-6636-5888',website:'https://www.esliteliving.com',features:'停車場,無障礙,餐廳',tags:'室內,文創,書店',rating:'4.6',reviews:'6800',bg:'#FFFAEF',imageUrl:''},
+      {id:'s002',cat:'shopping',name:'台北101購物中心',emoji:'🏙️',region:'台北市',indoor:'TRUE',price:'high',priceLabel:'$500+',desc:'台灣地標，國際精品雲集，觀景台視野絕佳。',address:'台北市信義區市府路45號',lat:'25.0336',lng:'121.5645',hours:'11:00-21:30',closed:'無',phone:'02-8101-8800',website:'https://www.taipei-101.com.tw',features:'停車場,無障礙,餐廳',tags:'室內,精品,地標',rating:'4.4',reviews:'12000',bg:'#FFFAEF',imageUrl:''},
+    ],
+    accommodation:[
+      {id:'ac001',cat:'accommodation',name:'礁溪老爺大酒店',emoji:'♨️',region:'宜蘭縣',indoor:'TRUE',price:'high',priceLabel:'$500+',desc:'礁溪溫泉度假，每房附湯，親子設施完善。',address:'宜蘭縣礁溪鄉五峰路69號',lat:'24.6710',lng:'121.7740',hours:'全天',closed:'無',phone:'03-988-9988',website:'https://www.hotelroyal.com.tw',features:'溫泉,游泳池,停車場',tags:'溫泉,度假,親子',rating:'4.7',reviews:'4500',bg:'#EDE8F5',imageUrl:'',bookingUrl:'https://www.booking.com'},
+    ],
+    medical:[
+      {id:'m001',cat:'medical',name:'台大兒童醫院',emoji:'👶',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'台灣頂尖兒童醫療，全方位兒童健康服務。',address:'台北市中正區中山南路8號',lat:'25.0434',lng:'121.5313',hours:'08:00-17:00',closed:'週六、日',phone:'02-2312-3456',website:'https://www.ntuh.gov.tw',features:'停車場,無障礙,哺乳室',tags:'兒科,急診,醫學中心',rating:'4.6',reviews:'3200',bg:'#E8F5F0',imageUrl:'',is24h:'FALSE'},
+    ],
+  };
+  CATS.forEach(c=>{data[c]=demo[c]||[];});
+  updatePool();
+  CATS.forEach(c=>{if(currentPage===c) renderList(c);});
+}
+
+// ══════════════════════════════════════════════
+// LOAD SHEET
+// ══════════════════════════════════════════════
+async function loadSheet(cat){
+  const el=document.getElementById('list-'+cat);
+  if(el) el.innerHTML=`<div class="lw"><div class="spin"></div><div style="font-size:13px;color:var(--text-tertiary)">載入中...</div></div>`;
+  try{
+    const r=await fetch(SHEETS_URL(cat));if(!r.ok)throw 0;
+    const rows=parseCSV(await r.text()).filter(x=>x.name&&x.id&&x.visible!=='FALSE');
+    data[cat]=rows;if(currentPage===cat)renderList(cat);updatePool();
+  }catch(e){
+    if(el) el.innerHTML=`<div class="nr"><div class="ne">⚠️</div><p>載入失敗，請確認 Google Sheets 已公開</p></div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function goPage(page){
+  document.getElementById('page-'+currentPage).classList.remove('active');
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.page===page));
+  currentPage=page;
+  if(page==='favorites') renderFavorites();
+  else if(CATS.includes(page)){
+    if(data[page].length===0) loadSheet(page); else renderList(page);
+  }
+}
+
+// ══════════════════════════════════════════════
+// FILTER LOGIC
+// ══════════════════════════════════════════════
+function matchFeat(item, feat){
+  const f=(item.features||'').toLowerCase();
+  if(feat==='playarea')   return item.hasPlayarea==='TRUE'||f.includes('playarea')||f.includes('遊戲區');
+  if(feat==='kidseat')    return item.hasKidSeat==='TRUE'||f.includes('kidseat')||f.includes('兒童座椅');
+  if(feat==='kidmeal')    return f.includes('kidmeal')||f.includes('兒童餐')||f.includes('寶寶粥');
+  if(feat==='kidcutlery') return f.includes('kidcutlery')||f.includes('兒童餐具');
+  if(feat==='nursing')    return item.hasNursing==='TRUE'||f.includes('nursing')||f.includes('哺乳');
+  if(feat==='parking')    return f.includes('parking')||f.includes('停車');
+  return true;
+}
+function getFiltered(cat){
+  const srch=(document.getElementById('search-'+cat)||{value:''}).value.toLowerCase();
+  const cf=F[cat];
+  return (data[cat]||[]).filter(x=>{
+    if(cf.regions.length&&!cf.regions.includes(x.region))return false;
+    if(srch&&!(x.name+x.tags+x.desc+x.region).toLowerCase().includes(srch))return false;
+    if(cat==='attractions'&&cf.subCats.length&&!cf.subCats.includes(x.subCat))return false;
+    if(cat==='restaurants'&&cf.feats.length&&!cf.feats.every(f=>matchFeat(x,f)))return false;
+    if(isGPS&&userLocation&&cf.distance<80){
+      if(haversine(userLocation.lat,userLocation.lng,+x.lat,+x.lng)>cf.distance)return false;
+    }
+    return true;
+  }).map(x=>{
+    if(isGPS&&userLocation) x._d=haversine(userLocation.lat,userLocation.lng,+x.lat,+x.lng);
+    return x;
+  }).sort((a,b)=>(a._d??999)-(b._d??999));
+}
+
+// ══════════════════════════════════════════════
+// RENDER LIST
+// ══════════════════════════════════════════════
+function renderList(cat){
+  const el=document.getElementById('list-'+cat);
+  const items=getFiltered(cat);
+  el.innerHTML=items.length?items.map(cardHTML).join(''):`<div class="nr"><div class="ne">🔍</div><p>沒有找到符合條件的地點</p></div>`;
+  renderFR(cat);
+}
+
+function cardHTML(item){
+  const isFav=favorites.includes(item.id);
+  const cat=item.cat||'';
+  const bg=item.bg||(CAT_INFO[cat]?.bg)||'#F0F0F0';
+  const tags=(item.tags||'').split(',').filter(Boolean).slice(0,2);
+  const dist=item._d!==undefined?`<span class="ld">📍${item._d.toFixed(1)}km</span>`:'';
+  // list always shows category icon (no photo per spec)
+  return `<div class="lc" onclick="goDetail('${item.id}','${cat}')">
+    <div class="lc-icon" style="background:${bg}">${item.emoji||'📍'}</div>
+    <div class="lc-body">
+      <h3>${item.name}</h3>
+      <p>${item.desc||''}</p>
+      <div class="lc-meta">
+        <span class="lp">${item.priceLabel||''}</span>
+        ${tags.map(t=>`<span class="lt">${t}</span>`).join('')}
+        ${item.region?`<span class="lt">${item.region}</span>`:''}
+        ${dist}
+      </div>
+    </div>
+    <div class="lc-right">
+      <button class="fb ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${item.id}',this)">${isFav?'❤️':'🤍'}</button>
+      ${item.rating?`<div style="font-size:11px;color:#F4B942;font-weight:700">★${item.rating}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderFR(cat){
+  const el=document.getElementById('fr-'+cat);if(!el)return;
+  const cf=F[cat];
+  const active=[];
+  cf.regions.forEach(r=>active.push({l:'📍'+r,k:'r_'+r}));
+  if(cat==='attractions') cf.subCats.forEach(s=>{const o=ATT_TYPES.find(x=>x.v===s);if(o)active.push({l:o.l,k:'s_'+s});});
+  if(cat==='restaurants') cf.feats.forEach(f=>{const o=REST_FEATS.find(x=>x.v===f);if(o)active.push({l:o.l,k:'f_'+f});});
+  el.innerHTML=`<div class="chip ${active.length?'':'active'}" onclick="clearFilters()">全部</div>`
+    +active.map(a=>`<div class="chip active" onclick="rmChip('${cat}','${a.k}')">${a.l} ✕</div>`).join('')
+    +`<div class="chip" onclick="openFilter('${cat}')">＋ 篩選</div>`;
+}
+function rmChip(cat,k){
+  const cf=F[cat];
+  if(k.startsWith('r_')) cf.regions=cf.regions.filter(v=>v!==k.slice(2));
+  if(k.startsWith('s_')) cf.subCats=cf.subCats.filter(v=>v!==k.slice(2));
+  if(k.startsWith('f_')) cf.feats=cf.feats.filter(v=>v!==k.slice(2));
+  renderList(cat);
+}
+function filterList(cat){clearTimeout(searchTimers[cat]);searchTimers[cat]=setTimeout(()=>renderList(cat),200);}
+
+// ══════════════════════════════════════════════
+// DETAIL
+// ══════════════════════════════════════════════
+function goDetail(id,cat){
+  const item=(cat?data[cat]:CATS.reduce((a,c)=>a.concat(data[c]),[])).find(x=>x.id===id);
+  if(!item)return;currentDetail=item;
+  const hero=document.getElementById('dhr');
+  const emo=document.getElementById('dhe');
+  hero.querySelectorAll('img').forEach(i=>i.remove());
+  if(item.imageUrl&&item.imageUrl.trim()){
+    const img=document.createElement('img');img.src=item.imageUrl.trim();
+    img.onerror=()=>{img.remove();emo.style.display='';};
+    hero.appendChild(img);emo.style.display='none';
+  } else {emo.style.display='';emo.textContent=item.emoji||'📍';}
+  hero.style.background=item.bg||(CAT_INFO[item.cat||'']?.bg)||'#F0EDE8';
+
+  const fv=document.getElementById('dfv');
+  const isFav=favorites.includes(item.id);
+  fv.textContent=isFav?'❤️':'🤍';fv.classList.toggle('on',isFav);
+
+  const ci=CAT_INFO[item.cat]||{};
+  const tags=(item.tags||'').split(',').filter(Boolean);
+  const feats=(item.features||'').split(',').filter(Boolean).filter(f=>!['playarea','kidseat','kidmeal','kidcutlery','nursing','parking'].includes(f));
+  const rat=item.rating?`<div class="rrow"><span class="stars">${'★'.repeat(Math.round(+item.rating))}${'☆'.repeat(5-Math.round(+item.rating))}</span><span style="font-size:14px;font-weight:700">${item.rating}</span>${item.reviews?`<span style="font-size:12px;color:var(--text-tertiary)">(${item.reviews}則)</span>`:''}</div>`:'';
+  const dist=item._d!==undefined?`<br><span style="font-size:12px;color:var(--text-tertiary)">📍 距離約 ${item._d.toFixed(1)} km</span>`:'';
+
+  document.getElementById('dbd').innerHTML=`
+    <h1>${item.name}</h1>${rat}
+    <div class="dtgs">
+      ${ci.label?`<div class="dtag">${ci.emoji||''} ${ci.label}</div>`:''}
+      ${item.priceLabel?`<div class="dtag dpx">💰 ${item.priceLabel}</div>`:''}
+      ${item.indoor==='TRUE'?'<div class="dtag">🏠 室內</div>':item.indoor==='FALSE'?'<div class="dtag">🌿 戶外</div>':''}
+      ${tags.map(t=>`<div class="dtag">${t}</div>`).join('')}
+    </div>
+    <div class="ddsc"><p>${item.desc||'暫無簡介'}</p></div>
+    <div class="dir"><div class="diic">📍</div><div class="dic"><div class="dlb">地址</div><div class="dvl">${item.address||'—'}${dist}</div></div></div>
+    <div class="dir"><div class="diic">⏰</div><div class="dic"><div class="dlb">營業時間</div><div class="dvl">${item.hours||'—'}${item.closed?' ｜ 公休：'+item.closed:''}</div></div></div>
+    ${item.phone?`<div class="dir"><div class="diic">📞</div><div class="dic"><div class="dlb">電話</div><a class="dvl" href="tel:${item.phone}">${item.phone}</a></div></div>`:''}
+    ${item.region?`<div class="dir"><div class="diic">🗺️</div><div class="dic"><div class="dlb">縣市</div><div class="dvl">${item.region}</div></div></div>`:''}
+    ${feats.length?`<div class="dfeat"><h3>設施</h3><div class="fcw">${feats.map(f=>`<div class="fchip">${f}</div>`).join('')}</div></div>`:''}
+    ${item.bookingUrl?`<div style="margin-top:16px"><a href="${item.bookingUrl}" target="_blank" class="btn btn-coral" style="display:block;text-decoration:none;text-align:center;padding:14px">🏨 立即訂房</a></div>`:''}
+  `;
+  document.getElementById('dp').classList.add('open');
+}
+function closeDetail(){document.getElementById('dp').classList.remove('open');}
+function openMap(){if(!currentDetail)return;const q=currentDetail.lat&&currentDetail.lng?`${currentDetail.lat},${currentDetail.lng}`:encodeURIComponent(currentDetail.address||currentDetail.name);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank');}
+function openWebsite(){if(!currentDetail)return;const u=currentDetail.website||currentDetail.bookingUrl;u?window.open(u,'_blank'):showToast('此地點尚未提供官方網站');}
+function copyAddr(){if(!currentDetail)return;navigator.clipboard?.writeText(currentDetail.address||currentDetail.name).then(()=>showToast('✅ 已複製地址')).catch(()=>showToast('📋 '+currentDetail.address));}
+function toggleFavDetail(){if(!currentDetail)return;toggleFavById(currentDetail.id);const isFav=favorites.includes(currentDetail.id);const b=document.getElementById('dfv');b.textContent=isFav?'❤️':'🤍';b.classList.toggle('on',isFav);}
+
+// ══════════════════════════════════════════════
+// FAVORITES
+// ══════════════════════════════════════════════
+function loadFavs(){try{return JSON.parse(localStorage.getItem('zou_favorites')||'[]');}catch(e){return[];}}
+function saveFavs(){localStorage.setItem('zou_favorites',JSON.stringify(favorites));}
+function toggleFavById(id){const i=favorites.indexOf(id);if(i===-1){favorites.push(id);showToast('❤️ 已加入收藏');}else{favorites.splice(i,1);showToast('移除收藏');}saveFavs();}
+function toggleFav(id,btn){toggleFavById(id);const on=favorites.includes(id);btn.textContent=on?'❤️':'🤍';btn.classList.toggle('on',on);if(currentPage==='favorites')renderFavorites();}
+function renderFavorites(){
+  const el=document.getElementById('list-favorites');
+  if(!favorites.length){el.innerHTML=`<div class="empty-st"><div class="ee">🤍</div><h3>還沒有收藏</h3><p>瀏覽地點時點擊 🤍 即可加入</p></div>`;return;}
+  const all=CATS.reduce((a,c)=>a.concat(data[c]),[]);
+  const items=favorites.map(id=>all.find(x=>x.id===id)).filter(Boolean);
+  el.innerHTML=items.length?items.map(cardHTML).join(''):`<div class="lw"><div class="spin"></div></div>`;
+}
+
+// ══════════════════════════════════════════════
+// SLOT MACHINE – 只抽 景點+餐廳+購物
+// ══════════════════════════════════════════════
+function updatePool(){randomPool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);}
+
+function startDraw(){
+  const pool=randomPool.length?randomPool:Object.values(data).flat();
+  if(!pool.length){showToast('資料載入中，請稍後再試');return;}
+  document.getElementById('rcw').classList.remove('show');
+  document.getElementById('daw').classList.remove('show');
+  const drum=document.getElementById('slot-drum');drum.classList.add('show');
+  const winner=pool[Math.floor(Math.random()*pool.length)];drawnPlace=winner;
+  const items=[...Array(12)].map(()=>pool[Math.floor(Math.random()*pool.length)]);items.push(winner);
+  const inner=document.getElementById('slot-inner');
+  inner.style.transition='none';inner.style.transform='translateY(0)';
+  inner.innerHTML=items.map(p=>`<div class="sit"><div class="sit-ic">${p.emoji||'📍'}</div><div><div class="sit-nm">${p.name}</div><div class="sit-cy">${p.region||''}</div></div></div>`).join('');
+  const tot=items.length-1;let cnt=0,spd=30;clearInterval(slotTimer);
+  slotTimer=setInterval(()=>{
+    cnt++;inner.style.transition=`transform ${spd/1000}s linear`;inner.style.transform=`translateY(-${cnt*60}px)`;
+    if(cnt<tot-4)spd=30;else spd=Math.min(spd+40,300);
+    if(cnt>=tot){clearInterval(slotTimer);setTimeout(showResult,400);}
+  },spd);
+}
+
+function showResult(){
+  const p=drawnPlace;if(!p)return;
+  const cat=p.cat||'attractions';const info=CAT_INFO[cat]||{};const bg=p.bg||info.bg||'#F8D7D7';
+  const tags=(p.tags||'').split(',').filter(Boolean);
+  document.getElementById('slot-drum').classList.remove('show');
+  const banner=document.getElementById('rcb');
+  banner.style.background=bg;
+  if(p.imageUrl&&p.imageUrl.trim()){
+    banner.innerHTML=`<img src="${p.imageUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.remove()"><span class="rcb-em">${p.emoji||'📍'}</span>`;
+  } else {
+    banner.innerHTML=`<span class="rcb-em">${p.emoji||'📍'}</span>`;
+  }
+  document.getElementById('rcbg').innerHTML=
+    `<span class="rcbadge rb-rose">${info.label||cat}</span>`+
+    (p.indoor==='TRUE'?'<span class="rcbadge rb-stone">室內</span>':p.indoor==='FALSE'?'<span class="rcbadge rb-stone">戶外</span>':'')+
+    (p.priceLabel?`<span class="rcbadge rb-lav">${p.priceLabel}</span>`:'');
+  document.getElementById('rcn').textContent=p.name;
+  document.getElementById('rcy').textContent=`📍 ${p.region||''}`;
+  document.getElementById('rctg').innerHTML=tags.map(t=>`<span class="rctag">${t}</span>`).join('');
+  document.getElementById('rcmap').onclick=()=>{const q=p.lat&&p.lng?`${p.lat},${p.lng}`:encodeURIComponent(p.address||p.name);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank');};
+  document.getElementById('rcw').classList.add('show');
+  document.getElementById('daw').classList.add('show');
+}
+function openDetailFromResult(){if(drawnPlace)goDetail(drawnPlace.id,drawnPlace.cat);}
+
+// ══════════════════════════════════════════════
+// FILTER MODAL – per category
+// ══════════════════════════════════════════════
+function openFilter(cat){
+  filterCat=cat;
+  const cf=F[cat];
+  const titles={attractions:'🏞️ 景點篩選',restaurants:'🍽️ 餐廳篩選',shopping:'🛍️ 購物篩選',accommodation:'🏨 住宿篩選',medical:'🏥 醫療篩選'};
+  document.getElementById('fmo-title').textContent=titles[cat]||'篩選';
+  let html='';
+  // GPS
+  html+=`<div class="msc"><div class="mst"><div class="sd-dot" style="background:var(--mint-dark)"></div>定位距離篩選</div>
+    <div class="gpsbtn ${isGPS?'on':''}" onclick="reqGPS()"><span>📍</span><span id="gpslbl">${isGPS?'✅ 已定位 · 按距離排序':'啟用定位（按距離排序）'}</span></div>
+    <div id="gpsdist" style="display:${isGPS?'block':'none'}">
+      <input type="range" id="distslider" min="5" max="80" value="${cf.distance||80}" oninput="onDist(this.value,'${cat}')">
+      <div class="rl"><span>5km</span><span id="distval">${cf.distance||80}km 以內</span><span>80km</span></div>
+    </div>
+  </div>`;
+  // Type filter – attractions
+  if(cat==='attractions'){
+    html+=`<div class="msc"><div class="mst"><div class="sd-dot"></div>景點類型（可多選）</div>
+      <div class="cw">${ATT_TYPES.map(o=>`<div class="chip ${cf.subCats.includes(o.v)?'active':''}" onclick="toggleType(this,'${cat}','${o.v}')">${o.l}</div>`).join('')}</div>
+    </div>`;
+  }
+  // Feature filter – restaurants
+  if(cat==='restaurants'){
+    html+=`<div class="msc"><div class="mst"><div class="sd-dot"></div>餐廳特色（可多選）</div>
+      <div class="cw">${REST_FEATS.map(o=>`<div class="chip ${cf.feats.includes(o.v)?'active':''}" onclick="toggleFeat(this,'${cat}','${o.v}')">${o.l}</div>`).join('')}</div>
+    </div>`;
+  }
+  // Region – all
+  html+=`<div class="msc"><div class="mst"><div class="sd-dot" style="background:var(--tan-dark)"></div>地區（可多選）</div>
+    <div class="cw">${REGIONS.map(r=>`<div class="chip ${cf.regions.includes(r)?'active':''}" onclick="toggleReg(this,'${cat}','${r}')">${r}</div>`).join('')}</div>
+  </div>`;
+  document.getElementById('fmo-body').innerHTML=html;
+  updateFC();
+  document.getElementById('fmo').classList.add('open');
+}
+function handleOverlayClick(e){if(e.target.id==='fmo')applyFilters();}
+function toggleType(el,cat,v){el.classList.toggle('active');const cf=F[cat];if(el.classList.contains('active')){if(!cf.subCats.includes(v))cf.subCats.push(v);}else cf.subCats=cf.subCats.filter(x=>x!==v);updateFC();}
+function toggleFeat(el,cat,v){el.classList.toggle('active');const cf=F[cat];if(el.classList.contains('active')){if(!cf.feats.includes(v))cf.feats.push(v);}else cf.feats=cf.feats.filter(x=>x!==v);updateFC();}
+function toggleReg(el,cat,r){el.classList.toggle('active');const cf=F[cat];if(el.classList.contains('active')){if(!cf.regions.includes(r))cf.regions.push(r);}else cf.regions=cf.regions.filter(x=>x!==r);updateFC();}
+function onDist(v,cat){F[cat].distance=+v;document.getElementById('distval').textContent=v+'km 以內';updateFC();}
+function updateFC(){document.getElementById('fcb').textContent=`找到 ${getFiltered(filterCat).length} 個`;}
+function clearFilters(cat){const c=cat||filterCat;F[c]={regions:[],subCats:[],feats:[],distance:80};document.getElementById('fmo').classList.remove('open');renderList(c);}
+function applyFilters(){document.getElementById('fmo').classList.remove('open');renderList(filterCat);}
+
+// ══════════════════════════════════════════════
+// GPS
+// ══════════════════════════════════════════════
+function reqGPS(){
+  if(!navigator.geolocation){showToast('此裝置不支援定位');return;}
+  showToast('📍 定位中...');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};isGPS=true;
+    localStorage.setItem('zou_gps',JSON.stringify({...userLocation,ts:Date.now()}));
+    showToast('✅ 定位成功！已按距離排序');
+    const lbl=document.getElementById('gpslbl');if(lbl)lbl.textContent='✅ 已定位 · 按距離排序';
+    const gb=document.querySelector('.gpsbtn');if(gb)gb.classList.add('on');
+    const gd=document.getElementById('gpsdist');if(gd)gd.style.display='block';
+    if(CATS.includes(currentPage))renderList(currentPage);updatePool();
+  },()=>showToast('定位失敗，請允許位置存取'));
+}
+function requestGPS(){reqGPS();}
+function haversine(a,b,c,d){if(isNaN(c)||isNaN(d))return 999;const R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;const x=Math.sin(dl/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+
+// TOAST
+let tT;function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('show'),2200);}
+
+// INIT
+window.addEventListener('DOMContentLoaded',()=>{
+  try{const s=JSON.parse(localStorage.getItem('zou_gps')||'null');if(s&&Date.now()-s.ts<3600000){userLocation={lat:s.lat,lng:s.lng};isGPS=true;}}catch(e){}
+  try{favorites=JSON.parse(localStorage.getItem('zou_favorites')||'[]');}catch(e){}
+  loadDemoData();
+  let ok=false;const fb=setTimeout(()=>{if(!ok)loadDemoData();},5000);
+  Promise.all(CATS.map(cat=>
+    fetch(SHEETS_URL(cat)).then(r=>{if(!r.ok)throw 0;return r.text();})
+    .then(txt=>{const rows=parseCSV(txt).filter(x=>x.name&&x.id&&x.visible!=='FALSE');if(rows.length){data[cat]=rows;ok=true;}}).catch(()=>{})
+  )).then(()=>{clearTimeout(fb);if(ok){updatePool();if(CATS.includes(currentPage))renderList(currentPage);}});
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('dp').classList.contains('open'))closeDetail();
+    else if(document.getElementById('fmo').classList.contains('open'))applyFilters();
+  }
+});
+</script>
+</body>
+</html>
