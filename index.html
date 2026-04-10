@@ -231,6 +231,43 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .nr p{font-size:14px;color:var(–text-tertiary);}
 #toast{position:fixed;bottom:calc(var(–nav-h) + var(–safe-b) + 16px);left:50%;transform:translateX(-50%) translateY(12px);background:#333;color:white;font-size:13px;font-weight:500;padding:10px 20px;border-radius:var(–r-xl);z-index:1000;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── HOME SECTIONS ── */
+.home-sec{padding:20px 20px 4px;display:flex;align-items:center;justify-content:space-between;}
+.home-sec-title{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+.home-sec-more{font-size:12px;color:var(–coral-dark);font-weight:600;cursor:pointer;padding:4px 0;}
+
+/* 精選橫向卡片 */
+.home-hscroll{display:flex;gap:12px;padding:8px 20px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.home-hscroll::-webkit-scrollbar{display:none;}
+.hcard{flex-shrink:0;width:160px;background:white;border-radius:var(–r-xl);box-shadow:var(–sh-sm);overflow:hidden;cursor:pointer;transition:.15s;}
+.hcard:active{transform:scale(.97);}
+.hcard-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden;}
+.hcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.hcard-img-em{position:relative;z-index:1;}
+.hcard-body{padding:10px 12px 12px;}
+.hcard-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.hcard-meta{display:flex;align-items:center;gap:5px;}
+.hcard-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(–divider);color:var(–text-secondary);white-space:nowrap;}
+.hcard-price{font-size:10px;font-weight:600;color:var(–coral-dark);}
+
+/* 收藏預覽 */
+.fav-preview-wrap{padding:0 20px 20px;}
+.fav-preview-empty{background:white;border-radius:var(–r-xl);padding:20px;display:flex;align-items:center;gap:14px;box-shadow:var(–sh-sm);}
+.fav-preview-empty .fpe-icon{font-size:32px;flex-shrink:0;}
+.fav-preview-empty .fpe-text h4{font-size:14px;font-weight:700;margin-bottom:2px;}
+.fav-preview-empty .fpe-text p{font-size:12px;color:var(–text-tertiary);line-height:1.5;}
+.fav-mini-scroll{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.fav-mini-scroll::-webkit-scrollbar{display:none;}
+.fav-mini-card{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
+.fav-mini-icon{width:56px;height:56px;border-radius:var(–r-lg);display:flex;align-items:center;justify-content:center;font-size:26px;}
+.fav-mini-name{font-size:10px;font-weight:600;color:var(–text-secondary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+
+/* 天氣/心情提示條 */
+.home-tip{margin:0 20px 16px;background:white;border-radius:var(–r-xl);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(–sh-sm);border-left:4px solid var(–coral);}
+.home-tip .tip-icon{font-size:24px;flex-shrink:0;}
+.home-tip .tip-text{font-size:13px;line-height:1.5;color:var(–text-secondary);}
+.home-tip .tip-text b{color:var(–text-primary);font-weight:700;}
 </style>
 
 </head>
@@ -241,36 +278,68 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 
 <div class="page active" id="page-home">
   <div class="scroll-area">
-    <div class="hhb">
-      <span class="hb">🗺️</span>
-      <div class="ht">走走，準備好出發了嗎？</div>
-      <div class="hs">抽一個育兒好去處 ✨</div>
-      <button class="dmb" onclick="startDraw()">🎲 出發٩(*•̀ᴗ•́*)و</button>
-    </div>
-    <div class="sa">
-      <div class="sd" id="slot-drum">
-        <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
-        <div class="si" id="slot-inner"></div>
-      </div>
-      <div class="rcw" id="rcw">
-        <div class="rcard" onclick="openDetailFromResult()">
-          <div class="rcb" id="rcb"></div>
-          <div class="rcc">
-            <div class="rcbg" id="rcbg"></div>
-            <div class="rcn" id="rcn"></div>
-            <div class="rcy" id="rcy"></div>
-            <div class="rctg" id="rctg"></div>
-            <div class="rca">
-              <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
-              <button class="rcbtn rcbtn-more">📖 查看詳情</button>
-            </div>
-          </div>
+
+```
+<!-- Hero Banner -->
+<div class="hhb">
+  <span class="hb">🗺️</span>
+  <div class="ht">走走～準備好出發了嗎？</div>
+  <div class="hs">抽一個育兒好去處 ✨</div>
+  <button class="dmb" onclick="startDraw()">🎲 出發٩(*•̀ᴗ•́*)و</button>
+</div>
+
+<!-- Slot + Result (hidden until draw) -->
+<div class="sa">
+  <div class="sd" id="slot-drum">
+    <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
+    <div class="si" id="slot-inner"></div>
+  </div>
+  <div class="rcw" id="rcw">
+    <div class="rcard" onclick="openDetailFromResult()">
+      <div class="rcb" id="rcb"></div>
+      <div class="rcc">
+        <div class="rcbg" id="rcbg"></div>
+        <div class="rcn" id="rcn"></div>
+        <div class="rcy" id="rcy"></div>
+        <div class="rctg" id="rctg"></div>
+        <div class="rca">
+          <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
+          <button class="rcbtn rcbtn-more">📖 查看詳情</button>
         </div>
       </div>
-      <div class="daw" id="daw">
-        <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
-      </div>
     </div>
+  </div>
+  <div class="daw" id="daw">
+    <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
+  </div>
+</div>
+
+<!-- Pre-draw sections (hidden after draw) -->
+<div id="home-pre-content">
+
+  <!-- Tip bar -->
+  <div class="home-tip" id="home-tip">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text">不知道去哪？<b>點上面幫我抽一張！</b><br>也可以直接逛各分類 👇</div>
+  </div>
+
+  <!-- 今日精選 -->
+  <div class="home-sec">
+    <div class="home-sec-title">⭐ 今日精選</div>
+    <div class="home-sec-more" onclick="goPage('attractions')">更多 →</div>
+  </div>
+  <div class="home-hscroll" id="home-featured"></div>
+
+  <!-- 我的收藏 -->
+  <div class="home-sec">
+    <div class="home-sec-title">❤️ 我的收藏</div>
+    <div class="home-sec-more" onclick="goPage('favorites')">全部 →</div>
+  </div>
+  <div class="fav-preview-wrap" id="home-fav-preview"></div>
+
+</div>
+```
+
   </div>
 </div>
 
@@ -471,6 +540,7 @@ function loadDemoData(){
   CATS.forEach(c=>{data[c]=demo[c]||[];});
   updatePool();
   CATS.forEach(c=>{if(currentPage===c) renderList(c);});
+  if(currentPage==='home') renderHomePage();
 }
 
 // ══════════════════════════════════════════════
@@ -497,6 +567,15 @@ function goPage(page){
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.page===page));
   currentPage=page;
   if(page==='favorites') renderFavorites();
+  else if(page==='home'){
+    // reset: show pre-draw content, hide slot results
+    const pre=document.getElementById('home-pre-content');
+    if(pre) pre.style.display='';
+    document.getElementById('rcw').classList.remove('show');
+    document.getElementById('daw').classList.remove('show');
+    document.getElementById('slot-drum').classList.remove('show');
+    renderHomePage();
+  }
   else if(CATS.includes(page)){
     if(data[page].length===0) loadSheet(page); else renderList(page);
   }
@@ -645,7 +724,7 @@ function toggleFavDetail(){if(!currentDetail)return;toggleFavById(currentDetail.
 function loadFavs(){try{return JSON.parse(localStorage.getItem('zou_favorites')||'[]');}catch(e){return[];}}
 function saveFavs(){localStorage.setItem('zou_favorites',JSON.stringify(favorites));}
 function toggleFavById(id){const i=favorites.indexOf(id);if(i===-1){favorites.push(id);showToast('❤️ 已加入收藏');}else{favorites.splice(i,1);showToast('移除收藏');}saveFavs();}
-function toggleFav(id,btn){toggleFavById(id);const on=favorites.includes(id);btn.textContent=on?'❤️':'🤍';btn.classList.toggle('on',on);if(currentPage==='favorites')renderFavorites();}
+function toggleFav(id,btn){toggleFavById(id);const on=favorites.includes(id);btn.textContent=on?'❤️':'🤍';btn.classList.toggle('on',on);if(currentPage==='favorites')renderFavorites();renderHomeFavPreview();}
 function renderFavorites(){
   const el=document.getElementById('list-favorites');
   if(!favorites.length){el.innerHTML=`<div class="empty-st"><div class="ee">🤍</div><h3>還沒有收藏</h3><p>瀏覽地點時點擊 🤍 即可加入</p></div>`;return;}
@@ -655,13 +734,78 @@ function renderFavorites(){
 }
 
 // ══════════════════════════════════════════════
+// HOME PAGE SECTIONS
+// ══════════════════════════════════════════════
+function renderHomePage(){
+  renderHomeFeatured();
+  renderHomeFavPreview();
+}
+
+function renderHomeFeatured(){
+  const el=document.getElementById('home-featured');
+  if(!el)return;
+  // pick up to 6 items with highest rating from attractions+restaurants+shopping
+  const pool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);
+  if(!pool.length){el.innerHTML='<div style="padding:8px;font-size:13px;color:var(--text-tertiary)">資料載入中...</div>';return;}
+  const picks=[...pool].sort((a,b)=>(+b.rating||0)-(+a.rating||0)).slice(0,6);
+  el.innerHTML=picks.map(p=>{
+    const bg=p.bg||(CAT_INFO[p.cat||'']?.bg)||'#F0EDE8';
+    const tags=(p.tags||'').split(',').filter(Boolean).slice(0,1);
+    const imgHtml=p.imageUrl&&p.imageUrl.trim()
+      ?`<img src="${p.imageUrl}" onerror="this.remove()"><span class="hcard-img-em">${p.emoji||'📍'}</span>`
+      :`<span class="hcard-img-em">${p.emoji||'📍'}</span>`;
+    return `<div class="hcard" onclick="goDetail('${p.id}','${p.cat}')">
+      <div class="hcard-img" style="background:${bg}">${imgHtml}</div>
+      <div class="hcard-body">
+        <div class="hcard-name">${p.name}</div>
+        <div class="hcard-meta">
+          <span class="hcard-price">${p.priceLabel||''}</span>
+          ${tags.map(t=>`<span class="hcard-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHomeFavPreview(){
+  const el=document.getElementById('home-fav-preview');
+  if(!el)return;
+  if(!favorites.length){
+    el.innerHTML=`<div class="fav-preview-empty">
+      <div class="fpe-icon">🤍</div>
+      <div class="fpe-text">
+        <h4>還沒有收藏</h4>
+        <p>逛景點、餐廳時按 🤍<br>加入你的最愛清單</p>
+      </div>
+    </div>`;
+    return;
+  }
+  const all=CATS.reduce((a,c)=>a.concat(data[c]),[]);
+  const items=favorites.slice(0,8).map(id=>all.find(x=>x.id===id)).filter(Boolean);
+  if(!items.length){
+    el.innerHTML=`<div class="fav-preview-empty"><div class="fpe-icon">🤍</div><div class="fpe-text"><h4>收藏載入中</h4><p>稍候即可看到你的收藏</p></div></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="fav-mini-scroll">${items.map(p=>{
+    const bg=p.bg||(CAT_INFO[p.cat||'']?.bg)||'#F0EDE8';
+    return `<div class="fav-mini-card" onclick="goDetail('${p.id}','${p.cat}')">
+      <div class="fav-mini-icon" style="background:${bg}">${p.emoji||'📍'}</div>
+      <div class="fav-mini-name">${p.name}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════
 // SLOT MACHINE – 只抽 景點+餐廳+購物
 // ══════════════════════════════════════════════
-function updatePool(){randomPool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);}
+function updatePool(){randomPool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);renderHomeFeatured();}
 
 function startDraw(){
   const pool=randomPool.length?randomPool:Object.values(data).flat();
   if(!pool.length){showToast('資料載入中，請稍後再試');return;}
+  // hide pre-draw content, keep hidden after that
+  const pre=document.getElementById('home-pre-content');
+  if(pre) pre.style.display='none';
   document.getElementById('rcw').classList.remove('show');
   document.getElementById('daw').classList.remove('show');
   const drum=document.getElementById('slot-drum');drum.classList.add('show');
@@ -780,7 +924,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   Promise.all(CATS.map(cat=>
     fetch(SHEETS_URL(cat)).then(r=>{if(!r.ok)throw 0;return r.text();})
     .then(txt=>{const rows=parseCSV(txt).filter(x=>x.name&&x.id&&x.visible!=='FALSE');if(rows.length){data[cat]=rows;ok=true;}}).catch(()=>{})
-  )).then(()=>{clearTimeout(fb);if(ok){updatePool();if(CATS.includes(currentPage))renderList(currentPage);}});
+  )).then(()=>{clearTimeout(fb);if(ok){updatePool();if(CATS.includes(currentPage))renderList(currentPage);if(currentPage==='home')renderHomePage();}});
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
