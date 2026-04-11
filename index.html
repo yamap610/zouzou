@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-
 <!-- 走走 App | 上傳到 GitHub Pages 時：
      請在 repo 根目錄建立 _config.yml 檔案，內容填入：
      exclude: []
      這樣 GitHub 就不會用 Jekyll 處理 HTML，避免頂部出現 ``` 符號。
      或：在 repo 根目錄建立空白的 .nojekyll 檔案即可解決。 -->
-
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -13,6 +11,15 @@
 <title>走走 👣 你的育兒好去處</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+<style>
+/* MynaUI icon wrapper */
+.micon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.micon .iconify{display:block;}
+/* coloured icon circle for nav */
+.ni-wrap{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;}
+/* page header icon circle */
+.ph-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 <style>
 :root{
   --bg:#FFFDF6;--text-primary:#333333;--text-secondary:#666666;--text-tertiary:#999999;
@@ -31,72 +38,82 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .page{display:none;flex-direction:column;flex:1;overflow:hidden;}
 .page.active{display:flex;animation:fadeIn .25s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.scroll-area{flex:1;overflow-y:auto;padding-bottom:calc(var(–nav-h) + var(–safe-b) + 12px);-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.scroll-area{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 12px);-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .scroll-area::-webkit-scrollbar{display:none;}
 
 /* BOTTOM NAV */
-#nav{position:relative;z-index:100;background:white;border-top:1px solid var(–border);padding:8px 0 calc(8px + var(–safe-b));display:flex;align-items:flex-start;justify-content:space-around;box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0;}
+#nav{position:relative;z-index:100;background:white;border-top:1px solid var(--border);padding:8px 0 calc(8px + var(--safe-b));display:flex;align-items:flex-start;justify-content:space-around;box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;transition:transform .15s;}
 .nav-item:active{transform:scale(.92);}
-.nav-item .ni{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s,transform .2s;font-size:18px;}
+.nav-item .ni{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s,transform .2s;}
 .nav-item.active .ni{transform:scale(1.08);}
-.nav-item .nl{font-size:10px;color:var(–text-tertiary);font-weight:500;white-space:nowrap;line-height:1;transition:color .2s;}
+.nav-item .nl{font-size:10px;color:var(--text-tertiary);font-weight:500;white-space:nowrap;line-height:1;transition:color .2s;}
 .nav-item.active .nl{font-weight:700;}
+/* inactive icon colour */
+.nav-item .iconify{color:#BBAFA8;}
+/* active colours per tab */
 .nav-item[data-page=home].active .ni{background:rgba(227,174,174,.22);}
-.nav-item[data-page=home].active .nl{color:var(–coral-dark);}
+.nav-item[data-page=home].active .nl{color:var(--coral-dark);}
+.nav-item[data-page=home].active .iconify{color:var(--coral-dark);}
 .nav-item[data-page=attractions].active .ni{background:rgba(204,226,220,.30);}
-.nav-item[data-page=attractions].active .nl{color:var(–mint-dark);}
+.nav-item[data-page=attractions].active .nl{color:var(--mint-dark);}
+.nav-item[data-page=attractions].active .iconify{color:var(--mint-dark);}
 .nav-item[data-page=restaurants].active .ni{background:rgba(227,174,174,.22);}
-.nav-item[data-page=restaurants].active .nl{color:var(–coral-dark);}
+.nav-item[data-page=restaurants].active .nl{color:var(--coral-dark);}
+.nav-item[data-page=restaurants].active .iconify{color:var(--coral-dark);}
 .nav-item[data-page=shopping].active .ni{background:rgba(231,203,167,.28);}
-.nav-item[data-page=shopping].active .nl{color:var(–tan-dark);}
+.nav-item[data-page=shopping].active .nl{color:var(--tan-dark);}
+.nav-item[data-page=shopping].active .iconify{color:var(--tan-dark);}
 .nav-item[data-page=accommodation].active .ni{background:rgba(205,200,211,.28);}
-.nav-item[data-page=accommodation].active .nl{color:var(–lavender-dark);}
+.nav-item[data-page=accommodation].active .nl{color:var(--lavender-dark);}
+.nav-item[data-page=accommodation].active .iconify{color:var(--lavender-dark);}
 .nav-item[data-page=medical].active .ni{background:rgba(204,226,220,.30);}
-.nav-item[data-page=medical].active .nl{color:var(–mint-dark);}
+.nav-item[data-page=medical].active .nl{color:var(--mint-dark);}
+.nav-item[data-page=medical].active .iconify{color:var(--mint-dark);}
 .nav-item[data-page=favorites].active .ni{background:rgba(227,174,174,.22);}
-.nav-item[data-page=favorites].active .nl{color:var(–coral-dark);}
+.nav-item[data-page=favorites].active .nl{color:var(--coral-dark);}
+.nav-item[data-page=favorites].active .iconify{color:var(--coral-dark);}
 
 /* COMMON */
-.btn{border:none;cursor:pointer;font-family:inherit;font-weight:600;border-radius:var(–r-xl);transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.btn{border:none;cursor:pointer;font-family:inherit;font-weight:600;border-radius:var(--r-xl);transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
 .btn:active{transform:scale(.96);}
-.btn-coral{background:var(–coral);color:white;padding:13px 24px;font-size:14px;box-shadow:var(–sh-sm);}
-.btn-outline{background:white;color:var(–text-primary);border:1.5px solid var(–border);padding:13px 18px;font-size:14px;}
-.btn-mint{background:var(–mint-dark);color:white;padding:13px 18px;font-size:14px;}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(–r-md);font-size:12px;font-weight:500;border:1.5px solid var(–border);background:white;cursor:pointer;transition:.15s;color:var(–text-secondary);white-space:nowrap;}
-.chip.active{background:var(–coral);border-color:var(–coral);color:white;}
+.btn-coral{background:var(--coral);color:white;padding:13px 24px;font-size:14px;box-shadow:var(--sh-sm);}
+.btn-outline{background:white;color:var(--text-primary);border:1.5px solid var(--border);padding:13px 18px;font-size:14px;}
+.btn-mint{background:var(--mint-dark);color:white;padding:13px 18px;font-size:14px;}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--r-md);font-size:12px;font-weight:500;border:1.5px solid var(--border);background:white;cursor:pointer;transition:.15s;color:var(--text-secondary);white-space:nowrap;}
+.chip.active{background:var(--coral);border-color:var(--coral);color:white;}
 .chip:active{transform:scale(.95);}
 
 /* PAGE HEADER */
-.ph{padding:16px 20px 10px;display:flex;align-items:center;gap:12px;background:var(–bg);flex-shrink:0;}
+.ph{padding:16px 20px 10px;display:flex;align-items:center;gap:12px;background:var(--bg);flex-shrink:0;}
 .ph h1{font-size:22px;font-weight:700;letter-spacing:-.5px;flex:1;}
-.ib{width:40px;height:40px;border-radius:var(–r-lg);background:white;border:1.5px solid var(–border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(–sh-sm);font-size:16px;transition:.15s;flex-shrink:0;}
+.ib{width:40px;height:40px;border-radius:var(--r-lg);background:white;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh-sm);font-size:16px;transition:.15s;flex-shrink:0;}
 .ib:active{transform:scale(.94);}
 
 /* SEARCH BAR */
 .sw{padding:0 20px 10px;flex-shrink:0;}
-.sb{display:flex;align-items:center;gap:10px;background:white;border:1.5px solid var(–border);border-radius:var(–r-lg);padding:10px 14px;box-shadow:var(–sh-sm);}
-.sb input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:var(–text-primary);}
-.sb input::placeholder{color:var(–text-tertiary);}
+.sb{display:flex;align-items:center;gap:10px;background:white;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:10px 14px;box-shadow:var(--sh-sm);}
+.sb input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:var(--text-primary);}
+.sb input::placeholder{color:var(--text-tertiary);}
 
 /* FILTER CHIPS ROW */
 .fr{padding:0 20px 10px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;}
 .fr::-webkit-scrollbar{display:none;}
 
 /* LOCATION CARD */
-.lc{margin:0 16px 12px;display:flex;gap:12px;padding:14px 16px;background:white;border-radius:var(–r-3xl);box-shadow:var(–sh-sm);cursor:pointer;transition:.2s;}
+.lc{margin:0 16px 12px;display:flex;gap:12px;padding:14px 16px;background:white;border-radius:var(--r-3xl);box-shadow:var(--sh-sm);cursor:pointer;transition:.2s;}
 .lc:active{transform:scale(.98);}
-.lc-icon{width:64px;height:64px;border-radius:var(–r-xl);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;overflow:hidden;}
+.lc-icon{width:64px;height:64px;border-radius:var(--r-xl);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;overflow:hidden;}
 .lc-icon img{width:100%;height:100%;object-fit:cover;}
 .lc-body{flex:1;min-width:0;}
 .lc-body h3{font-size:15px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lc-body p{font-size:12px;color:var(–text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.lc-body p{font-size:12px;color:var(--text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .lc-meta{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap;}
-.lt{font-size:11px;padding:3px 7px;border-radius:6px;background:var(–divider);color:var(–text-secondary);white-space:nowrap;}
-.lp{font-size:11px;font-weight:600;color:var(–coral-dark);}
-.ld{font-size:11px;color:var(–text-tertiary);margin-left:auto;}
+.lt{font-size:11px;padding:3px 7px;border-radius:6px;background:var(--divider);color:var(--text-secondary);white-space:nowrap;}
+.lp{font-size:11px;font-weight:600;color:var(--coral-dark);}
+.ld{font-size:11px;color:var(--text-tertiary);margin-left:auto;}
 .lc-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
-.fb{width:30px;height:30px;border-radius:50%;background:var(–divider);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.fb{width:30px;height:30px;border-radius:50%;background:var(--divider);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.15s;}
 .fb.on{background:#FFE4E4;}
 .fb:active{transform:scale(.85);}
 
@@ -104,21 +121,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .hhb{background:#EDE8E3;padding:44px 24px 36px;text-align:center;margin-top:0;border-radius:0 0 32px 32px;}
 .hb{font-size:52px;margin-bottom:12px;animation:hbounce 2.5s ease-in-out infinite;display:block;}
 @keyframes hbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.ht{font-size:24px;font-weight:900;margin-bottom:6px;letter-spacing:-.5px;color:var(–text-primary);}
-.hs{font-size:14px;color:var(–text-secondary);margin-bottom:28px;}
+.ht{font-size:24px;font-weight:900;margin-bottom:6px;letter-spacing:-.5px;color:var(--text-primary);}
+.hs{font-size:14px;color:var(--text-secondary);margin-bottom:28px;}
 .dmb{display:inline-flex;align-items:center;gap:8px;background:#C9A97A;color:white;border:none;border-radius:100px;padding:16px 36px;font-family:inherit;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(180,140,90,.4);transition:transform .15s,box-shadow .15s;}
 .dmb:active{transform:scale(.96);box-shadow:0 2px 10px rgba(180,140,90,.3);}
 
 /* SLOT */
 .sa{padding:20px;display:flex;flex-direction:column;align-items:center;gap:16px;}
-.sd{width:100%;max-width:390px;height:180px;overflow:hidden;border-radius:var(–r-3xl);background:white;box-shadow:0 4px 20px rgba(120,80,60,.14);position:relative;display:none;}
+.sd{width:100%;max-width:390px;height:180px;overflow:hidden;border-radius:var(--r-3xl);background:white;box-shadow:0 4px 20px rgba(120,80,60,.14);position:relative;display:none;}
 .sd.show{display:block;}
 .si{display:flex;flex-direction:column;transition:transform .05s linear;}
 .sit{height:60px;display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
 .sit-ic{font-size:24px;}
 .sit-nm{font-size:16px;font-weight:700;}
-.sit-cy{font-size:12px;color:var(–text-tertiary);}
-.shl{position:absolute;top:50%;left:0;right:0;height:60px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(227,174,174,.18),transparent);border-top:2px solid var(–coral);border-bottom:2px solid var(–coral);pointer-events:none;}
+.sit-cy{font-size:12px;color:var(--text-tertiary);}
+.shl{position:absolute;top:50%;left:0;right:0;height:60px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(227,174,174,.18),transparent);border-top:2px solid var(--coral);border-bottom:2px solid var(--coral);pointer-events:none;}
 .sft,.sfb{position:absolute;left:0;right:0;height:60px;pointer-events:none;z-index:2;}
 .sft{top:0;background:linear-gradient(to bottom,white,transparent);}
 .sfb{bottom:0;background:linear-gradient(to top,white,transparent);}
@@ -127,7 +144,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .rcw{width:100%;max-width:390px;display:none;}
 .rcw.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
 @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
-.rcard{background:white;border-radius:var(–r-3xl);box-shadow:0 8px 32px rgba(120,80,60,.14);overflow:hidden;cursor:pointer;transition:transform .2s;}
+.rcard{background:white;border-radius:var(--r-3xl);box-shadow:0 8px 32px rgba(120,80,60,.14);overflow:hidden;cursor:pointer;transition:transform .2s;}
 .rcard:active{transform:scale(.98);}
 .rcb{height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
 .rcb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
@@ -136,118 +153,118 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .rcbg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
 .rcbadge{border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;}
 .rb-rose{background:#F8D7D7;color:#8B5C5C;}
-.rb-mint{background:var(–mint);color:#3A6B62;}
-.rb-lav{background:var(–lavender);color:#5A5472;}
+.rb-mint{background:var(--mint);color:#3A6B62;}
+.rb-lav{background:var(--lavender);color:#5A5472;}
 .rb-stone{background:#EDE8E3;color:#6B5C52;}
 .rcn{font-size:20px;font-weight:900;margin-bottom:3px;}
-.rcy{font-size:13px;color:var(–text-secondary);margin-bottom:10px;}
+.rcy{font-size:13px;color:var(--text-secondary);margin-bottom:10px;}
 .rctg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
-.rctag{background:#F5F0E8;border-radius:8px;padding:3px 10px;font-size:11px;color:var(–text-secondary);}
+.rctag{background:#F5F0E8;border-radius:8px;padding:3px 10px;font-size:11px;color:var(--text-secondary);}
 .rca{display:flex;gap:8px;}
 .rcbtn{flex:1;padding:11px;border-radius:14px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;}
 .rcbtn:active{opacity:.8;}
-.rcbtn-map{background:var(–lavender);color:var(–text-primary);}
-.rcbtn-more{background:var(–coral);color:white;}
+.rcbtn-map{background:var(--lavender);color:var(--text-primary);}
+.rcbtn-more{background:var(--coral);color:white;}
 
 /* 再抽一次 */
 .daw{width:100%;max-width:390px;display:none;justify-content:center;}
 .daw.show{display:flex;}
-.dab{border:2px solid var(–coral);background:transparent;color:var(–coral-dark);border-radius:100px;padding:13px 40px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
-.dab:hover{background:var(–coral);color:white;}
+.dab{border:2px solid var(--coral);background:transparent;color:var(--coral-dark);border-radius:100px;padding:13px 40px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.dab:hover{background:var(--coral);color:white;}
 .dab:active{transform:scale(.97);}
 
 /* QUICK NAV */
 .st{font-size:16px;font-weight:700;padding:0 20px 12px;}
 .qn{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px 24px;}
-.qni{background:white;border-radius:var(–r-xl);padding:16px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:1.5px solid var(–border);box-shadow:var(–sh-sm);transition:.15s;}
+.qni{background:white;border-radius:var(--r-xl);padding:16px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:1.5px solid var(--border);box-shadow:var(--sh-sm);transition:.15s;}
 .qni:active{transform:scale(.95);}
 .qni .qe{font-size:28px;}
-.qni span{font-size:12px;font-weight:600;color:var(–text-secondary);}
+.qni span{font-size:12px;font-weight:600;color:var(--text-secondary);}
 
 /* FILTER MODAL */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:none;align-items:flex-end;}
 .mo.open{display:flex;animation:ovIn .2s ease;}
 @keyframes ovIn{from{opacity:0}to{opacity:1}}
-.ms{background:white;border-radius:var(–r-3xl) var(–r-3xl) 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:shUp .28s cubic-bezier(.34,1.3,.64,1);}
+.ms{background:white;border-radius:var(--r-3xl) var(--r-3xl) 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:shUp .28s cubic-bezier(.34,1.3,.64,1);}
 @keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.mh{width:36px;height:4px;background:var(–divider);border-radius:99px;margin:12px auto 0;flex-shrink:0;}
-.mhd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(–divider);flex-shrink:0;}
+.mh{width:36px;height:4px;background:var(--divider);border-radius:99px;margin:12px auto 0;flex-shrink:0;}
+.mhd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--divider);flex-shrink:0;}
 .mt{font-size:17px;font-weight:700;}
-.cb{background:var(–coral);color:white;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;}
+.cb{background:var(--coral);color:white;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;}
 .mb{overflow-y:auto;flex:1;padding:0 20px 16px;}
 .mb::-webkit-scrollbar{display:none;}
 .msc{padding-top:18px;}
-.mst{font-size:12px;font-weight:700;color:var(–text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.mst{font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
 .sd-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .cw{display:flex;flex-wrap:wrap;gap:8px;}
-.mf{padding:12px 20px calc(12px + var(–safe-b));border-top:1px solid var(–divider);display:flex;gap:10px;flex-shrink:0;}
+.mf{padding:12px 20px calc(12px + var(--safe-b));border-top:1px solid var(--divider);display:flex;gap:10px;flex-shrink:0;}
 .mf .btn{flex:1;}
 
 /* GPS BTN */
-.gpsbtn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(–r-lg);border:1.5px solid var(–mint-dark);background:rgba(204,226,220,.15);cursor:pointer;font-size:13px;font-weight:600;color:var(–mint-dark);transition:.15s;margin-bottom:10px;}
+.gpsbtn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--r-lg);border:1.5px solid var(--mint-dark);background:rgba(204,226,220,.15);cursor:pointer;font-size:13px;font-weight:600;color:var(--mint-dark);transition:.15s;margin-bottom:10px;}
 .gpsbtn:active{transform:scale(.97);}
-.gpsbtn.on{background:var(–mint);color:white;border-color:var(–mint-dark);}
+.gpsbtn.on{background:var(--mint);color:white;border-color:var(--mint-dark);}
 
 /* RANGE SLIDER */
-input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(–divider);border-radius:2px;outline:none;margin:8px 0;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(–coral);cursor:pointer;box-shadow:var(–sh-sm);}
-.rl{display:flex;justify-content:space-between;font-size:12px;color:var(–text-tertiary);margin-top:2px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--divider);border-radius:2px;outline:none;margin:8px 0;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--coral);cursor:pointer;box-shadow:var(--sh-sm);}
+.rl{display:flex;justify-content:space-between;font-size:12px;color:var(--text-tertiary);margin-top:2px;}
 
 /* DETAIL PAGE */
-#dp{position:fixed;top:0;left:50%;transform:translateX(-50%) translateX(100%);width:100%;max-width:430px;bottom:0;z-index:200;background:var(–bg);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#dp{position:fixed;top:0;left:50%;transform:translateX(-50%) translateX(100%);width:100%;max-width:430px;bottom:0;z-index:200;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
 #dp.open{transform:translateX(-50%) translateX(0);}
 .dhr{height:240px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;background:#F0EDE8;overflow:hidden;}
 .dhr img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .dhe{font-size:80px;position:relative;z-index:1;}
-.dbk{position:absolute;top:16px;left:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(–sh-sm);z-index:2;}
-.dfv{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(–sh-sm);transition:.15s;z-index:2;}
+.dbk{position:absolute;top:16px;left:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);z-index:2;}
+.dfv{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);transition:.15s;z-index:2;}
 .dfv:active{transform:scale(.88);}
 .dfv.on{background:#FFE4E4;}
 .dbd{flex:1;overflow-y:auto;padding:20px 20px 100px;-webkit-overflow-scrolling:touch;}
 .dbd::-webkit-scrollbar{display:none;}
 .dbd h1{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
 .dtgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.dtag{font-size:11px;padding:4px 10px;border-radius:8px;background:var(–divider);color:var(–text-secondary);font-weight:500;}
-.dpx{background:var(–coral);color:white;}
+.dtag{font-size:11px;padding:4px 10px;border-radius:8px;background:var(--divider);color:var(--text-secondary);font-weight:500;}
+.dpx{background:var(--coral);color:white;}
 .rrow{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
 .stars{color:#F4B942;font-size:14px;letter-spacing:1px;}
-.dir{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(–divider);}
+.dir{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--divider);}
 .diic{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
-.dic .dlb{font-size:12px;color:var(–text-tertiary);margin-bottom:2px;}
-.dic .dvl{font-size:14px;font-weight:600;color:var(–text-primary);}
-.dic a.dvl{color:var(–coral-dark);text-decoration:none;}
-.ddsc{background:var(–divider);border-radius:var(–r-xl);padding:16px;margin:14px 0;}
-.ddsc p{font-size:14px;line-height:1.7;color:var(–text-secondary);}
+.dic .dlb{font-size:12px;color:var(--text-tertiary);margin-bottom:2px;}
+.dic .dvl{font-size:14px;font-weight:600;color:var(--text-primary);}
+.dic a.dvl{color:var(--coral-dark);text-decoration:none;}
+.ddsc{background:var(--divider);border-radius:var(--r-xl);padding:16px;margin:14px 0;}
+.ddsc p{font-size:14px;line-height:1.7;color:var(--text-secondary);}
 .dfeat{margin:14px 0;}
 .dfeat h3{font-size:14px;font-weight:700;margin-bottom:8px;}
 .fcw{display:flex;flex-wrap:wrap;gap:8px;}
-.fchip{font-size:12px;padding:6px 12px;border-radius:10px;background:white;border:1.5px solid var(–border);color:var(–text-secondary);}
-.dbot{position:absolute;bottom:0;left:0;right:0;background:white;border-top:1px solid var(–divider);padding:12px 20px calc(12px + var(–safe-b));display:flex;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+.fchip{font-size:12px;padding:6px 12px;border-radius:10px;background:white;border:1.5px solid var(--border);color:var(--text-secondary);}
+.dbot{position:absolute;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--divider);padding:12px 20px calc(12px + var(--safe-b));display:flex;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
 .dbot .btn{flex:1;font-size:14px;padding:13px;}
 
 /* MISC */
 .empty-st{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;}
 .empty-st .ee{font-size:64px;}
 .empty-st h3{font-size:18px;font-weight:700;}
-.empty-st p{font-size:14px;color:var(–text-secondary);text-align:center;line-height:1.6;}
+.empty-st p{font-size:14px;color:var(--text-secondary);text-align:center;line-height:1.6;}
 .lw{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:12px;}
-.spin{width:32px;height:32px;border:3px solid var(–divider);border-top-color:var(–coral);border-radius:50%;animation:rot .8s linear infinite;}
+.spin{width:32px;height:32px;border:3px solid var(--divider);border-top-color:var(--coral);border-radius:50%;animation:rot .8s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg)}}
 .nr{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;}
 .nr .ne{font-size:48px;}
-.nr p{font-size:14px;color:var(–text-tertiary);}
-#toast{position:fixed;bottom:calc(var(–nav-h) + var(–safe-b) + 16px);left:50%;transform:translateX(-50%) translateY(12px);background:#333;color:white;font-size:13px;font-weight:500;padding:10px 20px;border-radius:var(–r-xl);z-index:1000;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap;}
+.nr p{font-size:14px;color:var(--text-tertiary);}
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%) translateY(12px);background:#333;color:white;font-size:13px;font-weight:500;padding:10px 20px;border-radius:var(--r-xl);z-index:1000;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ── HOME SECTIONS ── */
 .home-sec{padding:20px 20px 4px;display:flex;align-items:center;justify-content:space-between;}
 .home-sec-title{font-size:15px;font-weight:700;letter-spacing:-.3px;}
-.home-sec-more{font-size:12px;color:var(–coral-dark);font-weight:600;cursor:pointer;padding:4px 0;}
+.home-sec-more{font-size:12px;color:var(--coral-dark);font-weight:600;cursor:pointer;padding:4px 0;}
 
 /* 精選橫向卡片 */
 .home-hscroll{display:flex;gap:12px;padding:8px 20px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .home-hscroll::-webkit-scrollbar{display:none;}
-.hcard{flex-shrink:0;width:160px;background:white;border-radius:var(–r-xl);box-shadow:var(–sh-sm);overflow:hidden;cursor:pointer;transition:.15s;}
+.hcard{flex-shrink:0;width:160px;background:white;border-radius:var(--r-xl);box-shadow:var(--sh-sm);overflow:hidden;cursor:pointer;transition:.15s;}
 .hcard:active{transform:scale(.97);}
 .hcard-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden;}
 .hcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
@@ -255,183 +272,190 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .hcard-body{padding:10px 12px 12px;}
 .hcard-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
 .hcard-meta{display:flex;align-items:center;gap:5px;}
-.hcard-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(–divider);color:var(–text-secondary);white-space:nowrap;}
-.hcard-price{font-size:10px;font-weight:600;color:var(–coral-dark);}
+.hcard-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--divider);color:var(--text-secondary);white-space:nowrap;}
+.hcard-price{font-size:10px;font-weight:600;color:var(--coral-dark);}
 
 /* 收藏預覽 */
 .fav-preview-wrap{padding:0 20px 20px;}
-.fav-preview-empty{background:white;border-radius:var(–r-xl);padding:20px;display:flex;align-items:center;gap:14px;box-shadow:var(–sh-sm);}
+.fav-preview-empty{background:white;border-radius:var(--r-xl);padding:20px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh-sm);}
 .fav-preview-empty .fpe-icon{font-size:32px;flex-shrink:0;}
 .fav-preview-empty .fpe-text h4{font-size:14px;font-weight:700;margin-bottom:2px;}
-.fav-preview-empty .fpe-text p{font-size:12px;color:var(–text-tertiary);line-height:1.5;}
+.fav-preview-empty .fpe-text p{font-size:12px;color:var(--text-tertiary);line-height:1.5;}
 .fav-mini-scroll{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .fav-mini-scroll::-webkit-scrollbar{display:none;}
 .fav-mini-card{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
-.fav-mini-icon{width:56px;height:56px;border-radius:var(–r-lg);display:flex;align-items:center;justify-content:center;font-size:26px;}
-.fav-mini-name{font-size:10px;font-weight:600;color:var(–text-secondary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+.fav-mini-icon{width:56px;height:56px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:26px;}
+.fav-mini-name{font-size:10px;font-weight:600;color:var(--text-secondary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
 
 /* 天氣/心情提示條 */
-.home-tip{margin:0 20px 16px;background:white;border-radius:var(–r-xl);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(–sh-sm);border-left:4px solid var(–coral);}
+.home-tip{margin:0 20px 16px;background:white;border-radius:var(--r-xl);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh-sm);border-left:4px solid var(--coral);}
 .home-tip .tip-icon{font-size:24px;flex-shrink:0;}
-.home-tip .tip-text{font-size:13px;line-height:1.5;color:var(–text-secondary);}
-.home-tip .tip-text b{color:var(–text-primary);font-weight:700;}
+.home-tip .tip-text{font-size:13px;line-height:1.5;color:var(--text-secondary);}
+.home-tip .tip-text b{color:var(--text-primary);font-weight:700;}
 </style>
-
 </head>
 <body>
 <div id="app">
 
 <!-- HOME -->
-
 <div class="page active" id="page-home">
   <div class="scroll-area">
 
-```
-<!-- Hero Banner -->
-<div class="hhb">
-  <span class="hb">🎒</span>
-  <div class="ht">走走，今天去哪裡？</div>
-  <div class="hs">抽一個育兒好去處 ✨</div>
-  <button class="dmb" onclick="startDraw()">🎲 Let's GO ٩(*•̀ᴗ•́*)و</button>
-</div>
+    <!-- Hero Banner -->
+    <div class="hhb">
+      <span class="hb">🎒</span>
+      <div class="ht">走走，今天去哪裡？</div>
+      <div class="hs">抽一個育兒好去處 ✨</div>
+      <button class="dmb" onclick="startDraw()">🎲 Let's GO ٩(*•̀ᴗ•́*)و</button>
+    </div>
 
-<!-- Slot + Result (hidden until draw) -->
-<div class="sa">
-  <div class="sd" id="slot-drum">
-    <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
-    <div class="si" id="slot-inner"></div>
-  </div>
-  <div class="rcw" id="rcw">
-    <div class="rcard" onclick="openDetailFromResult()">
-      <div class="rcb" id="rcb"></div>
-      <div class="rcc">
-        <div class="rcbg" id="rcbg"></div>
-        <div class="rcn" id="rcn"></div>
-        <div class="rcy" id="rcy"></div>
-        <div class="rctg" id="rctg"></div>
-        <div class="rca">
-          <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
-          <button class="rcbtn rcbtn-more">📖 查看詳情</button>
+    <!-- Slot + Result (hidden until draw) -->
+    <div class="sa">
+      <div class="sd" id="slot-drum">
+        <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
+        <div class="si" id="slot-inner"></div>
+      </div>
+      <div class="rcw" id="rcw">
+        <div class="rcard" onclick="openDetailFromResult()">
+          <div class="rcb" id="rcb"></div>
+          <div class="rcc">
+            <div class="rcbg" id="rcbg"></div>
+            <div class="rcn" id="rcn"></div>
+            <div class="rcy" id="rcy"></div>
+            <div class="rctg" id="rctg"></div>
+            <div class="rca">
+              <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
+              <button class="rcbtn rcbtn-more">📖 查看詳情</button>
+            </div>
+          </div>
         </div>
       </div>
+      <div class="daw" id="daw">
+        <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
+      </div>
     </div>
-  </div>
-  <div class="daw" id="daw">
-    <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
-  </div>
-</div>
 
-<!-- Pre-draw sections (hidden after draw) -->
-<div id="home-pre-content">
+    <!-- Pre-draw sections (hidden after draw) -->
+    <div id="home-pre-content">
 
-  <!-- Tip bar -->
-  <div class="home-tip" id="home-tip">
-    <div class="tip-icon">💡</div>
-    <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！<br>也可以直接逛各分類 👇</div>
-  </div>
+      <!-- Tip bar -->
+      <div class="home-tip" id="home-tip">
+        <div class="tip-icon"><span class="iconify" data-icon="mynaui:information-circle" style="font-size:26px;color:var(--tan-dark)"></span></div>
+        <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！<br>也可以直接逛各分類 👇</div>
+      </div>
 
-  <!-- 今日精選 -->
-  <div class="home-sec">
-    <div class="home-sec-title">⭐ 今日精選</div>
-    <div class="home-sec-more" onclick="goPage('attractions')">更多 →</div>
-  </div>
-  <div class="home-hscroll" id="home-featured"></div>
+      <!-- 今日精選 -->
+      <div class="home-sec">
+        <div class="home-sec-title"><span class="iconify" data-icon="mynaui:star" style="font-size:16px;color:#C9A97A;vertical-align:-2px;margin-right:4px"></span>今日精選</div>
+        <div class="home-sec-more" onclick="goPage('attractions')">更多 →</div>
+      </div>
+      <div class="home-hscroll" id="home-featured"></div>
 
-  <!-- 我的收藏 -->
-  <div class="home-sec">
-    <div class="home-sec-title">❤️ 我的收藏</div>
-    <div class="home-sec-more" onclick="goPage('favorites')">全部 →</div>
-  </div>
-  <div class="fav-preview-wrap" id="home-fav-preview"></div>
+      <!-- 我的收藏 -->
+      <div class="home-sec">
+        <div class="home-sec-title"><span class="iconify" data-icon="mynaui:heart" style="font-size:16px;color:var(--coral-dark);vertical-align:-2px;margin-right:4px"></span>我的收藏</div>
+        <div class="home-sec-more" onclick="goPage('favorites')">全部 →</div>
+      </div>
+      <div class="fav-preview-wrap" id="home-fav-preview"></div>
 
-</div>
-```
-
+    </div>
   </div>
 </div>
 
 <!-- ATTRACTIONS -->
-
 <div class="page" id="page-attractions">
-  <div class="ph"><div style="font-size:24px">🏞️</div><h1>景點</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋景點名稱、標籤..." id="search-attractions" oninput="filterList('attractions')"></div></div>
+  <div class="ph"><div class="ph-icon" style="background:rgba(204,226,220,.35)"><span class="iconify" data-icon="mynaui:map" style="font-size:20px;color:#6aA89E"></span></div><h1>景點</h1><button class="ib" onclick="requestGPS()"><span class="iconify" data-icon="mynaui:location" style="font-size:18px;color:var(--mint-dark)"></span></button></div>
+  <div class="sw"><div class="sb"><span class="iconify" data-icon="mynaui:search" style="font-size:18px;color:var(--text-tertiary)"></span><input type="text" placeholder="搜尋景點名稱、標籤..." id="search-attractions" oninput="filterList('attractions')"></div></div>
   <div class="fr" id="fr-attractions"></div>
   <div class="scroll-area" id="list-attractions"></div>
 </div>
 
 <!-- RESTAURANTS -->
-
 <div class="page" id="page-restaurants">
-  <div class="ph"><div style="font-size:24px">🍽️</div><h1>餐廳</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋餐廳名稱、特色..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
+  <div class="ph"><div class="ph-icon" style="background:rgba(227,174,174,.25)"><span class="iconify" data-icon="mynaui:restaurant" style="font-size:20px;color:var(--coral-dark)"></span></div><h1>餐廳</h1><button class="ib" onclick="requestGPS()"><span class="iconify" data-icon="mynaui:location" style="font-size:18px;color:var(--mint-dark)"></span></button></div>
+  <div class="sw"><div class="sb"><span class="iconify" data-icon="mynaui:search" style="font-size:18px;color:var(--text-tertiary)"></span><input type="text" placeholder="搜尋餐廳名稱、特色..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
   <div class="fr" id="fr-restaurants"></div>
   <div class="scroll-area" id="list-restaurants"></div>
 </div>
 
 <!-- SHOPPING -->
-
 <div class="page" id="page-shopping">
-  <div class="ph"><div style="font-size:24px">🛍️</div><h1>購物</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋購物名稱..." id="search-shopping" oninput="filterList('shopping')"></div></div>
+  <div class="ph"><div class="ph-icon" style="background:rgba(231,203,167,.35)"><span class="iconify" data-icon="mynaui:shopping-bag" style="font-size:20px;color:var(--tan-dark)"></span></div><h1>購物</h1><button class="ib" onclick="requestGPS()"><span class="iconify" data-icon="mynaui:location" style="font-size:18px;color:var(--mint-dark)"></span></button></div>
+  <div class="sw"><div class="sb"><span class="iconify" data-icon="mynaui:search" style="font-size:18px;color:var(--text-tertiary)"></span><input type="text" placeholder="搜尋購物名稱..." id="search-shopping" oninput="filterList('shopping')"></div></div>
   <div class="fr" id="fr-shopping"></div>
   <div class="scroll-area" id="list-shopping"></div>
 </div>
 
 <!-- ACCOMMODATION -->
-
 <div class="page" id="page-accommodation">
-  <div class="ph"><div style="font-size:24px">🏨</div><h1>住宿</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋住宿名稱..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
+  <div class="ph"><div class="ph-icon" style="background:rgba(205,200,211,.35)"><span class="iconify" data-icon="mynaui:building" style="font-size:20px;color:var(--lavender-dark)"></span></div><h1>住宿</h1><button class="ib" onclick="requestGPS()"><span class="iconify" data-icon="mynaui:location" style="font-size:18px;color:var(--mint-dark)"></span></button></div>
+  <div class="sw"><div class="sb"><span class="iconify" data-icon="mynaui:search" style="font-size:18px;color:var(--text-tertiary)"></span><input type="text" placeholder="搜尋住宿名稱..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
   <div class="fr" id="fr-accommodation"></div>
   <div class="scroll-area" id="list-accommodation"></div>
 </div>
 
 <!-- MEDICAL -->
-
 <div class="page" id="page-medical">
-  <div class="ph"><div style="font-size:24px">🏥</div><h1>醫療</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋醫院、診所..." id="search-medical" oninput="filterList('medical')"></div></div>
+  <div class="ph"><div class="ph-icon" style="background:rgba(204,226,220,.35)"><span class="iconify" data-icon="mynaui:heart-rate" style="font-size:20px;color:#6aA89E"></span></div><h1>醫療</h1><button class="ib" onclick="requestGPS()"><span class="iconify" data-icon="mynaui:location" style="font-size:18px;color:var(--mint-dark)"></span></button></div>
+  <div class="sw"><div class="sb"><span class="iconify" data-icon="mynaui:search" style="font-size:18px;color:var(--text-tertiary)"></span><input type="text" placeholder="搜尋醫院、診所..." id="search-medical" oninput="filterList('medical')"></div></div>
   <div class="fr" id="fr-medical"></div>
   <div class="scroll-area" id="list-medical"></div>
 </div>
 
 <!-- FAVORITES -->
-
 <div class="page" id="page-favorites">
-  <div class="ph"><div style="font-size:24px">❤️</div><h1>我的收藏</h1></div>
+  <div class="ph"><div class="ph-icon" style="background:rgba(227,174,174,.25)"><span class="iconify" data-icon="mynaui:heart" style="font-size:20px;color:var(--coral-dark)"></span></div><h1>我的收藏</h1></div>
   <div class="scroll-area" id="list-favorites"></div>
 </div>
 
 <!-- BOTTOM NAV -->
-
 <nav id="nav">
-  <div class="nav-item active" data-page="home" onclick="goPage('home')"><div class="ni">🏠</div><div class="nl">首頁</div></div>
-  <div class="nav-item" data-page="attractions" onclick="goPage('attractions')"><div class="ni">🏞️</div><div class="nl">景點</div></div>
-  <div class="nav-item" data-page="restaurants" onclick="goPage('restaurants')"><div class="ni">🍽️</div><div class="nl">餐廳</div></div>
-  <div class="nav-item" data-page="shopping" onclick="goPage('shopping')"><div class="ni">🛍️</div><div class="nl">購物</div></div>
-  <div class="nav-item" data-page="accommodation" onclick="goPage('accommodation')"><div class="ni">🏨</div><div class="nl">住宿</div></div>
-  <div class="nav-item" data-page="medical" onclick="goPage('medical')"><div class="ni">🏥</div><div class="nl">醫療</div></div>
-  <div class="nav-item" data-page="favorites" onclick="goPage('favorites')"><div class="ni">❤️</div><div class="nl">收藏</div></div>
+  <div class="nav-item active" data-page="home" onclick="goPage('home')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:home" style="font-size:22px"></span></div>
+    <div class="nl">首頁</div>
+  </div>
+  <div class="nav-item" data-page="attractions" onclick="goPage('attractions')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:map" style="font-size:22px"></span></div>
+    <div class="nl">景點</div>
+  </div>
+  <div class="nav-item" data-page="restaurants" onclick="goPage('restaurants')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:restaurant" style="font-size:22px"></span></div>
+    <div class="nl">餐廳</div>
+  </div>
+  <div class="nav-item" data-page="shopping" onclick="goPage('shopping')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:shopping-bag" style="font-size:22px"></span></div>
+    <div class="nl">購物</div>
+  </div>
+  <div class="nav-item" data-page="accommodation" onclick="goPage('accommodation')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:building" style="font-size:22px"></span></div>
+    <div class="nl">住宿</div>
+  </div>
+  <div class="nav-item" data-page="medical" onclick="goPage('medical')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:heart-rate" style="font-size:22px"></span></div>
+    <div class="nl">醫療</div>
+  </div>
+  <div class="nav-item" data-page="favorites" onclick="goPage('favorites')">
+    <div class="ni"><span class="iconify" data-icon="mynaui:heart" style="font-size:22px"></span></div>
+    <div class="nl">收藏</div>
+  </div>
 </nav>
 
 <!-- DETAIL PAGE -->
-
 <div id="dp">
   <div class="dhr" id="dhr">
-    <button class="dbk" onclick="closeDetail()">←</button>
-    <button class="dfv" id="dfv" onclick="toggleFavDetail()">🤍</button>
+    <button class="dbk" onclick="closeDetail()"><span class="iconify" data-icon="mynaui:arrow-left" style="font-size:20px;color:#555"></span></button>
+    <button class="dfv" id="dfv" onclick="toggleFavDetail()"><span class="iconify" data-icon="mynaui:heart" style="font-size:20px;color:#C98F8F"></span></button>
     <span class="dhe" id="dhe"></span>
   </div>
   <div class="dbd" id="dbd"></div>
   <div class="dbot">
-    <button class="btn btn-mint" onclick="openMap()">🗺️ 導航</button>
-    <button class="btn btn-outline" onclick="openWebsite()">🔗 官網</button>
-    <button class="btn btn-outline" onclick="copyAddr()">📋 複製</button>
+    <button class="btn btn-mint" onclick="openMap()"><span class="iconify" data-icon="mynaui:navigation" style="font-size:16px"></span> 導航</button>
+    <button class="btn btn-outline" onclick="openWebsite()"><span class="iconify" data-icon="mynaui:link" style="font-size:16px"></span> 官網</button>
+    <button class="btn btn-outline" onclick="copyAddr()"><span class="iconify" data-icon="mynaui:copy" style="font-size:16px"></span> 複製</button>
   </div>
 </div>
 
 <!-- FILTER MODAL -->
-
 <div class="mo" id="fmo" onclick="handleOverlayClick(event)">
   <div class="ms">
     <div class="mh"></div>
@@ -649,7 +673,7 @@ function cardHTML(item){
       </div>
     </div>
     <div class="lc-right">
-      <button class="fb ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${item.id}',this)">${isFav?'❤️':'🤍'}</button>
+      <button class="fb ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${item.id}',this)"><span class="iconify" data-icon="${isFav?'mynaui:heart-solid':'mynaui:heart'}" style="font-size:14px;color:${isFav?'#C98F8F':'#BBAFA8'}"></span></button>
       ${item.rating?`<div style="font-size:11px;color:#F4B942;font-weight:700">★${item.rating}</div>`:''}
     </div>
   </div>`;
@@ -693,7 +717,12 @@ function goDetail(id,cat){
 
   const fv=document.getElementById('dfv');
   const isFav=favorites.includes(item.id);
-  fv.textContent=isFav?'❤️':'🤍';fv.classList.toggle('on',isFav);
+  const ico=fv.querySelector('.iconify');
+  if(ico){
+    ico.setAttribute('data-icon', isFav?'mynaui:heart-solid':'mynaui:heart');
+    ico.style.color=isFav?'#C98F8F':'#BBAFA8';
+  }
+  fv.classList.toggle('on',isFav);
 
   const ci=CAT_INFO[item.cat]||{};
   const tags=(item.tags||'').split(',').filter(Boolean);
@@ -710,10 +739,10 @@ function goDetail(id,cat){
       ${tags.map(t=>`<div class="dtag">${t}</div>`).join('')}
     </div>
     <div class="ddsc"><p>${item.desc||'暫無簡介'}</p></div>
-    <div class="dir"><div class="diic">📍</div><div class="dic"><div class="dlb">地址</div><div class="dvl">${item.address||'—'}${dist}</div></div></div>
-    <div class="dir"><div class="diic">⏰</div><div class="dic"><div class="dlb">營業時間</div><div class="dvl">${item.hours||'—'}${item.closed?' ｜ 公休：'+item.closed:''}</div></div></div>
-    ${item.phone?`<div class="dir"><div class="diic">📞</div><div class="dic"><div class="dlb">電話</div><a class="dvl" href="tel:${item.phone}">${item.phone}</a></div></div>`:''}
-    ${item.region?`<div class="dir"><div class="diic">🗺️</div><div class="dic"><div class="dlb">縣市</div><div class="dvl">${item.region}</div></div></div>`:''}
+    <div class="dir"><div class="diic"><span class="iconify" data-icon="mynaui:location" style="font-size:18px;color:var(--coral-dark)"></span></div><div class="dic"><div class="dlb">地址</div><div class="dvl">${item.address||'—'}${dist}</div></div></div>
+    <div class="dir"><div class="diic"><span class="iconify" data-icon="mynaui:clock" style="font-size:18px;color:var(--tan-dark)"></span></div><div class="dic"><div class="dlb">營業時間</div><div class="dvl">${item.hours||'—'}${item.closed?' ｜ 公休：'+item.closed:''}</div></div></div>
+    ${item.phone?`<div class="dir"><div class="diic"><span class="iconify" data-icon="mynaui:phone" style="font-size:18px;color:var(--mint-dark)"></span></div><div class="dic"><div class="dlb">電話</div><a class="dvl" href="tel:${item.phone}">${item.phone}</a></div></div>`:''}
+    ${item.region?`<div class="dir"><div class="diic"><span class="iconify" data-icon="mynaui:map" style="font-size:18px;color:var(--lavender-dark)"></span></div><div class="dic"><div class="dlb">縣市</div><div class="dvl">${item.region}</div></div></div>`:''}
     ${feats.length?`<div class="dfeat"><h3>設施</h3><div class="fcw">${feats.map(f=>`<div class="fchip">${f}</div>`).join('')}</div></div>`:''}
     ${item.bookingUrl?`<div style="margin-top:16px"><a href="${item.bookingUrl}" target="_blank" class="btn btn-coral" style="display:block;text-decoration:none;text-align:center;padding:14px">🏨 立即訂房</a></div>`:''}
   `;
@@ -723,7 +752,17 @@ function closeDetail(){document.getElementById('dp').classList.remove('open');}
 function openMap(){if(!currentDetail)return;const q=currentDetail.lat&&currentDetail.lng?`${currentDetail.lat},${currentDetail.lng}`:encodeURIComponent(currentDetail.address||currentDetail.name);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank');}
 function openWebsite(){if(!currentDetail)return;const u=currentDetail.website||currentDetail.bookingUrl;u?window.open(u,'_blank'):showToast('此地點尚未提供官方網站');}
 function copyAddr(){if(!currentDetail)return;navigator.clipboard?.writeText(currentDetail.address||currentDetail.name).then(()=>showToast('✅ 已複製地址')).catch(()=>showToast('📋 '+currentDetail.address));}
-function toggleFavDetail(){if(!currentDetail)return;toggleFavById(currentDetail.id);const isFav=favorites.includes(currentDetail.id);const b=document.getElementById('dfv');b.textContent=isFav?'❤️':'🤍';b.classList.toggle('on',isFav);}
+function toggleFavDetail(){
+  if(!currentDetail)return;
+  toggleFavById(currentDetail.id);
+  const isFav=favorites.includes(currentDetail.id);
+  const b=document.getElementById('dfv');
+  const ico=b.querySelector('.iconify');
+  if(ico){ico.style.color=isFav?'#C98F8F':'#BBAFA8';}
+  b.classList.toggle('on',isFav);
+  // swap icon between filled/outline
+  if(ico) ico.setAttribute('data-icon', isFav?'mynaui:heart-solid':'mynaui:heart');
+}
 
 // ══════════════════════════════════════════════
 // FAVORITES
@@ -731,7 +770,18 @@ function toggleFavDetail(){if(!currentDetail)return;toggleFavById(currentDetail.
 function loadFavs(){try{return JSON.parse(localStorage.getItem('zou_favorites')||'[]');}catch(e){return[];}}
 function saveFavs(){localStorage.setItem('zou_favorites',JSON.stringify(favorites));}
 function toggleFavById(id){const i=favorites.indexOf(id);if(i===-1){favorites.push(id);showToast('❤️ 已加入收藏');}else{favorites.splice(i,1);showToast('移除收藏');}saveFavs();}
-function toggleFav(id,btn){toggleFavById(id);const on=favorites.includes(id);btn.textContent=on?'❤️':'🤍';btn.classList.toggle('on',on);if(currentPage==='favorites')renderFavorites();renderHomeFavPreview();}
+function toggleFav(id,btn){
+  toggleFavById(id);
+  const on=favorites.includes(id);
+  const ico=btn.querySelector('.iconify');
+  if(ico){
+    ico.setAttribute('data-icon',on?'mynaui:heart-solid':'mynaui:heart');
+    ico.style.color=on?'#C98F8F':'#BBAFA8';
+  }
+  btn.classList.toggle('on',on);
+  if(currentPage==='favorites')renderFavorites();
+  renderHomeFavPreview();
+}
 function renderFavorites(){
   const el=document.getElementById('list-favorites');
   if(!favorites.length){el.innerHTML=`<div class="empty-st"><div class="ee">🤍</div><h3>還沒有收藏</h3><p>瀏覽地點時點擊 🤍 即可加入</p></div>`;return;}
@@ -940,6 +990,5 @@ document.addEventListener('keydown',e=>{
   }
 });
 </script>
-
 </body>
 </html>
