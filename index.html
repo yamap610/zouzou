@@ -158,13 +158,14 @@ margin-bottom:0;
 .hs{font-size:14px;color:var(–text-secondary);margin-bottom:28px;}
 .dmb{
 display:inline-flex;align-items:center;gap:8px;
-background:linear-gradient(135deg,#C9A97A,#b8926a);
+/* 淺一點的奶茶色，不違和 */
+background:linear-gradient(135deg,#D4B896,#C4A07E);
 color:white;border:none;border-radius:100px;
 padding:16px 36px;font-family:inherit;font-size:17px;font-weight:700;
-cursor:pointer;box-shadow:0 6px 24px rgba(180,140,90,.4);
+cursor:pointer;box-shadow:0 4px 18px rgba(180,140,90,.28);
 transition:transform .15s,box-shadow .15s;
 }
-.dmb:active{transform:scale(.96);box-shadow:0 2px 10px rgba(180,140,90,.3);}
+.dmb:active{transform:scale(.96);box-shadow:0 2px 10px rgba(180,140,90,.2);}
 
 /* SLOT */
 .sa{padding:20px;display:flex;flex-direction:column;align-items:center;gap:16px;}
@@ -256,9 +257,17 @@ input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(�
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(–coral);cursor:pointer;box-shadow:var(–sh-sm);}
 .rl{display:flex;justify-content:space-between;font-size:12px;color:var(–text-tertiary);margin-top:2px;}
 
-/* DETAIL PAGE */
-#dp{position:fixed;top:0;left:50%;transform:translateX(-50%) translateX(100%);width:100%;max-width:430px;bottom:0;z-index:300;background:var(–bg);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
-#dp.open{transform:translateX(-50%) translateX(0);}
+/* DETAIL PAGE — 放在 #app 內，用 absolute 覆蓋整個 app 區域 */
+#dp{
+position:absolute;top:0;left:0;right:0;bottom:0;
+z-index:300;background:var(–bg);
+transform:translateX(100%);
+transition:transform .3s cubic-bezier(.4,0,.2,1);
+display:flex;flex-direction:column;
+/* 確保不被 #app overflow:hidden 以外的東西影響 */
+will-change:transform;
+}
+#dp.open{transform:translateX(0);}
 .dhr{height:240px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;background:#F0EDE8;overflow:hidden;}
 .dhr img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .dhe{font-size:80px;position:relative;z-index:1;}
@@ -303,12 +312,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ── HOME SECTIONS ── */
-.home-sec{padding:20px 20px 4px;display:flex;align-items:center;justify-content:space-between;}
+.home-sec{padding:12px 20px 4px;display:flex;align-items:center;justify-content:space-between;}
 .home-sec-title{font-size:15px;font-weight:700;letter-spacing:-.3px;}
 .home-sec-more{font-size:12px;color:var(–coral-dark);font-weight:600;cursor:pointer;padding:4px 0;}
 
 /* 精選橫向卡片 */
-.home-hscroll{display:flex;gap:12px;padding:8px 20px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.home-hscroll{display:flex;gap:12px;padding:6px 20px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .home-hscroll::-webkit-scrollbar{display:none;}
 .hcard{flex-shrink:0;width:160px;background:white;border-radius:var(–r-xl);box-shadow:var(–sh-sm);overflow:hidden;cursor:pointer;transition:.15s;}
 .hcard:active{transform:scale(.97);}
@@ -334,7 +343,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .fav-mini-name{font-size:10px;font-weight:600;color:var(–text-secondary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
 
 /* 天氣/心情提示條 */
-.home-tip{margin:16px 20px 12px;background:white;border-radius:var(–r-xl);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(–sh-sm);border-left:4px solid var(–tan-dark);}
+.home-tip{margin:10px 20px 8px;background:white;border-radius:var(–r-xl);padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(–sh-sm);border-left:4px solid var(–tan-dark);}
 .home-tip .tip-icon{font-size:24px;flex-shrink:0;}
 .home-tip .tip-text{font-size:13px;line-height:1.5;color:var(–text-secondary);}
 .home-tip .tip-text b{color:var(–text-primary);font-weight:700;}
@@ -499,9 +508,8 @@ letter-spacing:2px;pointer-events:none;z-index:0;
 </div>
 
 <div id="toast"></div>
-</div>
 
-<!-- DETAIL PAGE -->
+<!-- DETAIL PAGE — 放在 #app 內避免 iOS Safari fixed 定位失效 -->
 
 <div id="dp">
   <div class="dhr" id="dhr">
@@ -516,6 +524,8 @@ letter-spacing:2px;pointer-events:none;z-index:0;
     <button class="btn btn-outline" onclick="copyAddr()">📋 複製</button>
   </div>
 </div>
+
+</div><!-- /#app -->
 
 <script>
 // ══════════════════════════════════════════════
