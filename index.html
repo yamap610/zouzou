@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 
 <!-- 走走 App | 上傳到 GitHub Pages 時：
-     請在 repo 根目錄建立 _config.yml 檔案，內容填入：
-     exclude: []
-     這樣 GitHub 就不會用 Jekyll 處理 HTML，避免頂部出現 ``` 符號。
-     或：在 repo 根目錄建立空白的 .nojekyll 檔案即可解決。 -->
+     請在 repo 根目錄建立空白的 .nojekyll 檔案即可解決頂部 ``` 問題。
+     PWA：需同時上傳 manifest.json 和 icons/ 資料夾到 repo 根目錄。 -->
 
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>走走 👣 你的育兒好去處</title>
+
+<!-- ── PWA Manifest ── -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C98F8F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="走走">
+<!-- Apple Touch Icons（需上傳到 repo） -->
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<!-- Splash screens for iOS -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -24,8 +37,17 @@
   --nav-h:70px;--safe-b:env(safe-area-inset-bottom,0px);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto Sans TC','PingFang TC',sans-serif;color:var(--text-primary);}
-#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.08);}
+html,body{
+  height:100%;overflow:hidden;background:#C9A97A; /* 奶茶色外框背景 */
+  font-family:'Noto Sans TC','PingFang TC',sans-serif;color:var(--text-primary);
+}
+#app{
+  display:flex;flex-direction:column;height:100%;
+  width:100%;max-width:430px;margin:0 auto;
+  background:var(--bg);position:relative;overflow:hidden;
+  /* 統一陰影，解決破版感 */
+  box-shadow:0 0 0 1px rgba(180,140,90,.15), 0 0 60px rgba(0,0,0,.18);
+}
 
 /* PAGES */
 .page{display:none;flex-direction:column;flex:1;overflow:hidden;}
@@ -34,14 +56,34 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .scroll-area{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 12px);-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .scroll-area::-webkit-scrollbar{display:none;}
 
-/* BOTTOM NAV */
-#nav{position:relative;z-index:100;background:white;border-top:1px solid var(--border);padding:8px 0 calc(8px + var(--safe-b));display:flex;align-items:flex-start;justify-content:space-around;box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px;transition:transform .15s;}
+/* ── BOTTOM NAV ── 優化1：未選中帶透明度 */
+#nav{
+  position:relative;z-index:100;background:white;
+  border-top:1px solid var(--border);
+  padding:8px 0 calc(8px + var(--safe-b));
+  display:flex;align-items:flex-start;justify-content:space-around;
+  box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:4px 2px;transition:transform .15s;
+  /* 未選中：整體帶透明度，焦點集中到 active */
+  opacity:.45;
+  transition:opacity .2s, transform .15s;
+}
 .nav-item:active{transform:scale(.92);}
-.nav-item .ni{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:10px;transition:background .2s,transform .2s;font-size:18px;}
+.nav-item.active{
+  opacity:1; /* 選中：100% 不透明 */
+}
+.nav-item .ni{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;transition:background .2s,transform .2s;font-size:18px;
+}
 .nav-item.active .ni{transform:scale(1.08);}
 .nav-item .nl{font-size:10px;color:var(--text-tertiary);font-weight:500;white-space:nowrap;line-height:1;transition:color .2s;}
 .nav-item.active .nl{font-weight:700;}
+
+/* active 背景色 per tab */
 .nav-item[data-page=home].active .ni{background:rgba(227,174,174,.22);}
 .nav-item[data-page=home].active .nl{color:var(--coral-dark);}
 .nav-item[data-page=attractions].active .ni{background:rgba(204,226,220,.30);}
@@ -101,12 +143,26 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .fb:active{transform:scale(.85);}
 
 /* HOME */
-.hhb{background:#EDE8E3;padding:44px 24px 36px;text-align:center;margin-top:0;border-radius:0 0 32px 32px;}
+.hhb{
+  /* 優化3：用品牌漸層取代純色，整體更協調 */
+  background:linear-gradient(160deg,#EDE8E3 0%,#E7D5C5 60%,#DFC8B0 100%);
+  padding:44px 24px 36px;text-align:center;
+  border-radius:0 0 36px 36px;
+  /* 讓 hero 和卡片區之間有呼吸感 */
+  margin-bottom:4px;
+}
 .hb{font-size:52px;margin-bottom:12px;animation:hbounce 2.5s ease-in-out infinite;display:block;}
 @keyframes hbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .ht{font-size:24px;font-weight:900;margin-bottom:6px;letter-spacing:-.5px;color:var(--text-primary);}
 .hs{font-size:14px;color:var(--text-secondary);margin-bottom:28px;}
-.dmb{display:inline-flex;align-items:center;gap:8px;background:#C9A97A;color:white;border:none;border-radius:100px;padding:16px 36px;font-family:inherit;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(180,140,90,.4);transition:transform .15s,box-shadow .15s;}
+.dmb{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#C9A97A,#b8926a);
+  color:white;border:none;border-radius:100px;
+  padding:16px 36px;font-family:inherit;font-size:17px;font-weight:700;
+  cursor:pointer;box-shadow:0 6px 24px rgba(180,140,90,.4);
+  transition:transform .15s,box-shadow .15s;
+}
 .dmb:active{transform:scale(.96);box-shadow:0 2px 10px rgba(180,140,90,.3);}
 
 /* SLOT */
@@ -118,27 +174,33 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 .sit-ic{font-size:24px;}
 .sit-nm{font-size:16px;font-weight:700;}
 .sit-cy{font-size:12px;color:var(--text-tertiary);}
-.shl{position:absolute;top:50%;left:0;right:0;height:60px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(227,174,174,.18),transparent);border-top:2px solid var(--coral);border-bottom:2px solid var(--coral);pointer-events:none;}
+.shl{position:absolute;top:50%;left:0;right:0;height:60px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(201,169,122,.15),transparent);border-top:2px solid var(--tan-dark);border-bottom:2px solid var(--tan-dark);pointer-events:none;}
 .sft,.sfb{position:absolute;left:0;right:0;height:60px;pointer-events:none;z-index:2;}
 .sft{top:0;background:linear-gradient(to bottom,white,transparent);}
 .sfb{bottom:0;background:linear-gradient(to top,white,transparent);}
 
-/* RESULT CARD */
+/* ── RESULT CARD ── 優化3：底色統一用品牌色系 */
 .rcw{width:100%;max-width:390px;display:none;}
 .rcw.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
 @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 .rcard{background:white;border-radius:var(--r-3xl);box-shadow:0 8px 32px rgba(120,80,60,.14);overflow:hidden;cursor:pointer;transition:transform .2s;}
 .rcard:active{transform:scale(.98);}
-.rcb{height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.rcb{
+  height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+  /* 優化3：預設底色改為品牌奶茶漸層，不再雜亂 */
+  background:linear-gradient(135deg,#EDE8E3,#DFC8B0);
+}
 .rcb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .rcb-em{position:relative;z-index:1;font-size:72px;}
 .rcc{padding:16px 18px 18px;}
 .rcbg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
 .rcbadge{border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;}
+/* 優化3：badge 色系統一用 App 設計 token */
 .rb-rose{background:#F8D7D7;color:#8B5C5C;}
 .rb-mint{background:var(--mint);color:#3A6B62;}
 .rb-lav{background:var(--lavender);color:#5A5472;}
 .rb-stone{background:#EDE8E3;color:#6B5C52;}
+.rb-tan{background:var(--tan);color:#6B5232;}
 .rcn{font-size:20px;font-weight:900;margin-bottom:3px;}
 .rcy{font-size:13px;color:var(--text-secondary);margin-bottom:10px;}
 .rctg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
@@ -152,8 +214,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Noto San
 /* 再抽一次 */
 .daw{width:100%;max-width:390px;display:none;justify-content:center;}
 .daw.show{display:flex;}
-.dab{border:2px solid var(--coral);background:transparent;color:var(--coral-dark);border-radius:100px;padding:13px 40px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
-.dab:hover{background:var(--coral);color:white;}
+.dab{border:2px solid var(--tan-dark);background:transparent;color:var(--tan-dark);border-radius:100px;padding:13px 40px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.dab:hover{background:var(--tan-dark);color:white;}
 .dab:active{transform:scale(.97);}
 
 /* QUICK NAV */
@@ -271,18 +333,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .fav-mini-name{font-size:10px;font-weight:600;color:var(--text-secondary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
 
 /* 天氣/心情提示條 */
-.home-tip{margin:0 20px 16px;background:white;border-radius:var(--r-xl);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh-sm);border-left:4px solid var(--coral);}
+.home-tip{margin:16px 20px 12px;background:white;border-radius:var(--r-xl);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh-sm);border-left:4px solid var(--tan-dark);}
 .home-tip .tip-icon{font-size:24px;flex-shrink:0;}
 .home-tip .tip-text{font-size:13px;line-height:1.5;color:var(--text-secondary);}
 .home-tip .tip-text b{color:var(--text-primary);font-weight:700;}
-</style>
 
+/* ── 外圍裝飾（桌機/平板上顯示品牌色背景） ── */
+@media(min-width:431px){
+  body::before{
+    content:'走走 👣';
+    position:fixed;top:24px;left:50%;transform:translateX(-50%);
+    font-size:13px;font-weight:700;color:rgba(255,255,255,.5);
+    letter-spacing:2px;pointer-events:none;z-index:0;
+  }
+}
+</style>
 </head>
 <body>
 <div id="app">
 
 <!-- HOME -->
-
 <div class="page active" id="page-home">
   <div class="scroll-area">
 
@@ -294,7 +364,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   <button class="dmb" onclick="startDraw()">🎲 Let's GO ٩(*•̀ᴗ•́*)و</button>
 </div>
 
-<!-- Slot + Result (hidden until draw) -->
+<!-- Slot + Result -->
 <div class="sa">
   <div class="sd" id="slot-drum">
     <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
@@ -320,36 +390,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   </div>
 </div>
 
-<!-- Pre-draw sections (hidden after draw) -->
+<!-- Pre-draw sections -->
 <div id="home-pre-content">
-
-  <!-- Tip bar -->
   <div class="home-tip" id="home-tip">
     <div class="tip-icon">💡</div>
     <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！<br>也可以直接逛各分類 👇</div>
   </div>
-
-  <!-- 今日精選 -->
   <div class="home-sec">
     <div class="home-sec-title">⭐ 今日精選</div>
     <div class="home-sec-more" onclick="goPage('attractions')">更多 →</div>
   </div>
   <div class="home-hscroll" id="home-featured"></div>
-
-  <!-- 我的收藏 -->
   <div class="home-sec">
     <div class="home-sec-title">❤️ 我的收藏</div>
     <div class="home-sec-more" onclick="goPage('favorites')">全部 →</div>
   </div>
   <div class="fav-preview-wrap" id="home-fav-preview"></div>
-
 </div>
 
   </div>
 </div>
 
 <!-- ATTRACTIONS -->
-
 <div class="page" id="page-attractions">
   <div class="ph"><div style="font-size:24px">🏞️</div><h1>景點</h1><button class="ib" onclick="requestGPS()">📍</button></div>
   <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋景點名稱、標籤..." id="search-attractions" oninput="filterList('attractions')"></div></div>
@@ -358,7 +420,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 
 <!-- RESTAURANTS -->
-
 <div class="page" id="page-restaurants">
   <div class="ph"><div style="font-size:24px">🍽️</div><h1>餐廳</h1><button class="ib" onclick="requestGPS()">📍</button></div>
   <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋餐廳名稱、特色..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
@@ -367,7 +428,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 
 <!-- SHOPPING -->
-
 <div class="page" id="page-shopping">
   <div class="ph"><div style="font-size:24px">🛍️</div><h1>購物</h1><button class="ib" onclick="requestGPS()">📍</button></div>
   <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋購物名稱..." id="search-shopping" oninput="filterList('shopping')"></div></div>
@@ -376,7 +436,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 
 <!-- ACCOMMODATION -->
-
 <div class="page" id="page-accommodation">
   <div class="ph"><div style="font-size:24px">🏨</div><h1>住宿</h1><button class="ib" onclick="requestGPS()">📍</button></div>
   <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋住宿名稱..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
@@ -385,7 +444,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 
 <!-- MEDICAL -->
-
 <div class="page" id="page-medical">
   <div class="ph"><div style="font-size:24px">🏥</div><h1>醫療</h1><button class="ib" onclick="requestGPS()">📍</button></div>
   <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋醫院、診所..." id="search-medical" oninput="filterList('medical')"></div></div>
@@ -394,14 +452,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 
 <!-- FAVORITES -->
-
 <div class="page" id="page-favorites">
   <div class="ph"><div style="font-size:24px">❤️</div><h1>我的收藏</h1></div>
   <div class="scroll-area" id="list-favorites"></div>
 </div>
 
 <!-- BOTTOM NAV -->
-
 <nav id="nav">
   <div class="nav-item active" data-page="home" onclick="goPage('home')"><div class="ni">🏠</div><div class="nl">首頁</div></div>
   <div class="nav-item" data-page="attractions" onclick="goPage('attractions')"><div class="ni">🏞️</div><div class="nl">景點</div></div>
@@ -413,7 +469,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </nav>
 
 <!-- FILTER MODAL -->
-
 <div class="mo" id="fmo" onclick="handleOverlayClick(event)">
   <div class="ms">
     <div class="mh"></div>
@@ -432,7 +487,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 <div id="toast"></div>
 </div>
 
-<!-- DETAIL PAGE -- 移到 #app 外面，避免被 overflow:hidden 裁切 -->
+<!-- DETAIL PAGE -->
 <div id="dp">
   <div class="dhr" id="dhr">
     <button class="dbk" onclick="closeDetail()">←</button>
@@ -463,16 +518,14 @@ const CAT_INFO = {
 };
 const REGIONS = ['台北市','新北市','基隆市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣'];
 
-// 景點子分類選項
 const ATT_TYPES = [
   {v:'zoo',       l:'🐾 動物園'},   {v:'farm',       l:'🐄 農場'},
-  {v:'outdoor',   l:'🌲 山林草地'},  {v:'water',      l:'💧 水域戲水'},
+  {v:'outdoor',   l:'🌲 山林草地'}, {v:'water',      l:'💧 水域戲水'},
   {v:'science',   l:'🔬 科學館'},   {v:'museum',     l:'🏺 博物館'},
   {v:'art_museum',l:'🎨 美術館'},   {v:'themepark',  l:'🎡 遊樂園'},
   {v:'cinema',    l:'🎬 親子影城'}, {v:'factory',    l:'🏭 觀光工廠'},
   {v:'indoor',    l:'🏠 其他室內'}, {v:'other_out',  l:'🌤 其他戶外'},
 ];
-// 餐廳特色選項 (值對應 features 欄位 / hasXxx 欄位)
 const REST_FEATS = [
   {v:'playarea',   l:'🧸 兒童遊戲區'}, {v:'kidseat',    l:'🪑 兒童座椅'},
   {v:'kidmeal',    l:'🍽 兒童餐/寶寶粥'},{v:'kidcutlery', l:'🔪 可提供兒童餐具'},
@@ -572,7 +625,6 @@ function goPage(page){
   currentPage=page;
   if(page==='favorites') renderFavorites();
   else if(page==='home'){
-    // reset: show pre-draw content, hide slot results
     const pre=document.getElementById('home-pre-content');
     if(pre) pre.style.display='';
     document.getElementById('rcw').classList.remove('show');
@@ -632,7 +684,6 @@ function cardHTML(item){
   const bg=item.bg||(CAT_INFO[cat]?.bg)||'#F0F0F0';
   const tags=(item.tags||'').split(',').filter(Boolean).slice(0,2);
   const dist=item._d!==undefined?`<span class="ld">📍${item._d.toFixed(1)}km</span>`:'';
-  // list always shows category icon (no photo per spec)
   return `<div class="lc" onclick="goDetail('${item.id}','${cat}')">
     <div class="lc-icon" style="background:${bg}">${item.emoji||'📍'}</div>
     <div class="lc-body">
@@ -717,7 +768,21 @@ function goDetail(id,cat){
   document.getElementById('dp').classList.add('open');
 }
 function closeDetail(){document.getElementById('dp').classList.remove('open');}
-function openMap(){if(!currentDetail)return;const q=currentDetail.lat&&currentDetail.lng?`${currentDetail.lat},${currentDetail.lng}`:encodeURIComponent(currentDetail.address||currentDetail.name);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank');}
+
+// ── 優化2：Google Maps 改用地點名稱搜尋，可看評論照片 ──
+function buildMapUrl(item){
+  if(!item) return '';
+  // 優先用地址搜尋（準確），fallback 到地點名稱
+  const q = item.address
+    ? encodeURIComponent(item.address)
+    : encodeURIComponent(item.name + (item.region ? ' ' + item.region : ''));
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+
+function openMap(){
+  if(!currentDetail) return;
+  window.open(buildMapUrl(currentDetail), '_blank');
+}
 function openWebsite(){if(!currentDetail)return;const u=currentDetail.website||currentDetail.bookingUrl;u?window.open(u,'_blank'):showToast('此地點尚未提供官方網站');}
 function copyAddr(){if(!currentDetail)return;navigator.clipboard?.writeText(currentDetail.address||currentDetail.name).then(()=>showToast('✅ 已複製地址')).catch(()=>showToast('📋 '+currentDetail.address));}
 function toggleFavDetail(){if(!currentDetail)return;toggleFavById(currentDetail.id);const isFav=favorites.includes(currentDetail.id);const b=document.getElementById('dfv');b.textContent=isFav?'❤️':'🤍';b.classList.toggle('on',isFav);}
@@ -748,7 +813,6 @@ function renderHomePage(){
 function renderHomeFeatured(){
   const el=document.getElementById('home-featured');
   if(!el)return;
-  // pick up to 6 items with highest rating from attractions+restaurants+shopping
   const pool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);
   if(!pool.length){el.innerHTML='<div style="padding:8px;font-size:13px;color:var(--text-tertiary)">資料載入中...</div>';return;}
   const picks=[...pool].sort((a,b)=>(+b.rating||0)-(+a.rating||0)).slice(0,6);
@@ -800,14 +864,13 @@ function renderHomeFavPreview(){
 }
 
 // ══════════════════════════════════════════════
-// SLOT MACHINE -- 只抽 景點+餐廳+購物
+// SLOT MACHINE
 // ══════════════════════════════════════════════
 function updatePool(){randomPool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);renderHomeFeatured();}
 
 function startDraw(){
   const pool=randomPool.length?randomPool:Object.values(data).flat();
   if(!pool.length){showToast('資料載入中，請稍後再試');return;}
-  // hide pre-draw content, keep hidden after that
   const pre=document.getElementById('home-pre-content');
   if(pre) pre.style.display='none';
   document.getElementById('rcw').classList.remove('show');
@@ -828,31 +891,43 @@ function startDraw(){
 
 function showResult(){
   const p=drawnPlace;if(!p)return;
-  const cat=p.cat||'attractions';const info=CAT_INFO[cat]||{};const bg=p.bg||info.bg||'#F8D7D7';
+  const cat=p.cat||'attractions';const info=CAT_INFO[cat]||{};
+  // 優化3：結果卡底色統一用品牌奶茶漸層，不用各自雜亂的 bg
   const tags=(p.tags||'').split(',').filter(Boolean);
   document.getElementById('slot-drum').classList.remove('show');
   const banner=document.getElementById('rcb');
-  banner.style.background=bg;
+  // 用奶茶漸層做預設，有圖片則疊加圖片
+  banner.style.background='linear-gradient(135deg,#EDE8E3,#DFC8B0)';
   if(p.imageUrl&&p.imageUrl.trim()){
     banner.innerHTML=`<img src="${p.imageUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.remove()"><span class="rcb-em">${p.emoji||'📍'}</span>`;
   } else {
     banner.innerHTML=`<span class="rcb-em">${p.emoji||'📍'}</span>`;
   }
+
+  // badge 色依分類統一
+  const badgeClass = {
+    attractions:'rb-mint', restaurants:'rb-rose',
+    shopping:'rb-tan', accommodation:'rb-lav', medical:'rb-mint'
+  }[cat]||'rb-stone';
+
   document.getElementById('rcbg').innerHTML=
-    `<span class="rcbadge rb-rose">${info.label||cat}</span>`+
+    `<span class="rcbadge ${badgeClass}">${info.label||cat}</span>`+
     (p.indoor==='TRUE'?'<span class="rcbadge rb-stone">室內</span>':p.indoor==='FALSE'?'<span class="rcbadge rb-stone">戶外</span>':'')+
-    (p.priceLabel?`<span class="rcbadge rb-lav">${p.priceLabel}</span>`:'');
+    (p.priceLabel?`<span class="rcbadge rb-stone">${p.priceLabel}</span>`:'');
   document.getElementById('rcn').textContent=p.name;
   document.getElementById('rcy').textContent=`📍 ${p.region||''}`;
   document.getElementById('rctg').innerHTML=tags.map(t=>`<span class="rctag">${t}</span>`).join('');
-  document.getElementById('rcmap').onclick=()=>{const q=p.lat&&p.lng?`${p.lat},${p.lng}`:encodeURIComponent(p.address||p.name);window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank');};
+
+  // 優化2：導航按鈕也改用地名搜尋
+  document.getElementById('rcmap').onclick=()=>window.open(buildMapUrl(p),'_blank');
+
   document.getElementById('rcw').classList.add('show');
   document.getElementById('daw').classList.add('show');
 }
 function openDetailFromResult(){if(drawnPlace)goDetail(drawnPlace.id,drawnPlace.cat);}
 
 // ══════════════════════════════════════════════
-// FILTER MODAL -- per category
+// FILTER MODAL
 // ══════════════════════════════════════════════
 function openFilter(cat){
   filterCat=cat;
@@ -860,7 +935,6 @@ function openFilter(cat){
   const titles={attractions:'🏞️ 景點篩選',restaurants:'🍽️ 餐廳篩選',shopping:'🛍️ 購物篩選',accommodation:'🏨 住宿篩選',medical:'🏥 醫療篩選'};
   document.getElementById('fmo-title').textContent=titles[cat]||'篩選';
   let html='';
-  // GPS
   html+=`<div class="msc"><div class="mst"><div class="sd-dot" style="background:var(--mint-dark)"></div>定位距離篩選</div>
     <div class="gpsbtn ${isGPS?'on':''}" onclick="reqGPS()"><span>📍</span><span id="gpslbl">${isGPS?'✅ 已定位 · 按距離排序':'啟用定位（按距離排序）'}</span></div>
     <div id="gpsdist" style="display:${isGPS?'block':'none'}">
@@ -868,19 +942,16 @@ function openFilter(cat){
       <div class="rl"><span>5km</span><span id="distval">${cf.distance||80}km 以內</span><span>80km</span></div>
     </div>
   </div>`;
-  // Type filter -- attractions
   if(cat==='attractions'){
     html+=`<div class="msc"><div class="mst"><div class="sd-dot"></div>景點類型（可多選）</div>
       <div class="cw">${ATT_TYPES.map(o=>`<div class="chip ${cf.subCats.includes(o.v)?'active':''}" onclick="toggleType(this,'${cat}','${o.v}')">${o.l}</div>`).join('')}</div>
     </div>`;
   }
-  // Feature filter -- restaurants
   if(cat==='restaurants'){
     html+=`<div class="msc"><div class="mst"><div class="sd-dot"></div>餐廳特色（可多選）</div>
       <div class="cw">${REST_FEATS.map(o=>`<div class="chip ${cf.feats.includes(o.v)?'active':''}" onclick="toggleFeat(this,'${cat}','${o.v}')">${o.l}</div>`).join('')}</div>
     </div>`;
   }
-  // Region -- all
   html+=`<div class="msc"><div class="mst"><div class="sd-dot" style="background:var(--tan-dark)"></div>地區（可多選）</div>
     <div class="cw">${REGIONS.map(r=>`<div class="chip ${cf.regions.includes(r)?'active':''}" onclick="toggleReg(this,'${cat}','${r}')">${r}</div>`).join('')}</div>
   </div>`;
@@ -936,7 +1007,13 @@ document.addEventListener('keydown',e=>{
     else if(document.getElementById('fmo').classList.contains('open'))applyFilters();
   }
 });
-</script>
 
+// ── PWA Service Worker 註冊 ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
 </body>
 </html>
