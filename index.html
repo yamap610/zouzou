@@ -1,1040 +1,505 @@
 <!DOCTYPE html>
-
-<!-- 走走 App | 上傳到 GitHub Pages 時：
-     請在 repo 根目錄建立空白的 .nojekyll 檔案即可解決頂部 ``` 問題。
-     PWA：需同時上傳 manifest.json 和 icons/ 資料夾到 repo 根目錄。 -->
-
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>走走 👣 你的育兒好去處</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>走走 ZOUZOU</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #E4B6B6;
+            --bg: #FFFBF0;
+            --text: #5A4A47;
+            --secondary: #8B8178;
+        }
 
-<!-- ── PWA Manifest ── -->
+        /* 模擬全字庫正圓體 Chiron GoRound TC 的圓潤感 */
+        body {
+            font-family: 'Noto Sans TC', "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", sans-serif;
+            background-color: #f8f8f8;
+            color: var(--text);
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C98F8F">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="走走">
-<!-- Apple Touch Icons（需上傳到 repo） -->
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
-<!-- Splash screens for iOS -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        .font-goround {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#FEFDF5;--text-primary:#333333;--text-secondary:#666666;--text-tertiary:#999999;
-  --mint:#CCE2DC;--mint-dark:#a8cdc6;--lavender:#CDC8D3;--lavender-dark:#a9a3b0;
-  --coral:#E3AEAE;--coral-dark:#c98f8f;--tan:#E7CBA7;--tan-dark:#c9a97a;
-  --border:#E8E6E1;--divider:#F0EDE8;
-  --sh-sm:0 2px 8px rgba(0,0,0,.07);--sh-md:0 4px 16px rgba(0,0,0,.10);--sh-lg:0 8px 24px rgba(0,0,0,.14);
-  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-3xl:24px;
-  --nav-h:70px;--safe-b:env(safe-area-inset-bottom,0px);
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{
-  height:100%;overflow:hidden;background:var(--bg);
-  font-family:'Noto Sans TC','PingFang TC',sans-serif;color:var(--text-primary);
-}
-#app{
-  display:flex;flex-direction:column;height:100%;
-  width:100%;
-  background:var(--bg);position:relative;
-  overflow:hidden;
-}
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: var(--bg);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
 
-/* PAGES */
-.page{display:none;flex-direction:column;flex:1;overflow:hidden;}
-.page.active{display:flex;animation:fadeIn .25s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.scroll-area{flex:1;overflow-y:auto;padding-bottom:calc(var(–nav-h) + var(–safe-b) + 12px);-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-.scroll-area::-webkit-scrollbar{display:none;}
+        .safe-pb { padding-bottom: calc(env(safe-area-inset-bottom) + 100px); }
+        
+        .glass-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 251, 240, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 40;
+            border-bottom: 1px solid rgba(232, 227, 223, 0.5);
+        }
 
-/* ── BOTTOM NAV ── 優化1：未選中帶透明度 */
-#nav{
-position:relative;z-index:100;background:white;
-border-top:1px solid var(–border);
-padding:8px 0 calc(8px + var(–safe-b));
-display:flex;align-items:flex-start;justify-content:space-around;
-box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0;
-}
-.nav-item{
-flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-cursor:pointer;padding:4px 2px;transition:transform .15s;
-/* 未選中：整體帶透明度，焦點集中到 active */
-opacity:.45;
-transition:opacity .2s, transform .15s;
-}
-.nav-item:active{transform:scale(.92);}
-.nav-item.active{
-opacity:1; /* 選中：100% 不透明 */
-}
-.nav-item .ni{
-width:32px;height:32px;display:flex;align-items:center;justify-content:center;
-border-radius:10px;transition:background .2s,transform .2s;font-size:18px;
-}
-.nav-item.active .ni{transform:scale(1.08);}
-.nav-item .nl{font-size:10px;color:var(–text-tertiary);font-weight:500;white-space:nowrap;line-height:1;transition:color .2s;}
-.nav-item.active .nl{font-weight:700;}
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-/* active 背景色 per tab */
-.nav-item[data-page=home].active .ni{background:rgba(227,174,174,.22);}
-.nav-item[data-page=home].active .nl{color:var(–coral-dark);}
-.nav-item[data-page=attractions].active .ni{background:rgba(204,226,220,.30);}
-.nav-item[data-page=attractions].active .nl{color:var(–mint-dark);}
-.nav-item[data-page=restaurants].active .ni{background:rgba(227,174,174,.22);}
-.nav-item[data-page=restaurants].active .nl{color:var(–coral-dark);}
-.nav-item[data-page=shopping].active .ni{background:rgba(231,203,167,.28);}
-.nav-item[data-page=shopping].active .nl{color:var(–tan-dark);}
-.nav-item[data-page=accommodation].active .ni{background:rgba(205,200,211,.28);}
-.nav-item[data-page=accommodation].active .nl{color:var(–lavender-dark);}
-.nav-item[data-page=medical].active .ni{background:rgba(204,226,220,.30);}
-.nav-item[data-page=medical].active .nl{color:var(–mint-dark);}
-.nav-item[data-page=favorites].active .ni{background:rgba(227,174,174,.22);}
-.nav-item[data-page=favorites].active .nl{color:var(–coral-dark);}
+        .btn-primary:active { transform: scale(0.95); opacity: 0.9; }
 
-/* COMMON */
-.btn{border:none;cursor:pointer;font-family:inherit;font-weight:600;border-radius:var(–r-xl);transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
-.btn:active{transform:scale(.96);}
-.btn-coral{background:var(–coral);color:white;padding:13px 24px;font-size:14px;box-shadow:var(–sh-sm);}
-.btn-outline{background:white;color:var(–text-primary);border:1.5px solid var(–border);padding:13px 18px;font-size:14px;}
-.btn-mint{background:var(–mint-dark);color:white;padding:13px 18px;font-size:14px;}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(–r-md);font-size:12px;font-weight:500;border:1.5px solid var(–border);background:white;cursor:pointer;transition:.15s;color:var(–text-secondary);white-space:nowrap;}
-.chip.active{background:var(–coral);border-color:var(–coral);color:white;}
-.chip:active{transform:scale(.95);}
+        .card {
+            background: white;
+            border: 1px solid #E8E3DF;
+            border-radius: 2.2rem;
+            transition: all 0.2s;
+        }
 
-/* PAGE HEADER */
-.ph{padding:16px 20px 10px;display:flex;align-items:center;gap:12px;background:var(–bg);flex-shrink:0;}
-.ph h1{font-size:22px;font-weight:700;letter-spacing:-.5px;flex:1;}
-.ib{width:40px;height:40px;border-radius:var(–r-lg);background:white;border:1.5px solid var(–border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(–sh-sm);font-size:16px;transition:.15s;flex-shrink:0;}
-.ib:active{transform:scale(.94);}
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(90, 74, 71, 0.4);
+            backdrop-filter: blur(6px);
+            z-index: 100;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
 
-/* SEARCH BAR */
-.sw{padding:0 20px 10px;flex-shrink:0;}
-.sb{display:flex;align-items:center;gap:10px;background:white;border:1.5px solid var(–border);border-radius:var(–r-lg);padding:10px 14px;box-shadow:var(–sh-sm);}
-.sb input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:var(–text-primary);}
-.sb input::placeholder{color:var(–text-tertiary);}
+        .modal-content {
+            background: var(--bg);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 3.5rem 3.5rem 0 0;
+            padding: 2.5rem;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
 
-/* FILTER CHIPS ROW */
-.fr{padding:0 20px 10px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;}
-.fr::-webkit-scrollbar{display:none;}
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
 
-/* LOCATION CARD */
-.lc{margin:0 16px 12px;display:flex;gap:12px;padding:14px 16px;background:white;border-radius:var(–r-3xl);box-shadow:var(–sh-sm);cursor:pointer;transition:.2s;}
-.lc:active{transform:scale(.98);}
-.lc-icon{width:64px;height:64px;border-radius:var(–r-xl);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;overflow:hidden;}
-.lc-icon img{width:100%;height:100%;object-fit:cover;}
-.lc-body{flex:1;min-width:0;}
-.lc-body h3{font-size:15px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lc-body p{font-size:12px;color:var(–text-secondary);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.lc-meta{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap;}
-.lt{font-size:11px;padding:3px 7px;border-radius:6px;background:var(–divider);color:var(–text-secondary);white-space:nowrap;}
-.lp{font-size:11px;font-weight:600;color:var(–coral-dark);}
-.ld{font-size:11px;color:var(–text-tertiary);margin-left:auto;}
-.lc-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
-.fb{width:30px;height:30px;border-radius:50%;background:var(–divider);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.15s;}
-.fb.on{background:#FFE4E4;}
-.fb:active{transform:scale(.85);}
+        .nav-item { transition: all 0.3s; }
+        .nav-item.active { color: var(--primary); opacity: 1; transform: translateY(-2px); }
+        .nav-item.active i { transform: scale(1.1); }
 
-/* HOME */
-.hhb{
-/* 從頂部的暖米色，漸層到底部的 #FEFDF5，讓 hero 和下方內容無縫銜接 */
-background:linear-gradient(180deg,#EDE8E3 0%,#F5F0EA 55%,#FEFDF5 100%);
-padding:36px 24px 24px;text-align:center;
-border-radius:0;
-margin-bottom:0;
-}
-.hb{font-size:52px;margin-bottom:12px;animation:hbounce 2.5s ease-in-out infinite;display:block;}
-@keyframes hbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.ht{font-size:24px;font-weight:900;margin-bottom:6px;letter-spacing:-.5px;color:var(–text-primary);}
-.hs{font-size:14px;color:var(–text-secondary);margin-bottom:28px;}
-.dmb{
-display:inline-flex;align-items:center;gap:8px;
-/* 淺一點的奶茶色，不違和 */
-background:linear-gradient(135deg,#D4B896,#C4A07E);
-color:white;border:none;border-radius:100px;
-padding:16px 36px;font-family:inherit;font-size:17px;font-weight:700;
-cursor:pointer;box-shadow:0 4px 18px rgba(180,140,90,.28);
-transition:transform .15s,box-shadow .15s;
-}
-.dmb:active{transform:scale(.96);box-shadow:0 2px 10px rgba(180,140,90,.2);}
-
-/* SLOT */
-.sa{padding:8px 20px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;}
-.sd{width:100%;max-width:390px;height:180px;overflow:hidden;border-radius:var(–r-3xl);background:white;box-shadow:0 4px 20px rgba(120,80,60,.14);position:relative;display:none;}
-.sd.show{display:block;}
-.si{display:flex;flex-direction:column;transition:transform .05s linear;}
-.sit{height:60px;display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
-.sit-ic{font-size:24px;}
-.sit-nm{font-size:16px;font-weight:700;}
-.sit-cy{font-size:12px;color:var(–text-tertiary);}
-.shl{position:absolute;top:50%;left:0;right:0;height:60px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(201,169,122,.15),transparent);border-top:2px solid var(–tan-dark);border-bottom:2px solid var(–tan-dark);pointer-events:none;}
-.sft,.sfb{position:absolute;left:0;right:0;height:60px;pointer-events:none;z-index:2;}
-.sft{top:0;background:linear-gradient(to bottom,white,transparent);}
-.sfb{bottom:0;background:linear-gradient(to top,white,transparent);}
-
-/* ── RESULT CARD ── 優化3：底色統一用品牌色系 */
-.rcw{width:100%;max-width:390px;display:none;}
-.rcw.show{display:block;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
-@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
-.rcard{background:white;border-radius:var(–r-3xl);box-shadow:0 8px 32px rgba(120,80,60,.14);overflow:hidden;cursor:pointer;transition:transform .2s;}
-.rcard:active{transform:scale(.98);}
-.rcb{
-height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
-/* 優化3：預設底色改為品牌奶茶漸層，不再雜亂 */
-background:linear-gradient(135deg,#EDE8E3,#DFC8B0);
-}
-.rcb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.rcb-em{position:relative;z-index:1;font-size:72px;}
-.rcc{padding:16px 18px 18px;}
-.rcbg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
-.rcbadge{border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;}
-/* 優化3：badge 色系統一用 App 設計 token */
-.rb-rose{background:#F8D7D7;color:#8B5C5C;}
-.rb-mint{background:var(–mint);color:#3A6B62;}
-.rb-lav{background:var(–lavender);color:#5A5472;}
-.rb-stone{background:#EDE8E3;color:#6B5C52;}
-.rb-tan{background:var(–tan);color:#6B5232;}
-.rcn{font-size:20px;font-weight:900;margin-bottom:3px;}
-.rcy{font-size:13px;color:var(–text-secondary);margin-bottom:10px;}
-.rctg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
-.rctag{background:#F5F0E8;border-radius:8px;padding:3px 10px;font-size:11px;color:var(–text-secondary);}
-.rca{display:flex;gap:8px;}
-.rcbtn{flex:1;padding:11px;border-radius:14px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;}
-.rcbtn:active{opacity:.8;}
-.rcbtn-map{background:var(–lavender);color:var(–text-primary);}
-.rcbtn-more{background:var(–coral-dark);color:white;}
-
-/* 再抽一次 */
-.daw{width:100%;max-width:390px;display:none;justify-content:center;}
-.daw.show{display:flex;}
-.dab{border:2px solid var(–tan-dark);background:transparent;color:var(–tan-dark);border-radius:100px;padding:13px 40px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
-.dab:hover{background:var(–tan-dark);color:white;}
-.dab:active{transform:scale(.97);}
-
-/* QUICK NAV */
-.st{font-size:16px;font-weight:700;padding:0 20px 12px;}
-.qn{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px 24px;}
-.qni{background:white;border-radius:var(–r-xl);padding:16px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:1.5px solid var(–border);box-shadow:var(–sh-sm);transition:.15s;}
-.qni:active{transform:scale(.95);}
-.qni .qe{font-size:28px;}
-.qni span{font-size:12px;font-weight:600;color:var(–text-secondary);}
-
-/* FILTER MODAL */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:none;align-items:flex-end;}
-.mo.open{display:flex;animation:ovIn .2s ease;}
-@keyframes ovIn{from{opacity:0}to{opacity:1}}
-.ms{background:white;border-radius:var(–r-3xl) var(–r-3xl) 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:shUp .28s cubic-bezier(.34,1.3,.64,1);}
-@keyframes shUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.mh{width:36px;height:4px;background:var(–divider);border-radius:99px;margin:12px auto 0;flex-shrink:0;}
-.mhd{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(–divider);flex-shrink:0;}
-.mt{font-size:17px;font-weight:700;}
-.cb{background:var(–coral);color:white;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;}
-.mb{overflow-y:auto;flex:1;padding:0 20px 16px;}
-.mb::-webkit-scrollbar{display:none;}
-.msc{padding-top:18px;}
-.mst{font-size:12px;font-weight:700;color:var(–text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
-.sd-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.cw{display:flex;flex-wrap:wrap;gap:8px;}
-.mf{padding:12px 20px calc(12px + var(–safe-b));border-top:1px solid var(–divider);display:flex;gap:10px;flex-shrink:0;}
-.mf .btn{flex:1;}
-
-/* GPS BTN */
-.gpsbtn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(–r-lg);border:1.5px solid var(–mint-dark);background:rgba(204,226,220,.15);cursor:pointer;font-size:13px;font-weight:600;color:var(–mint-dark);transition:.15s;margin-bottom:10px;}
-.gpsbtn:active{transform:scale(.97);}
-.gpsbtn.on{background:var(–mint);color:white;border-color:var(–mint-dark);}
-
-/* RANGE SLIDER */
-input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(–divider);border-radius:2px;outline:none;margin:8px 0;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(–coral);cursor:pointer;box-shadow:var(–sh-sm);}
-.rl{display:flex;justify-content:space-between;font-size:12px;color:var(–text-tertiary);margin-top:2px;}
-
-/* DETAIL PAGE — 與 #app 同層，同樣佔滿全螢幕 */
-#dp{
-display:none;
-flex-direction:column;
-height:100%;
-width:100%;
-background:var(–bg);
-overflow:hidden;
-}
-#dp.open{display:flex;}
-.dhr{height:240px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;background:#F0EDE8;overflow:hidden;}
-.dhr img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.dhe{font-size:80px;position:relative;z-index:1;}
-.dbk{position:absolute;top:16px;left:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(–sh-sm);z-index:2;}
-.dfv{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(–sh-sm);transition:.15s;z-index:2;}
-.dfv:active{transform:scale(.88);}
-.dfv.on{background:#FFE4E4;}
-.dbd{flex:1;overflow-y:auto;padding:20px 20px 100px;-webkit-overflow-scrolling:touch;}
-.dbd::-webkit-scrollbar{display:none;}
-.dbd h1{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
-.dtgs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.dtag{font-size:11px;padding:4px 10px;border-radius:8px;background:var(–divider);color:var(–text-secondary);font-weight:500;}
-.dpx{background:var(–coral);color:white;}
-.rrow{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-.stars{color:#F4B942;font-size:14px;letter-spacing:1px;}
-.dir{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(–divider);}
-.diic{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
-.dic .dlb{font-size:12px;color:var(–text-tertiary);margin-bottom:2px;}
-.dic .dvl{font-size:14px;font-weight:600;color:var(–text-primary);}
-.dic a.dvl{color:var(–coral-dark);text-decoration:none;}
-.ddsc{background:var(–divider);border-radius:var(–r-xl);padding:16px;margin:14px 0;}
-.ddsc p{font-size:14px;line-height:1.7;color:var(–text-secondary);}
-.dfeat{margin:14px 0;}
-.dfeat h3{font-size:14px;font-weight:700;margin-bottom:8px;}
-.fcw{display:flex;flex-wrap:wrap;gap:8px;}
-.fchip{font-size:12px;padding:6px 12px;border-radius:10px;background:white;border:1.5px solid var(–border);color:var(–text-secondary);}
-.dbot{position:absolute;bottom:0;left:0;right:0;background:white;border-top:1px solid var(–divider);padding:12px 20px calc(12px + var(–safe-b));display:flex;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
-.dbot .btn{flex:1;font-size:14px;padding:13px;}
-
-/* MISC */
-.empty-st{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;}
-.empty-st .ee{font-size:64px;}
-.empty-st h3{font-size:18px;font-weight:700;}
-.empty-st p{font-size:14px;color:var(–text-secondary);text-align:center;line-height:1.6;}
-.lw{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:12px;}
-.spin{width:32px;height:32px;border:3px solid var(–divider);border-top-color:var(–coral);border-radius:50%;animation:rot .8s linear infinite;}
-@keyframes rot{to{transform:rotate(360deg)}}
-.nr{display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:12px;}
-.nr .ne{font-size:48px;}
-.nr p{font-size:14px;color:var(–text-tertiary);}
-#toast{position:fixed;bottom:calc(var(–nav-h) + var(–safe-b) + 16px);left:50%;transform:translateX(-50%) translateY(12px);background:#333;color:white;font-size:13px;font-weight:500;padding:10px 20px;border-radius:var(–r-xl);z-index:1000;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* ── HOME SECTIONS ── */
-.home-sec{padding:12px 20px 4px;display:flex;align-items:center;justify-content:space-between;}
-.home-sec-title{font-size:15px;font-weight:700;letter-spacing:-.3px;}
-.home-sec-more{font-size:12px;color:var(–coral-dark);font-weight:600;cursor:pointer;padding:4px 0;}
-
-/* 精選橫向卡片 */
-.home-hscroll{display:flex;gap:12px;padding:6px 20px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.home-hscroll::-webkit-scrollbar{display:none;}
-.hcard{flex-shrink:0;width:160px;background:white;border-radius:var(–r-xl);box-shadow:var(–sh-sm);overflow:hidden;cursor:pointer;transition:.15s;}
-.hcard:active{transform:scale(.97);}
-.hcard-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden;}
-.hcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.hcard-img-em{position:relative;z-index:1;}
-.hcard-body{padding:10px 12px 12px;}
-.hcard-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
-.hcard-meta{display:flex;align-items:center;gap:5px;}
-.hcard-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:var(–divider);color:var(–text-secondary);white-space:nowrap;}
-.hcard-price{font-size:10px;font-weight:600;color:var(–coral-dark);}
-
-/* 收藏預覽 */
-.fav-preview-wrap{padding:0 20px 20px;}
-.fav-preview-empty{background:white;border-radius:var(–r-xl);padding:20px;display:flex;align-items:center;gap:14px;box-shadow:var(–sh-sm);}
-.fav-preview-empty .fpe-icon{font-size:32px;flex-shrink:0;}
-.fav-preview-empty .fpe-text h4{font-size:14px;font-weight:700;margin-bottom:2px;}
-.fav-preview-empty .fpe-text p{font-size:12px;color:var(–text-tertiary);line-height:1.5;}
-.fav-mini-scroll{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.fav-mini-scroll::-webkit-scrollbar{display:none;}
-.fav-mini-card{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
-.fav-mini-icon{width:56px;height:56px;border-radius:var(–r-lg);display:flex;align-items:center;justify-content:center;font-size:26px;}
-.fav-mini-name{font-size:10px;font-weight:600;color:var(–text-secondary);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
-
-/* 天氣/心情提示條 */
-.home-tip{margin:10px 20px 8px;background:white;border-radius:var(–r-xl);padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(–sh-sm);border-left:4px solid var(–tan-dark);}
-.home-tip .tip-icon{font-size:24px;flex-shrink:0;}
-.home-tip .tip-text{font-size:13px;line-height:1.5;color:var(–text-secondary);}
-.home-tip .tip-text b{color:var(–text-primary);font-weight:700;}
-
-</style>
+        /* 隱藏捲軸 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        #toast {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
 
-<!-- HOME -->
+<div id="app" class="app-container">
+    <!-- Loading Screen (自動消失防止卡住) -->
+    <div id="loading-screen" class="fixed inset-0 bg-[#FFFBF0] z-[200] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-[#E4B6B6]/20 border-t-[#E4B6B6] rounded-full animate-spin mb-4"></div>
+        <p class="text-[#E4B6B6] font-goround text-sm">正在載入專屬推薦...</p>
+    </div>
 
-<div class="page active" id="page-home">
-  <div class="scroll-area">
-
-<!-- Hero Banner -->
-
-<div class="hhb">
-  <span class="hb">🎒</span>
-  <div class="ht">走走，今天去哪裡？</div>
-  <div class="hs">抽一個育兒好去處 ✨</div>
-  <button class="dmb" onclick="startDraw()">🎲 Let's GO ٩(*•̀ᴗ•́*)و</button>
-</div>
-
-<!-- Slot + Result -->
-
-<div class="sa">
-  <div class="sd" id="slot-drum">
-    <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
-    <div class="si" id="slot-inner"></div>
-  </div>
-  <div class="rcw" id="rcw">
-    <div class="rcard" onclick="openDetailFromResult()">
-      <div class="rcb" id="rcb"></div>
-      <div class="rcc">
-        <div class="rcbg" id="rcbg"></div>
-        <div class="rcn" id="rcn"></div>
-        <div class="rcy" id="rcy"></div>
-        <div class="rctg" id="rctg"></div>
-        <div class="rca">
-          <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
-          <button class="rcbtn rcbtn-more">📖 查看詳情</button>
+    <!-- Header -->
+    <header class="glass-header px-6 pt-12 pb-5 flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 bg-[#E4B6B6] rounded-2xl flex items-center justify-center text-white shadow-sm rotate-6">
+                <i data-lucide="compass" size="22"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-lg font-goround leading-none tracking-wider">走走 ZOUZOU</span>
+                <span class="text-[9px] opacity-30 font-bold uppercase tracking-tighter mt-1">Discovery & Fun</span>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="daw" id="daw">
-    <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
-  </div>
+        <div class="flex gap-2">
+            <button id="btn-admin-key" class="hidden p-3 rounded-full bg-white border border-[#E8E3DF] text-[#8B8178] active:scale-90">
+                <i data-lucide="key" size="18"></i>
+            </button>
+            <button id="btn-admin-settings" class="p-3 rounded-full bg-white border border-[#E8E3DF] text-[#8B8178] active:scale-90">
+                <i data-lucide="settings" size="18"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main View Area -->
+    <main id="main-view" class="px-6 flex-1 safe-pb"></main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full max-w-[480px] bg-white/95 backdrop-blur-xl border-t border-[#E8E3DF] flex justify-around items-center pt-4 pb-10 z-50">
+        <button onclick="switchTab('home')" class="nav-item flex flex-col items-center gap-1.5 opacity-30 text-[#8B8178]" data-tab="home">
+            <i data-lucide="sparkles" size="22"></i><span class="text-[10px] font-bold font-goround">抽選</span>
+        </button>
+        <button onclick="switchTab('browse')" class="nav-item flex flex-col items-center gap-1.5 opacity-30 text-[#8B8178]" data-tab="browse">
+            <i data-lucide="layout-grid" size="22"></i><span class="text-[10px] font-bold font-goround">瀏覽</span>
+        </button>
+        <button onclick="openEditModal()" class="nav-item flex flex-col items-center gap-1.5 opacity-40 text-[#8B8178]">
+            <div class="w-11 h-11 bg-[#FFFBF0] rounded-2xl border border-[#E8E3DF] flex items-center justify-center -mt-2">
+                <i data-lucide="plus" size="20"></i>
+            </div>
+        </button>
+        <button onclick="switchTab('about')" class="nav-item flex flex-col items-center gap-1.5 opacity-30 text-[#8B8178]" data-tab="about">
+            <i data-lucide="info" size="22"></i><span class="text-[10px] font-bold font-goround">關於</span>
+        </button>
+    </nav>
+
+    <!-- UI Elements -->
+    <div id="modal-container"></div>
+    <div id="toast" class="px-6 py-3 bg-[#5A4A47] text-white rounded-full text-xs shadow-2xl transition-all duration-300 opacity-0 scale-90 hidden"></div>
 </div>
 
-<!-- Pre-draw sections -->
+<script type="module">
+    // Firebase 初始化
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-<div id="home-pre-content">
-  <div class="home-tip" id="home-tip">
-    <div class="tip-icon">💡</div>
-    <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！<br>也可以直接逛各分類 👇</div>
-  </div>
-  <div class="home-sec">
-    <div class="home-sec-title">⭐ 今日精選</div>
-    <div class="home-sec-more" onclick="goPage('attractions')">更多 →</div>
-  </div>
-  <div class="home-hscroll" id="home-featured"></div>
-  <div class="home-sec">
-    <div class="home-sec-title">❤️ 我的收藏</div>
-    <div class="home-sec-more" onclick="goPage('favorites')">全部 →</div>
-  </div>
-  <div class="fav-preview-wrap" id="home-fav-preview"></div>
-</div>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBMif9mWX5DZw7gL0kPDhKirQXevGFUZvg",
+        authDomain: "goodidea-f17df.firebaseapp.com",
+        databaseURL: "https://goodidea-f17df-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "goodidea-f17df",
+        storageBucket: "goodidea-f17df.firebasestorage.app",
+        messagingSenderId: "698636228471",
+        appId: "1:698636228471:web:13b19d7659f60ed17eb372"
+    };
 
-  </div>
-</div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = "zouzou-app-001";
 
-<!-- ATTRACTIONS -->
+    // Global State
+    let places = [];
+    let isAdmin = false;
+    let currentTab = 'home';
+    const PRESET_PLACES = [
+        { id: 'p1', name: '陽明山草山行館', cat: 'restaurants', emoji: '🍵', region: '台北市', address: '台北市北投區湖底路89號', description: '幽靜古樸的行館，適合午後品茶。' },
+        { id: 'p2', name: '大溪老街', cat: 'attractions', emoji: '🏮', region: '桃園市', address: '桃園市大溪區和平路', description: '巴洛克式建築，一定要吃大溪豆干。' },
+        { id: 'p3', name: '華山1914文創園區', cat: 'attractions', emoji: '🎨', region: '台北市', address: '台北市中正區八德路一段1號', description: '展覽與文創的聚集地，拍照聖地。' },
+        { id: 'p4', name: '貳樓餐廳', cat: 'restaurants', emoji: '🍳', region: '台北市', address: '台北市中正區仁愛路二段108號', description: '親子友善的首選美式早午餐。' }
+    ];
 
-<div class="page" id="page-attractions">
-  <div class="ph"><div style="font-size:24px">🏞️</div><h1>景點</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋景點名稱、標籤..." id="search-attractions" oninput="filterList('attractions')"></div></div>
-  <div class="fr" id="fr-attractions"></div>
-  <div class="scroll-area" id="list-attractions"></div>
-</div>
+    // 初始化與安全性
+    window.onload = () => {
+        lucide.createIcons();
+        switchTab('home');
+        
+        // 5秒後若還沒載入完成，強行關閉 loading
+        setTimeout(() => {
+            document.getElementById('loading-screen').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('loading-screen').remove(), 500);
+        }, 3000);
+    };
 
-<!-- RESTAURANTS -->
+    onAuthStateChanged(auth, (user) => {
+        if (user) initDataListener();
+        else signInAnonymously(auth);
+    });
 
-<div class="page" id="page-restaurants">
-  <div class="ph"><div style="font-size:24px">🍽️</div><h1>餐廳</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋餐廳名稱、特色..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
-  <div class="fr" id="fr-restaurants"></div>
-  <div class="scroll-area" id="list-restaurants"></div>
-</div>
-
-<!-- SHOPPING -->
-
-<div class="page" id="page-shopping">
-  <div class="ph"><div style="font-size:24px">🛍️</div><h1>購物</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋購物名稱..." id="search-shopping" oninput="filterList('shopping')"></div></div>
-  <div class="fr" id="fr-shopping"></div>
-  <div class="scroll-area" id="list-shopping"></div>
-</div>
-
-<!-- ACCOMMODATION -->
-
-<div class="page" id="page-accommodation">
-  <div class="ph"><div style="font-size:24px">🏨</div><h1>住宿</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋住宿名稱..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
-  <div class="fr" id="fr-accommodation"></div>
-  <div class="scroll-area" id="list-accommodation"></div>
-</div>
-
-<!-- MEDICAL -->
-
-<div class="page" id="page-medical">
-  <div class="ph"><div style="font-size:24px">🏥</div><h1>醫療</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋醫院、診所..." id="search-medical" oninput="filterList('medical')"></div></div>
-  <div class="fr" id="fr-medical"></div>
-  <div class="scroll-area" id="list-medical"></div>
-</div>
-
-<!-- FAVORITES -->
-
-<div class="page" id="page-favorites">
-  <div class="ph"><div style="font-size:24px">❤️</div><h1>我的收藏</h1></div>
-  <div class="scroll-area" id="list-favorites"></div>
-</div>
-
-<!-- BOTTOM NAV -->
-
-<nav id="nav">
-  <div class="nav-item active" data-page="home" onclick="goPage('home')"><div class="ni">🏠</div><div class="nl">首頁</div></div>
-  <div class="nav-item" data-page="attractions" onclick="goPage('attractions')"><div class="ni">🏞️</div><div class="nl">景點</div></div>
-  <div class="nav-item" data-page="restaurants" onclick="goPage('restaurants')"><div class="ni">🍽️</div><div class="nl">餐廳</div></div>
-  <div class="nav-item" data-page="shopping" onclick="goPage('shopping')"><div class="ni">🛍️</div><div class="nl">購物</div></div>
-  <div class="nav-item" data-page="accommodation" onclick="goPage('accommodation')"><div class="ni">🏨</div><div class="nl">住宿</div></div>
-  <div class="nav-item" data-page="medical" onclick="goPage('medical')"><div class="ni">🏥</div><div class="nl">醫療</div></div>
-  <div class="nav-item" data-page="favorites" onclick="goPage('favorites')"><div class="ni">❤️</div><div class="nl">收藏</div></div>
-</nav>
-
-<!-- FILTER MODAL -->
-
-<div class="mo" id="fmo" onclick="handleOverlayClick(event)">
-  <div class="ms">
-    <div class="mh"></div>
-    <div class="mhd">
-      <div class="mt" id="fmo-title">篩選</div>
-      <div class="cb" id="fcb">找到 0 個</div>
-    </div>
-    <div class="mb" id="fmo-body"></div>
-    <div class="mf">
-      <button class="btn btn-outline" onclick="clearFilters()">清除全部</button>
-      <button class="btn btn-coral" onclick="applyFilters()">確認篩選 ✓</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-</div><!-- /#app -->
-
-<!-- DETAIL PAGE -->
-
-<div id="dp" style="display:none;flex-direction:column;height:100%;width:100%;background:#FEFDF5;overflow:hidden;">
-  <div class="dhr" id="dhr">
-    <button class="dbk" onclick="closeDetail()">&#8592;</button>
-    <button class="dfv" id="dfv" onclick="toggleFavDetail()">&#x1F90D;</button>
-    <span class="dhe" id="dhe"></span>
-  </div>
-  <div class="dbd" id="dbd"></div>
-  <div class="dbot">
-    <button class="btn btn-mint" onclick="openMap()">&#x1F5FA;&#xFE0F; &#23548;&#33322;</button>
-    <button class="btn btn-outline" onclick="openWebsite()">&#x1F517; &#23448;&#32178;</button>
-    <button class="btn btn-outline" onclick="copyAddr()">&#x1F4CB; &#35686;&#35239;</button>
-  </div>
-</div>
-
-<script>
-// ══════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════
-const SHEETS_ID = '18zR6LX5qCoTWivTKKDlKavVOBA6kVNAznU2qLgoe5C8';
-const SHEETS_URL = s=>`https://docs.google.com/spreadsheets/d/${SHEETS_ID}/gviz/tq?tqx=out:csv&sheet=${s}`;
-const CATS = ['attractions','restaurants','shopping','accommodation','medical'];
-const CAT_INFO = {
-  attractions:   {label:'景點', emoji:'🏞️', bg:'#E8F5F0'},
-  restaurants:   {label:'餐廳', emoji:'🍽️', bg:'#FFE8E8'},
-  shopping:      {label:'購物', emoji:'🛍️', bg:'#FFFAEF'},
-  accommodation: {label:'住宿', emoji:'🏨', bg:'#EDE8F5'},
-  medical:       {label:'醫療', emoji:'🏥', bg:'#E8F5F0'},
-};
-const REGIONS = ['台北市','新北市','基隆市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣'];
-
-const ATT_TYPES = [
-  {v:'zoo',       l:'🐾 動物園'},   {v:'farm',       l:'🐄 農場'},
-  {v:'outdoor',   l:'🌲 山林草地'}, {v:'water',      l:'💧 水域戲水'},
-  {v:'science',   l:'🔬 科學館'},   {v:'museum',     l:'🏺 博物館'},
-  {v:'art_museum',l:'🎨 美術館'},   {v:'themepark',  l:'🎡 遊樂園'},
-  {v:'cinema',    l:'🎬 親子影城'}, {v:'factory',    l:'🏭 觀光工廠'},
-  {v:'indoor',    l:'🏠 其他室內'}, {v:'other_out',  l:'🌤 其他戶外'},
-];
-const REST_FEATS = [
-  {v:'playarea',   l:'🧸 兒童遊戲區'}, {v:'kidseat',    l:'🪑 兒童座椅'},
-  {v:'kidmeal',    l:'🍽 兒童餐/寶寶粥'},{v:'kidcutlery', l:'🔪 可提供兒童餐具'},
-  {v:'nursing',    l:'🤱🏻 哺乳空間'},  {v:'parking',    l:'🅿️ 附設停車場'},
-];
-
-// ══════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════
-const data={attractions:[],restaurants:[],shopping:[],accommodation:[],medical:[]};
-let currentPage='home', currentDetail=null;
-let userLocation=null, isGPS=false;
-let favorites=loadFavs();
-let searchTimers={};
-const F={
-  attractions:{regions:[],subCats:[],distance:80},
-  restaurants:{regions:[],feats:[],distance:80},
-  shopping:{regions:[],distance:80},
-  accommodation:{regions:[],distance:80},
-  medical:{regions:[],distance:80},
-};
-let filterCat='attractions';
-let randomPool=[], drawnPlace=null, slotTimer=null;
-
-// ══════════════════════════════════════════════
-// CSV
-// ══════════════════════════════════════════════
-function parseCSV(txt){
-  const lines=txt.split('\n'), h=csvRow(lines[0]);
-  return lines.slice(1).filter(l=>l.trim()).map(l=>{
-    const v=csvRow(l),o={};h.forEach((k,i)=>o[k.trim()]=(v[i]||'').trim());return o;
-  });
-}
-function csvRow(line){
-  const r=[];let c='',q=false;
-  for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}
-  r.push(c);return r;
-}
-
-// ══════════════════════════════════════════════
-// DEMO DATA
-// ══════════════════════════════════════════════
-function loadDemoData(){
-  const demo={
-    attractions:[
-      {id:'a001',cat:'attractions',name:'台北市立動物園',emoji:'🦁',region:'台北市',indoor:'FALSE',price:'low',priceLabel:'$300以下',desc:'台灣最大的動物園，逾400種動物親子必訪。',address:'台北市文山區新光路二段30號',lat:'25.0000',lng:'121.5800',hours:'09:00-17:00',closed:'週一',phone:'02-2938-2300',website:'https://www.zoo.taipei',features:'停車場,哺乳室,無障礙',tags:'戶外,動物,熱門',rating:'4.8',reviews:'2840',bg:'#FFE8E8',subCat:'zoo',imageUrl:''},
-      {id:'a002',cat:'attractions',name:'國立故宮博物院',emoji:'🏛️',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'世界四大博物館，收藏中華文物逾70萬件。',address:'台北市士林區至善路二段221號',lat:'25.1023',lng:'121.5484',hours:'09:00-17:00',closed:'週一',phone:'02-2881-2021',website:'https://www.npm.gov.tw',features:'停車場,無障礙,餐廳',tags:'室內,文化,藝術',rating:'4.7',reviews:'3520',bg:'#FFF5E8',subCat:'museum',imageUrl:''},
-      {id:'a003',cat:'attractions',name:'台北天文科學教育館',emoji:'🔭',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'探索宇宙星辰，適合親子同遊的科學場館。',address:'台北市士林區基河路363號',lat:'25.0968',lng:'121.5241',hours:'09:00-17:00',closed:'週一',phone:'02-2831-4551',website:'https://www.tam.gov.taipei',features:'停車場,哺乳室,無障礙',tags:'室內,科學,教育',rating:'4.5',reviews:'1280',bg:'#FFFAEF',subCat:'science',imageUrl:''},
-      {id:'a004',cat:'attractions',name:'新竹市立動物園',emoji:'🐘',region:'新竹市',indoor:'FALSE',price:'free',priceLabel:'免費',desc:'台灣最老的動物園，園區充滿歷史氣息，入場免費。',address:'新竹市東區食品路',lat:'24.8064',lng:'120.9747',hours:'09:00-17:00',closed:'週一',phone:'03-522-2194',website:'',features:'停車場,無障礙',tags:'戶外,動物,免費',rating:'4.3',reviews:'980',bg:'#FFE8E8',subCat:'zoo',imageUrl:''},
-      {id:'a005',cat:'attractions',name:'野柳地質公園',emoji:'🪨',region:'新北市',indoor:'FALSE',price:'low',priceLabel:'$300以下',desc:'海蝕地形奇景，女王頭是台灣最知名地標。',address:'新北市萬里區野柳里港東路167-1號',lat:'25.2028',lng:'121.6907',hours:'08:00-17:00',closed:'無',phone:'02-2492-2016',website:'https://www.ylgeopark.org.tw',features:'停車場,餐廳',tags:'戶外,自然,熱門',rating:'4.5',reviews:'4200',bg:'#E8F5F0',subCat:'outdoor',imageUrl:''},
-      {id:'a006',cat:'attractions',name:'台中兒童美術館',emoji:'🎨',region:'台中市',indoor:'TRUE',price:'free',priceLabel:'免費',desc:'專為兒童設計的藝術互動空間，激發小朋友創意。',address:'台中市西區五權西路二段2號',lat:'24.1353',lng:'120.6659',hours:'09:00-17:00',closed:'週一',phone:'04-2372-6311',website:'',features:'無障礙,哺乳室',tags:'室內,藝術,免費',rating:'4.4',reviews:'860',bg:'#FFF5E8',subCat:'art_museum',imageUrl:''},
-    ],
-    restaurants:[
-      {id:'r001',cat:'restaurants',name:'饗食天堂',emoji:'🍱',region:'台北市',indoor:'TRUE',price:'high',priceLabel:'$500+',desc:'台灣最知名自助餐廳，食材豐富適合家庭聚餐。',address:'台北市中山區樂群三路158號',lat:'25.0838',lng:'121.5576',hours:'11:30-21:30',closed:'無',phone:'02-8501-6363',website:'https://www.gourmetworld.com.tw',features:'停車場,兒童座椅,kidseat,parking',tags:'室內,自助餐,家庭',rating:'4.4',reviews:'5600',bg:'#FFE8E8',subCat:'buffet',imageUrl:'',hasPlayarea:'FALSE',hasKidSeat:'TRUE',hasNursing:'FALSE'},
-      {id:'r002',cat:'restaurants',name:'IKEA 餐廳',emoji:'🪑',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'附設兒童遊戲區，平價美食深受親子歡迎。',address:'台北市中山區敬業四路98號',lat:'25.0827',lng:'121.5590',hours:'11:00-21:00',closed:'無',phone:'02-2533-6888',website:'https://www.ikea.com/tw',features:'兒童遊戲區,哺乳室,停車場,playarea,nursing,parking',tags:'室內,家庭,便宜',rating:'4.2',reviews:'3800',bg:'#FFF5E8',subCat:'family',imageUrl:'',hasPlayarea:'TRUE',hasKidSeat:'TRUE',hasNursing:'TRUE'},
-      {id:'r003',cat:'restaurants',name:'小食光親子餐廳',emoji:'🧸',region:'台中市',indoor:'TRUE',price:'mid',priceLabel:'$300-500',desc:'寬敞的兒童遊戲區、提供兒童餐與寶寶粥，深受媽媽好評。',address:'台中市北屯區旅順路一段99號',lat:'24.1648',lng:'120.6878',hours:'11:00-21:00',closed:'週二',phone:'04-2234-5678',website:'',features:'兒童遊戲區,兒童座椅,哺乳室,停車場,playarea,kidseat,nursing,parking',tags:'室內,親子,兒童餐',rating:'4.6',reviews:'1240',bg:'#FFE8E8',subCat:'family',imageUrl:'',hasPlayarea:'TRUE',hasKidSeat:'TRUE',hasNursing:'TRUE'},
-    ],
-    shopping:[
-      {id:'s001',cat:'shopping',name:'誠品生活松菸',emoji:'📚',region:'台北市',indoor:'TRUE',price:'mid',priceLabel:'$300-500',desc:'文創複合商場，書店餐廳精品一應俱全。',address:'台北市信義區菸廠路88號',lat:'25.0443',lng:'121.5609',hours:'11:00-22:00',closed:'無',phone:'02-6636-5888',website:'https://www.esliteliving.com',features:'停車場,無障礙,餐廳',tags:'室內,文創,書店',rating:'4.6',reviews:'6800',bg:'#FFFAEF',imageUrl:''},
-      {id:'s002',cat:'shopping',name:'台北101購物中心',emoji:'🏙️',region:'台北市',indoor:'TRUE',price:'high',priceLabel:'$500+',desc:'台灣地標，國際精品雲集，觀景台視野絕佳。',address:'台北市信義區市府路45號',lat:'25.0336',lng:'121.5645',hours:'11:00-21:30',closed:'無',phone:'02-8101-8800',website:'https://www.taipei-101.com.tw',features:'停車場,無障礙,餐廳',tags:'室內,精品,地標',rating:'4.4',reviews:'12000',bg:'#FFFAEF',imageUrl:''},
-    ],
-    accommodation:[
-      {id:'ac001',cat:'accommodation',name:'礁溪老爺大酒店',emoji:'♨️',region:'宜蘭縣',indoor:'TRUE',price:'high',priceLabel:'$500+',desc:'礁溪溫泉度假，每房附湯，親子設施完善。',address:'宜蘭縣礁溪鄉五峰路69號',lat:'24.6710',lng:'121.7740',hours:'全天',closed:'無',phone:'03-988-9988',website:'https://www.hotelroyal.com.tw',features:'溫泉,游泳池,停車場',tags:'溫泉,度假,親子',rating:'4.7',reviews:'4500',bg:'#EDE8F5',imageUrl:'',bookingUrl:'https://www.booking.com'},
-    ],
-    medical:[
-      {id:'m001',cat:'medical',name:'台大兒童醫院',emoji:'👶',region:'台北市',indoor:'TRUE',price:'low',priceLabel:'$300以下',desc:'台灣頂尖兒童醫療，全方位兒童健康服務。',address:'台北市中正區中山南路8號',lat:'25.0434',lng:'121.5313',hours:'08:00-17:00',closed:'週六、日',phone:'02-2312-3456',website:'https://www.ntuh.gov.tw',features:'停車場,無障礙,哺乳室',tags:'兒科,急診,醫學中心',rating:'4.6',reviews:'3200',bg:'#E8F5F0',imageUrl:'',is24h:'FALSE'},
-    ],
-  };
-  CATS.forEach(c=>{data[c]=demo[c]||[];});
-  updatePool();
-  CATS.forEach(c=>{if(currentPage===c) renderList(c);});
-  if(currentPage==='home') renderHomePage();
-}
-
-// ══════════════════════════════════════════════
-// LOAD SHEET
-// ══════════════════════════════════════════════
-async function loadSheet(cat){
-  const el=document.getElementById('list-'+cat);
-  if(el) el.innerHTML=`<div class="lw"><div class="spin"></div><div style="font-size:13px;color:var(--text-tertiary)">載入中...</div></div>`;
-  try{
-    const r=await fetch(SHEETS_URL(cat));if(!r.ok)throw 0;
-    const rows=parseCSV(await r.text()).filter(x=>x.name&&x.id&&x.visible!=='FALSE');
-    data[cat]=rows;if(currentPage===cat)renderList(cat);updatePool();
-  }catch(e){
-    if(el) el.innerHTML=`<div class="nr"><div class="ne">⚠️</div><p>載入失敗，請確認 Google Sheets 已公開</p></div>`;
-  }
-}
-
-// ══════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════
-function goPage(page){
-  document.getElementById('page-'+currentPage).classList.remove('active');
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.page===page));
-  currentPage=page;
-  if(page==='favorites') renderFavorites();
-  else if(page==='home'){
-    const pre=document.getElementById('home-pre-content');
-    if(pre) pre.style.display='';
-    document.getElementById('rcw').classList.remove('show');
-    document.getElementById('daw').classList.remove('show');
-    document.getElementById('slot-drum').classList.remove('show');
-    renderHomePage();
-  }
-  else if(CATS.includes(page)){
-    if(data[page].length===0) loadSheet(page); else renderList(page);
-  }
-}
-
-// ══════════════════════════════════════════════
-// FILTER LOGIC
-// ══════════════════════════════════════════════
-function matchFeat(item, feat){
-  const f=(item.features||'').toLowerCase();
-  if(feat==='playarea')   return item.hasPlayarea==='TRUE'||f.includes('playarea')||f.includes('遊戲區');
-  if(feat==='kidseat')    return item.hasKidSeat==='TRUE'||f.includes('kidseat')||f.includes('兒童座椅');
-  if(feat==='kidmeal')    return f.includes('kidmeal')||f.includes('兒童餐')||f.includes('寶寶粥');
-  if(feat==='kidcutlery') return f.includes('kidcutlery')||f.includes('兒童餐具');
-  if(feat==='nursing')    return item.hasNursing==='TRUE'||f.includes('nursing')||f.includes('哺乳');
-  if(feat==='parking')    return f.includes('parking')||f.includes('停車');
-  return true;
-}
-function getFiltered(cat){
-  const srch=(document.getElementById('search-'+cat)||{value:''}).value.toLowerCase();
-  const cf=F[cat];
-  return (data[cat]||[]).filter(x=>{
-    if(cf.regions.length&&!cf.regions.includes(x.region))return false;
-    if(srch&&!(x.name+x.tags+x.desc+x.region).toLowerCase().includes(srch))return false;
-    if(cat==='attractions'&&cf.subCats.length&&!cf.subCats.includes(x.subCat))return false;
-    if(cat==='restaurants'&&cf.feats.length&&!cf.feats.every(f=>matchFeat(x,f)))return false;
-    if(isGPS&&userLocation&&cf.distance<80){
-      if(haversine(userLocation.lat,userLocation.lng,+x.lat,+x.lng)>cf.distance)return false;
+    function initDataListener() {
+        const q = collection(db, 'artifacts', appId, 'public', 'data', 'places');
+        onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            places = data.length > 0 ? data : PRESET_PLACES;
+            renderView();
+            // 數據回來後關閉 loading
+            const loader = document.getElementById('loading-screen');
+            if (loader) {
+                loader.classList.add('opacity-0');
+                setTimeout(() => loader.remove(), 500);
+            }
+        }, (err) => {
+            console.error("Firebase Connect Fail:", err);
+            places = PRESET_PLACES; // 容錯使用預設資料
+            renderView();
+        });
     }
-    return true;
-  }).map(x=>{
-    if(isGPS&&userLocation) x._d=haversine(userLocation.lat,userLocation.lng,+x.lat,+x.lng);
-    return x;
-  }).sort((a,b)=>(a._d??999)-(b._d??999));
-}
 
-// ══════════════════════════════════════════════
-// RENDER LIST
-// ══════════════════════════════════════════════
-function renderList(cat){
-  const el=document.getElementById('list-'+cat);
-  const items=getFiltered(cat);
-  el.innerHTML=items.length?items.map(cardHTML).join(''):`<div class="nr"><div class="ne">🔍</div><p>沒有找到符合條件的地點</p></div>`;
-  renderFR(cat);
-}
+    // 路由控制
+    window.switchTab = (tab) => {
+        currentTab = tab;
+        document.querySelectorAll('.nav-item').forEach(el => {
+            if(el.dataset.tab === tab) el.classList.add('active');
+            else el.classList.remove('active');
+        });
+        renderView();
+    };
 
-function cardHTML(item){
-  const isFav=favorites.includes(item.id);
-  const cat=item.cat||'';
-  const bg=item.bg||(CAT_INFO[cat]?.bg)||'#F0F0F0';
-  const tags=(item.tags||'').split(',').filter(Boolean).slice(0,2);
-  const dist=item._d!==undefined?`<span class="ld">📍${item._d.toFixed(1)}km</span>`:'';
-  return `<div class="lc" onclick="goDetail('${item.id}','${cat}')">
-    <div class="lc-icon" style="background:${bg}">${item.emoji||'📍'}</div>
-    <div class="lc-body">
-      <h3>${item.name}</h3>
-      <p>${item.desc||''}</p>
-      <div class="lc-meta">
-        <span class="lp">${item.priceLabel||''}</span>
-        ${tags.map(t=>`<span class="lt">${t}</span>`).join('')}
-        ${item.region?`<span class="lt">${item.region}</span>`:''}
-        ${dist}
-      </div>
-    </div>
-    <div class="lc-right">
-      <button class="fb ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${item.id}',this)">${isFav?'❤️':'🤍'}</button>
-      ${item.rating?`<div style="font-size:11px;color:#F4B942;font-weight:700">★${item.rating}</div>`:''}
-    </div>
-  </div>`;
-}
+    function renderView() {
+        const main = document.getElementById('main-view');
+        if (currentTab === 'home') {
+            main.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-[65vh] text-center">
+                    <h2 class="text-2xl font-goround text-[#5A4A47] mb-2">今天要去哪走走？</h2>
+                    <p class="text-[#8B8178] text-xs opacity-50 mb-12">不知道吃什麼、去哪玩？交給我們吧！</p>
+                    <div id="slot-machine" class="w-64 h-64 bg-white rounded-[4.5rem] border-2 border-[#E8E3DF] flex flex-col items-center justify-center mb-16 shadow-inner relative overflow-hidden">
+                        <div id="slot-emoji" class="text-8xl mb-4 drop-shadow-sm">🎠</div>
+                        <div id="slot-name" class="font-goround text-[#5A4A47] px-6 truncate w-full">點擊下方開始</div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none"></div>
+                    </div>
+                    <button id="btn-spin" class="w-full max-w-[260px] py-5 rounded-full btn-primary font-bold text-[15px] tracking-[0.2em] shadow-xl active:scale-95 transition-all">
+                        隨機抽選
+                    </button>
+                </div>
+            `;
+            document.getElementById('btn-spin').onclick = startSpin;
+        } else if (currentTab === 'browse') {
+            main.innerHTML = `
+                <div class="pt-4 space-y-6">
+                    <div class="flex justify-between items-end mb-4">
+                        <h2 class="text-xl font-goround">探索景點</h2>
+                        <div class="text-[10px] bg-white px-3 py-1 rounded-full border border-[#E8E3DF] text-[#8B8178]">共 ${places.length} 筆</div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">
+                        ${places.map(p => `
+                            <div onclick="openDetail('${p.id}')" class="card p-5 flex items-center gap-5 relative group">
+                                <div class="w-14 h-14 bg-[#FFFBF0] rounded-[1.4rem] border border-[#E8E3DF] flex items-center justify-center text-3xl shrink-0">${p.emoji || '📍'}</div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold font-goround text-[15px] text-[#5A4A47] truncate">${p.name}</h3>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-[10px] px-2 py-0.5 bg-[#E4B6B6]/10 text-[#E4B6B6] rounded-md font-bold">${p.region}</span>
+                                        <span class="text-[10px] text-[#8B8178] opacity-50">${p.cat === 'restaurants' ? '美食' : '景點'}</span>
+                                    </div>
+                                </div>
+                                ${isAdmin ? `<button onclick="event.stopPropagation(); deletePlace('${p.id}')" class="p-2 text-red-200 hover:text-red-400 transition-colors"><i data-lucide="trash-2" size="16"></i></button>` : `<i data-lucide="chevron-right" size="16" class="opacity-20"></i>`}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else if (currentTab === 'about') {
+            main.innerHTML = `
+                <div class="pt-8 space-y-8 animate-fade-in">
+                    <div class="text-center pb-4">
+                        <div class="w-20 h-20 bg-white rounded-3xl mx-auto flex items-center justify-center shadow-sm border border-[#E8E3DF] mb-4">
+                            <i data-lucide="compass" class="text-[#E4B6B6]" size="32"></i>
+                        </div>
+                        <h2 class="text-xl font-goround">走走 ZOUZOU</h2>
+                        <p class="text-xs opacity-40 mt-1">Version 4.1.0 (Stable)</p>
+                    </div>
+                    <div class="bg-white p-7 rounded-[3rem] border border-[#E8E3DF] space-y-5 text-sm shadow-sm">
+                        <div class="flex justify-between items-center"><span class="opacity-50 font-goround">系統連線</span><span class="text-green-500 font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span> 已加密連線</span></div>
+                        <div class="flex justify-between items-center"><span class="opacity-50 font-goround">管理者模式</span><span>${isAdmin ? '🔑 已開啟' : '未啟用'}</span></div>
+                        <div class="flex justify-between items-center"><span class="opacity-50 font-goround">資料來源</span><span>雲端同步</span></div>
+                    </div>
+                    <p class="text-center opacity-20 text-[10px] tracking-widest pt-12 font-goround">DESIGNED FOR BETTER WEEKENDS</p>
+                </div>
+            `;
+        }
+        lucide.createIcons();
+    }
 
-function renderFR(cat){
-  const el=document.getElementById('fr-'+cat);if(!el)return;
-  const cf=F[cat];
-  const active=[];
-  cf.regions.forEach(r=>active.push({l:'📍'+r,k:'r_'+r}));
-  if(cat==='attractions') cf.subCats.forEach(s=>{const o=ATT_TYPES.find(x=>x.v===s);if(o)active.push({l:o.l,k:'s_'+s});});
-  if(cat==='restaurants') cf.feats.forEach(f=>{const o=REST_FEATS.find(x=>x.v===f);if(o)active.push({l:o.l,k:'f_'+f});});
-  el.innerHTML=`<div class="chip ${active.length?'':'active'}" onclick="clearFilters('${cat}')" style="${active.length?'':'pointer-events:none;opacity:.6'}">全部</div>`
-    +active.map(a=>`<div class="chip active" onclick="rmChip('${cat}','${a.k}')">${a.l} ✕</div>`).join('')
-    +`<div class="chip" onclick="openFilter('${cat}')">＋ 篩選</div>`;
-}
-function rmChip(cat,k){
-  const cf=F[cat];
-  if(k.startsWith('r_')) cf.regions=cf.regions.filter(v=>v!==k.slice(2));
-  if(k.startsWith('s_')) cf.subCats=cf.subCats.filter(v=>v!==k.slice(2));
-  if(k.startsWith('f_')) cf.feats=cf.feats.filter(v=>v!==k.slice(2));
-  renderList(cat);
-}
-function filterList(cat){clearTimeout(searchTimers[cat]);searchTimers[cat]=setTimeout(()=>renderList(cat),200);}
+    // 抽選邏輯
+    let spinning = false;
+    function startSpin() {
+        if (spinning || places.length === 0) return;
+        spinning = true;
+        let count = 0;
+        const e = document.getElementById('slot-emoji');
+        const n = document.getElementById('slot-name');
+        const btn = document.getElementById('btn-spin');
+        btn.innerText = "轉動中...";
+        
+        const timer = setInterval(() => {
+            const r = places[Math.floor(Math.random() * places.length)];
+            e.innerText = r.emoji;
+            n.innerText = r.name;
+            if (count++ > 18) {
+                clearInterval(timer);
+                spinning = false;
+                btn.innerText = "重新抽選";
+                showToast(`這週就決定去 ${r.name} 了！ ✨`);
+            }
+        }, 70);
+    }
 
-// ══════════════════════════════════════════════
-// DETAIL
-// ══════════════════════════════════════════════
-function goDetail(id,cat){
-  const item=(cat?data[cat]:CATS.reduce((a,c)=>a.concat(data[c]),[])).find(x=>x.id===id);
-  if(!item)return;currentDetail=item;
-  const hero=document.getElementById('dhr');
-  const emo=document.getElementById('dhe');
-  hero.querySelectorAll('img').forEach(i=>i.remove());
-  if(item.imageUrl&&item.imageUrl.trim()){
-    const img=document.createElement('img');img.src=item.imageUrl.trim();
-    img.onerror=()=>{img.remove();emo.style.display='';};
-    hero.appendChild(img);emo.style.display='none';
-  } else {emo.style.display='';emo.textContent=item.emoji||'📍';}
-  hero.style.background=item.bg||(CAT_INFO[item.cat||'']?.bg)||'#F0EDE8';
+    window.openDetail = (id) => {
+        const p = places.find(x => x.id === id);
+        const container = document.getElementById('modal-container');
+        container.innerHTML = `
+            <div class="modal-overlay" onclick="closeModal()">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="pr-8">
+                            <h2 class="text-3xl font-goround text-[#5A4A47]">${p.name}</h2>
+                            <div class="flex gap-2 mt-2">
+                                <span class="text-[11px] px-3 py-1 bg-white border border-[#E8E3DF] rounded-full text-[#8B8178] font-goround">${p.region}</span>
+                                <span class="text-[11px] px-3 py-1 bg-white border border-[#E8E3DF] rounded-full text-[#8B8178] font-goround">${p.cat}</span>
+                            </div>
+                        </div>
+                        <button onclick="closeModal()" class="p-3 bg-white rounded-full border border-[#E8E3DF] active:scale-90"><i data-lucide="x" size="20"></i></button>
+                    </div>
+                    <div class="space-y-6 mb-10">
+                        <div class="bg-white p-6 rounded-[2.5rem] border border-[#E8E3DF] flex gap-4 items-center shadow-sm">
+                            <div class="w-10 h-10 bg-[#FFFBF0] rounded-xl flex items-center justify-center text-[#E4B6B6] shrink-0"><i data-lucide="map-pin" size="20"></i></div>
+                            <span class="text-sm leading-relaxed opacity-80">${p.address || '地址待補充'}</span>
+                        </div>
+                        <div class="px-2">
+                            <h4 class="text-[10px] font-bold opacity-30 tracking-widest uppercase mb-2">景點筆記</h4>
+                            <p class="text-[15px] leading-relaxed text-[#5A4A47] opacity-80">${p.description || '目前還沒有相關介紹，去探索看看吧！'}</p>
+                        </div>
+                    </div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' ' + (p.address||''))}" target="_blank" class="w-full py-5 rounded-full btn-primary font-bold text-sm flex justify-center items-center gap-3 shadow-lg">
+                        <i data-lucide="navigation" size="18"></i> 開啟導航
+                    </a>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    };
 
-  const fv=document.getElementById('dfv');
-  const isFav=favorites.includes(item.id);
-  fv.textContent=isFav?'❤️':'🤍';fv.classList.toggle('on',isFav);
+    window.openEditModal = () => {
+        const container = document.getElementById('modal-container');
+        container.innerHTML = `
+            <div class="modal-overlay" onclick="closeModal()">
+                <div class="modal-content !h-[85vh]" onclick="event.stopPropagation()">
+                    <h2 class="text-2xl font-goround mb-8">推薦景點</h2>
+                    <div class="space-y-5">
+                        <input id="edit-name" placeholder="景點或餐廳名稱" class="w-full p-5 rounded-[1.5rem] bg-white border border-[#E8E3DF] outline-none text-sm focus:border-[#E4B6B6] transition-all">
+                        <div class="flex gap-3">
+                            <input id="edit-emoji" placeholder="圖示(Emoji)" class="w-24 p-5 rounded-[1.5rem] bg-white border border-[#E8E3DF] text-center text-xl outline-none">
+                            <select id="edit-cat" class="flex-1 p-5 rounded-[1.5rem] bg-white border border-[#E8E3DF] text-sm outline-none appearance-none">
+                                <option value="attractions">📍 景點</option><option value="restaurants">🍔 餐廳</option><option value="shopping">🛍️ 購物</option>
+                            </select>
+                        </div>
+                        <input id="edit-region" placeholder="地區 (例如：台北市)" class="w-full p-5 rounded-[1.5rem] bg-white border border-[#E8E3DF] outline-none text-sm">
+                        <input id="edit-addr" placeholder="完整地址 (可不填)" class="w-full p-5 rounded-[1.5rem] bg-white border border-[#E8E3DF] outline-none text-sm">
+                        <textarea id="edit-desc" placeholder="推薦原因、必吃美食..." class="w-full p-5 rounded-[1.5rem] bg-white border border-[#E8E3DF] h-32 outline-none text-sm resize-none"></textarea>
+                    </div>
+                    <div class="flex gap-4 mt-8">
+                        <button onclick="closeModal()" class="flex-1 py-5 text-sm font-goround text-[#8B8178]">取消</button>
+                        <button onclick="handleSave()" class="flex-1 py-5 btn-primary rounded-full font-bold text-sm shadow-md">確認儲存</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    };
 
-  const ci=CAT_INFO[item.cat]||{};
-  const tags=(item.tags||'').split(',').filter(Boolean);
-  const feats=(item.features||'').split(',').filter(Boolean).filter(f=>!['playarea','kidseat','kidmeal','kidcutlery','nursing','parking'].includes(f));
-  const rat=item.rating?`<div class="rrow"><span class="stars">${'★'.repeat(Math.round(+item.rating))}${'☆'.repeat(5-Math.round(+item.rating))}</span><span style="font-size:14px;font-weight:700">${item.rating}</span>${item.reviews?`<span style="font-size:12px;color:var(--text-tertiary)">(${item.reviews}則)</span>`:''}</div>`:'';
-  const dist=item._d!==undefined?`<br><span style="font-size:12px;color:var(--text-tertiary)">📍 距離約 ${item._d.toFixed(1)} km</span>`:'';
+    window.handleSave = async () => {
+        const data = {
+            id: `p_${Date.now()}`,
+            name: document.getElementById('edit-name').value,
+            emoji: document.getElementById('edit-emoji').value || '📍',
+            cat: document.getElementById('edit-cat').value,
+            region: document.getElementById('edit-region').value,
+            address: document.getElementById('edit-addr').value,
+            description: document.getElementById('edit-desc').value
+        };
+        if(!data.name) return showToast('請填寫名稱哦！');
+        try {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'places', data.id), data);
+            showToast('已同步到雲端囉 ✨');
+            closeModal();
+        } catch(e) {
+            showToast('儲存失敗，請檢查網路');
+        }
+    };
 
-  document.getElementById('dbd').innerHTML=`
-    <h1>${item.name}</h1>${rat}
-    <div class="dtgs">
-      ${ci.label?`<div class="dtag">${ci.emoji||''} ${ci.label}</div>`:''}
-      ${item.priceLabel?`<div class="dtag dpx">💰 ${item.priceLabel}</div>`:''}
-      ${item.indoor==='TRUE'?'<div class="dtag">🏠 室內</div>':item.indoor==='FALSE'?'<div class="dtag">🌿 戶外</div>':''}
-      ${tags.map(t=>`<div class="dtag">${t}</div>`).join('')}
-    </div>
-    <div class="ddsc"><p>${item.desc||'暫無簡介'}</p></div>
-    <div class="dir"><div class="diic">📍</div><div class="dic"><div class="dlb">地址</div><div class="dvl">${item.address||'—'}${dist}</div></div></div>
-    <div class="dir"><div class="diic">⏰</div><div class="dic"><div class="dlb">營業時間</div><div class="dvl">${item.hours||'—'}${item.closed?' ｜ 公休：'+item.closed:''}</div></div></div>
-    ${item.phone?`<div class="dir"><div class="diic">📞</div><div class="dic"><div class="dlb">電話</div><a class="dvl" href="tel:${item.phone}">${item.phone}</a></div></div>`:''}
-    ${item.region?`<div class="dir"><div class="diic">🗺️</div><div class="dic"><div class="dlb">縣市</div><div class="dvl">${item.region}</div></div></div>`:''}
-    ${feats.length?`<div class="dfeat"><h3>設施</h3><div class="fcw">${feats.map(f=>`<div class="fchip">${f}</div>`).join('')}</div></div>`:''}
-    ${item.bookingUrl?`<div style="margin-top:16px"><a href="${item.bookingUrl}" target="_blank" class="btn btn-coral" style="display:block;text-decoration:none;text-align:center;padding:14px">🏨 立即訂房</a></div>`:''}
-    ${item.reservationUrl?`<div style="margin-top:10px"><a href="${item.reservationUrl}" target="_blank" class="btn btn-mint" style="display:block;text-decoration:none;text-align:center;padding:14px;color:white">📅 線上訂位</a></div>`:''}
-  `;
-  // 隱藏 #app，顯示 #dp（完全替換，無定位問題）
-  document.getElementById('app').style.display='none';
-  document.getElementById('dp').style.display='flex';
-}
-function closeDetail(){
-  document.getElementById('dp').style.display='none';
-  document.getElementById('app').style.display='';
-}
+    window.deletePlace = async (id) => {
+        if(!confirm('要刪除這個景點嗎？')) return;
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'places', id));
+        showToast('已移除該地點');
+    };
 
-// ── Google Maps：用「名稱+地址」讓 Maps 比對到正確地點卡片（含照片評論）──
-function buildMapUrl(item){
-  if(!item) return '';
-  // 名稱+地址組合搜尋，Google Maps 會優先比對到地點卡片，不只是路線
-  const q = item.name + (item.address ? ' ' + item.address : '') + (item.region ? ' ' + item.region : '');
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-}
+    window.closeModal = () => { document.getElementById('modal-container').innerHTML = ''; };
 
-function openMap(){
-  if(!currentDetail) return;
-  window.open(buildMapUrl(currentDetail), '_blank');
-}
-function openWebsite(){if(!currentDetail)return;const u=currentDetail.website||currentDetail.bookingUrl;u?window.open(u,'_blank'):showToast('此地點尚未提供官方網站');}
-function copyAddr(){if(!currentDetail)return;navigator.clipboard?.writeText(currentDetail.address||currentDetail.name).then(()=>showToast('✅ 已複製地址')).catch(()=>showToast('📋 '+currentDetail.address));}
-function toggleFavDetail(){if(!currentDetail)return;toggleFavById(currentDetail.id);const isFav=favorites.includes(currentDetail.id);const b=document.getElementById('dfv');b.textContent=isFav?'❤️':'🤍';b.classList.toggle('on',isFav);}
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.remove('hidden');
+        setTimeout(() => { t.classList.remove('opacity-0', 'scale-90'); t.classList.add('opacity-100', 'scale-100'); }, 50);
+        setTimeout(() => {
+            t.classList.remove('opacity-100', 'scale-100');
+            t.classList.add('opacity-0', 'scale-90');
+            setTimeout(() => t.classList.add('hidden'), 300);
+        }, 2500);
+    }
 
-// ══════════════════════════════════════════════
-// FAVORITES
-// ══════════════════════════════════════════════
-function loadFavs(){try{return JSON.parse(localStorage.getItem('zou_favorites')||'[]');}catch(e){return[];}}
-function saveFavs(){localStorage.setItem('zou_favorites',JSON.stringify(favorites));}
-function toggleFavById(id){const i=favorites.indexOf(id);if(i===-1){favorites.push(id);showToast('❤️ 已加入收藏');}else{favorites.splice(i,1);showToast('移除收藏');}saveFavs();}
-function toggleFav(id,btn){toggleFavById(id);const on=favorites.includes(id);btn.textContent=on?'❤️':'🤍';btn.classList.toggle('on',on);if(currentPage==='favorites')renderFavorites();renderHomeFavPreview();}
-function renderFavorites(){
-  const el=document.getElementById('list-favorites');
-  if(!favorites.length){el.innerHTML=`<div class="empty-st"><div class="ee">🤍</div><h3>還沒有收藏</h3><p>瀏覽地點時點擊 🤍 即可加入</p></div>`;return;}
-  const all=CATS.reduce((a,c)=>a.concat(data[c]),[]);
-  const items=favorites.map(id=>all.find(x=>x.id===id)).filter(Boolean);
-  el.innerHTML=items.length?items.map(cardHTML).join(''):`<div class="lw"><div class="spin"></div></div>`;
-}
+    // 管理模式
+    document.getElementById('btn-admin-settings').onclick = () => {
+        if(isAdmin) {
+            isAdmin = false;
+            document.getElementById('btn-admin-key').classList.add('hidden');
+            document.getElementById('btn-admin-settings').classList.remove('bg-[#E4B6B6]', 'text-white');
+            showToast('已退出管理模式');
+            renderView();
+        } else {
+            const container = document.getElementById('modal-container');
+            container.innerHTML = `
+                <div class="modal-overlay" onclick="closeModal()">
+                    <div class="modal-content !items-center !rounded-[3.5rem] !mb-auto !mt-auto !h-auto pb-10 text-center" onclick="event.stopPropagation()">
+                        <div class="w-16 h-16 bg-[#FFFBF0] rounded-3xl flex items-center justify-center text-[#E4B6B6] mb-6 shadow-sm border border-[#E8E3DF] mx-auto"><i data-lucide="shield-check" size="32"></i></div>
+                        <h2 class="text-xl font-goround mb-4">管理者權限</h2>
+                        <input type="password" id="admin-pwd-input" placeholder="請輸入密碼" class="w-full p-5 rounded-2xl bg-white border border-[#E8E3DF] text-center tracking-[0.6em] text-xl outline-none mb-6">
+                        <div class="flex gap-4 w-full px-2">
+                            <button onclick="closeModal()" class="flex-1 py-4 text-sm text-[#8B8178]">取消</button>
+                            <button id="btn-verify-pwd" class="flex-1 py-4 btn-primary rounded-full font-bold text-sm shadow-lg">確認驗證</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            document.getElementById('btn-verify-pwd').onclick = async () => {
+                const input = document.getElementById('admin-pwd-input').value;
+                const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'config', 'admin'));
+                const correct = snap.exists() ? snap.data().password : '0000';
+                if(input === correct) {
+                    isAdmin = true;
+                    document.getElementById('btn-admin-key').classList.remove('hidden');
+                    document.getElementById('btn-admin-settings').classList.add('bg-[#E4B6B6]', 'text-white');
+                    closeModal();
+                    showToast('歡迎回來！管理權限已開啟 🍬');
+                    renderView();
+                } else {
+                    showToast('密碼不正確喔～');
+                }
+            };
+        }
+    };
 
-// ══════════════════════════════════════════════
-// HOME PAGE SECTIONS
-// ══════════════════════════════════════════════
-function renderHomePage(){
-  renderHomeFeatured();
-  renderHomeFavPreview();
-}
-
-function renderHomeFeatured(){
-  const el=document.getElementById('home-featured');
-  if(!el)return;
-  const pool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);
-  if(!pool.length){el.innerHTML='<div style="padding:8px;font-size:13px;color:var(--text-tertiary)">資料載入中...</div>';return;}
-  // 每日隨機：用今天日期當亂數種子，同天看到一樣的，隔天自動換
-  const today=new Date();
-  const seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
-  function seededRand(s){let x=Math.sin(s)*10000;return x-Math.floor(x);}
-  const shuffled=[...pool].sort((a,b)=>seededRand(seed+pool.indexOf(a))-seededRand(seed+pool.indexOf(b)));
-  const picks=shuffled.slice(0,6);
-  el.innerHTML=picks.map(p=>{
-    const bg=p.bg||(CAT_INFO[p.cat||'']?.bg)||'#F0EDE8';
-    const tags=(p.tags||'').split(',').filter(Boolean).slice(0,1);
-    const imgHtml=p.imageUrl&&p.imageUrl.trim()
-      ?`<img src="${p.imageUrl}" onerror="this.remove()"><span class="hcard-img-em">${p.emoji||'📍'}</span>`
-      :`<span class="hcard-img-em">${p.emoji||'📍'}</span>`;
-    return `<div class="hcard" onclick="goDetail('${p.id}','${p.cat}')">
-      <div class="hcard-img" style="background:${bg}">${imgHtml}</div>
-      <div class="hcard-body">
-        <div class="hcard-name">${p.name}</div>
-        <div class="hcard-meta">
-          <span class="hcard-price">${p.priceLabel||''}</span>
-          ${tags.map(t=>`<span class="hcard-tag">${t}</span>`).join('')}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderHomeFavPreview(){
-  const el=document.getElementById('home-fav-preview');
-  if(!el)return;
-  if(!favorites.length){
-    el.innerHTML=`<div class="fav-preview-empty">
-      <div class="fpe-icon">🤍</div>
-      <div class="fpe-text">
-        <h4>還沒有收藏</h4>
-        <p>逛景點、餐廳時按 🤍<br>加入你的最愛清單</p>
-      </div>
-    </div>`;
-    return;
-  }
-  const all=CATS.reduce((a,c)=>a.concat(data[c]),[]);
-  const items=favorites.slice(0,8).map(id=>all.find(x=>x.id===id)).filter(Boolean);
-  if(!items.length){
-    el.innerHTML=`<div class="fav-preview-empty"><div class="fpe-icon">🤍</div><div class="fpe-text"><h4>收藏載入中</h4><p>稍候即可看到你的收藏</p></div></div>`;
-    return;
-  }
-  el.innerHTML=`<div class="fav-mini-scroll">${items.map(p=>{
-    const bg=p.bg||(CAT_INFO[p.cat||'']?.bg)||'#F0EDE8';
-    return `<div class="fav-mini-card" onclick="goDetail('${p.id}','${p.cat}')">
-      <div class="fav-mini-icon" style="background:${bg}">${p.emoji||'📍'}</div>
-      <div class="fav-mini-name">${p.name}</div>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-// ══════════════════════════════════════════════
-// SLOT MACHINE
-// ══════════════════════════════════════════════
-function updatePool(){randomPool=['attractions','restaurants','shopping'].reduce((a,c)=>a.concat(data[c]),[]);renderHomeFeatured();}
-
-function startDraw(){
-  const pool=randomPool.length?randomPool:Object.values(data).flat();
-  if(!pool.length){showToast('資料載入中，請稍後再試');return;}
-  const pre=document.getElementById('home-pre-content');
-  if(pre) pre.style.display='none';
-  document.getElementById('rcw').classList.remove('show');
-  document.getElementById('daw').classList.remove('show');
-  const drum=document.getElementById('slot-drum');drum.classList.add('show');
-  const winner=pool[Math.floor(Math.random()*pool.length)];drawnPlace=winner;
-  const items=[...Array(12)].map(()=>pool[Math.floor(Math.random()*pool.length)]);items.push(winner);
-  const inner=document.getElementById('slot-inner');
-  inner.style.transition='none';inner.style.transform='translateY(0)';
-  inner.innerHTML=items.map(p=>`<div class="sit"><div class="sit-ic">${p.emoji||'📍'}</div><div><div class="sit-nm">${p.name}</div><div class="sit-cy">${p.region||''}</div></div></div>`).join('');
-  const tot=items.length-1;let cnt=0,spd=30;clearInterval(slotTimer);
-  slotTimer=setInterval(()=>{
-    cnt++;inner.style.transition=`transform ${spd/1000}s linear`;inner.style.transform=`translateY(-${cnt*60}px)`;
-    if(cnt<tot-4)spd=30;else spd=Math.min(spd+40,300);
-    if(cnt>=tot){clearInterval(slotTimer);setTimeout(showResult,400);}
-  },spd);
-}
-
-function showResult(){
-  const p=drawnPlace;if(!p)return;
-  const cat=p.cat||'attractions';const info=CAT_INFO[cat]||{};
-  // 優化3：結果卡底色統一用品牌奶茶漸層，不用各自雜亂的 bg
-  const tags=(p.tags||'').split(',').filter(Boolean);
-  document.getElementById('slot-drum').classList.remove('show');
-  const banner=document.getElementById('rcb');
-  // 用奶茶漸層做預設，有圖片則疊加圖片
-  banner.style.background='linear-gradient(135deg,#EDE8E3,#DFC8B0)';
-  if(p.imageUrl&&p.imageUrl.trim()){
-    banner.innerHTML=`<img src="${p.imageUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.remove()"><span class="rcb-em">${p.emoji||'📍'}</span>`;
-  } else {
-    banner.innerHTML=`<span class="rcb-em">${p.emoji||'📍'}</span>`;
-  }
-
-  // badge 色依分類統一
-  const badgeClass = {
-    attractions:'rb-mint', restaurants:'rb-rose',
-    shopping:'rb-tan', accommodation:'rb-lav', medical:'rb-mint'
-  }[cat]||'rb-stone';
-
-  document.getElementById('rcbg').innerHTML=
-    `<span class="rcbadge ${badgeClass}">${info.label||cat}</span>`+
-    (p.indoor==='TRUE'?'<span class="rcbadge rb-stone">室內</span>':p.indoor==='FALSE'?'<span class="rcbadge rb-stone">戶外</span>':'')+
-    (p.priceLabel?`<span class="rcbadge rb-stone">${p.priceLabel}</span>`:'');
-  document.getElementById('rcn').textContent=p.name;
-  document.getElementById('rcy').textContent=`📍 ${p.region||''}`;
-  document.getElementById('rctg').innerHTML=tags.map(t=>`<span class="rctag">${t}</span>`).join('');
-
-  // 優化2：導航按鈕也改用地名搜尋
-  document.getElementById('rcmap').onclick=()=>window.open(buildMapUrl(p),'_blank');
-
-  document.getElementById('rcw').classList.add('show');
-  document.getElementById('daw').classList.add('show');
-}
-function openDetailFromResult(){if(drawnPlace)goDetail(drawnPlace.id,drawnPlace.cat);}
-
-// ══════════════════════════════════════════════
-// FILTER MODAL
-// ══════════════════════════════════════════════
-function openFilter(cat){
-  filterCat=cat;
-  const cf=F[cat];
-  const titles={attractions:'🏞️ 景點篩選',restaurants:'🍽️ 餐廳篩選',shopping:'🛍️ 購物篩選',accommodation:'🏨 住宿篩選',medical:'🏥 醫療篩選'};
-  document.getElementById('fmo-title').textContent=titles[cat]||'篩選';
-  let html='';
-  html+=`<div class="msc"><div class="mst"><div class="sd-dot" style="background:var(--mint-dark)"></div>定位距離篩選</div>
-    <div class="gpsbtn ${isGPS?'on':''}" onclick="reqGPS()"><span>📍</span><span id="gpslbl">${isGPS?'✅ 已定位 · 按距離排序':'啟用定位（按距離排序）'}</span></div>
-    <div id="gpsdist" style="display:${isGPS?'block':'none'}">
-      <input type="range" id="distslider" min="5" max="80" value="${cf.distance||80}" oninput="onDist(this.value,'${cat}')">
-      <div class="rl"><span>5km</span><span id="distval">${cf.distance||80}km 以內</span><span>80km</span></div>
-    </div>
-  </div>`;
-  if(cat==='attractions'){
-    html+=`<div class="msc"><div class="mst"><div class="sd-dot"></div>景點類型（可多選）</div>
-      <div class="cw">${ATT_TYPES.map(o=>`<div class="chip ${cf.subCats.includes(o.v)?'active':''}" onclick="toggleType(this,'${cat}','${o.v}')">${o.l}</div>`).join('')}</div>
-    </div>`;
-  }
-  if(cat==='restaurants'){
-    html+=`<div class="msc"><div class="mst"><div class="sd-dot"></div>餐廳特色（可多選）</div>
-      <div class="cw">${REST_FEATS.map(o=>`<div class="chip ${cf.feats.includes(o.v)?'active':''}" onclick="toggleFeat(this,'${cat}','${o.v}')">${o.l}</div>`).join('')}</div>
-    </div>`;
-  }
-  html+=`<div class="msc"><div class="mst"><div class="sd-dot" style="background:var(--tan-dark)"></div>地區（可多選）</div>
-    <div class="cw">${REGIONS.map(r=>`<div class="chip ${cf.regions.includes(r)?'active':''}" onclick="toggleReg(this,'${cat}','${r}')">${r}</div>`).join('')}</div>
-  </div>`;
-  document.getElementById('fmo-body').innerHTML=html;
-  updateFC();
-  document.getElementById('fmo').classList.add('open');
-}
-function handleOverlayClick(e){if(e.target.id==='fmo')applyFilters();}
-function toggleType(el,cat,v){el.classList.toggle('active');const cf=F[cat];if(el.classList.contains('active')){if(!cf.subCats.includes(v))cf.subCats.push(v);}else cf.subCats=cf.subCats.filter(x=>x!==v);updateFC();}
-function toggleFeat(el,cat,v){el.classList.toggle('active');const cf=F[cat];if(el.classList.contains('active')){if(!cf.feats.includes(v))cf.feats.push(v);}else cf.feats=cf.feats.filter(x=>x!==v);updateFC();}
-function toggleReg(el,cat,r){el.classList.toggle('active');const cf=F[cat];if(el.classList.contains('active')){if(!cf.regions.includes(r))cf.regions.push(r);}else cf.regions=cf.regions.filter(x=>x!==r);updateFC();}
-function onDist(v,cat){F[cat].distance=+v;document.getElementById('distval').textContent=v+'km 以內';updateFC();}
-function updateFC(){document.getElementById('fcb').textContent=`找到 ${getFiltered(filterCat).length} 個`;}
-function clearFilters(cat){const c=cat||filterCat;F[c]={regions:[],subCats:[],feats:[],distance:80};document.getElementById('fmo').classList.remove('open');renderList(c);}
-function applyFilters(){document.getElementById('fmo').classList.remove('open');renderList(filterCat);}
-
-// ══════════════════════════════════════════════
-// GPS
-// ══════════════════════════════════════════════
-function reqGPS(){
-  if(!navigator.geolocation){showToast('此裝置不支援定位');return;}
-  showToast('📍 定位中...');
-  navigator.geolocation.getCurrentPosition(pos=>{
-    userLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};isGPS=true;
-    localStorage.setItem('zou_gps',JSON.stringify({...userLocation,ts:Date.now()}));
-    showToast('✅ 定位成功！已按距離排序');
-    const lbl=document.getElementById('gpslbl');if(lbl)lbl.textContent='✅ 已定位 · 按距離排序';
-    const gb=document.querySelector('.gpsbtn');if(gb)gb.classList.add('on');
-    const gd=document.getElementById('gpsdist');if(gd)gd.style.display='block';
-    if(CATS.includes(currentPage))renderList(currentPage);updatePool();
-  },()=>showToast('定位失敗，請允許位置存取'));
-}
-function requestGPS(){reqGPS();}
-function haversine(a,b,c,d){if(isNaN(c)||isNaN(d))return 999;const R=6371,dl=(c-a)*Math.PI/180,dn=(d-b)*Math.PI/180;const x=Math.sin(dl/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dn/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
-
-// TOAST
-let tT;function showToast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('show'),2200);}
-
-// INIT
-window.addEventListener('DOMContentLoaded',()=>{
-  try{const s=JSON.parse(localStorage.getItem('zou_gps')||'null');if(s&&Date.now()-s.ts<3600000){userLocation={lat:s.lat,lng:s.lng};isGPS=true;}}catch(e){}
-  try{favorites=JSON.parse(localStorage.getItem('zou_favorites')||'[]');}catch(e){}
-  loadDemoData();
-  let ok=false;const fb=setTimeout(()=>{if(!ok)loadDemoData();},5000);
-  Promise.all(CATS.map(cat=>
-    fetch(SHEETS_URL(cat)).then(r=>{if(!r.ok)throw 0;return r.text();})
-    .then(txt=>{const rows=parseCSV(txt).filter(x=>x.name&&x.id&&x.visible!=='FALSE');if(rows.length){data[cat]=rows;ok=true;}}).catch(()=>{})
-  )).then(()=>{clearTimeout(fb);if(ok){updatePool();if(CATS.includes(currentPage))renderList(currentPage);if(currentPage==='home')renderHomePage();}});
-});
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('dp').classList.contains('open'))closeDetail();
-    else if(document.getElementById('fmo').classList.contains('open'))applyFilters();
-  }
-});
-
-// ── PWA Service Worker 註冊 ──
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  });
-}
+    document.getElementById('btn-admin-key').onclick = () => {
+        const container = document.getElementById('modal-container');
+        container.innerHTML = `
+            <div class="modal-overlay" onclick="closeModal()">
+                <div class="modal-content !items-center !rounded-[3.5rem] !mb-auto !mt-auto !h-auto pb-10 text-center" onclick="event.stopPropagation()">
+                    <h2 class="text-xl font-goround mb-6">修改管理密碼</h2>
+                    <input type="text" id="new-pwd-input" placeholder="輸入新密碼 (至少4位)" class="w-full p-5 rounded-2xl bg-white border border-[#E8E3DF] text-center outline-none mb-8 tracking-widest text-lg">
+                    <button id="btn-save-pwd" class="w-full py-5 btn-primary rounded-full font-bold text-sm shadow-xl">儲存密碼並生效</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('btn-save-pwd').onclick = async () => {
+            const val = document.getElementById('new-pwd-input').value;
+            if(val.length < 4) return showToast('密碼太短了啦');
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'config', 'admin'), { password: val });
+            showToast('密碼更新完成 ✨');
+            closeModal();
+        };
+    };
 </script>
 
 </body>
