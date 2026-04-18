@@ -124,6 +124,7 @@ async function parseInput() {
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
     const data = await res.json();
+    if (!data.candidates) throw new Error(JSON.stringify(data));
     let raw = data.candidates[0].content.parts[0].text.trim();
     raw = raw.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
     parsedResults = JSON.parse(raw);
