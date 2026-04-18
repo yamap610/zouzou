@@ -84,7 +84,7 @@ textarea:focus { border-color: var(--rose); }
 <div class="csv-area" id="csvArea">
   <div class="csv-header">
     <span>CSV 格式（可貼入 Sheets）</span>
-    <button class="btn btn-outline" style="width:auto;padding:4px 12px;font-size:12px;" onclick="copyCSV()">複製</button>
+    <button class="btn-outline" style="width:auto;padding:4px 12px;font-size:12px;" onclick="copyCSV()">複製</button>
   </div>
   <textarea id="csvOutput" readonly></textarea>
 </div>
@@ -92,17 +92,16 @@ textarea:focus { border-color: var(--rose); }
 <div class="toast" id="toast"></div>
 
 <script>
+const GEMINI_KEY = 'AIzaSyCrH0plWiKLG2qdPAQcMcv-b6dkDsbzXT0';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+
 const FIELDS = ['name','emoji','category','tags','area','address','phone','mapsUrl','website','hours','image','notes'];
 const FIELD_LABELS = { name:'名稱', emoji:'Emoji', category:'類別', tags:'標籤', area:'地區', address:'地址', phone:'電話', mapsUrl:'Maps連結', website:'網站', hours:'營業時間', image:'圖片網址', notes:'備注' };
 const CAT_OPTIONS = ['景點','餐廳','購物','住宿','其他'];
-const ALL_TAGS = [
-  '動物園','農場','山林草地','水域戲水','科學館','博物館','美術館',
-  '遊樂園','親子影城','觀光工廠','其他室內','其他戶外',
-  '遊戲區','兒童座椅','兒童餐/寶寶粥','可提供兒童餐具',
-  '附設尿布檯或哺乳空間','附設停車場','周邊停車場'
-];
+const ALL_TAGS = ['動物園','農場','山林草地','水域戲水','科學館','博物館','美術館','遊樂園','親子影城','觀光工廠','其他室內','其他戶外','遊戲區','兒童座椅','兒童餐/寶寶粥','可提供兒童餐具','附設尿布檯或哺乳空間','附設停車場','周邊停車場'];
 
 let parsedResults = [];
+const norm = s => s.replace(/[／/]/g,'/').replace(/\s/g,'').toLowerCase();
 
 async function parseInput() {
   const text = document.getElementById('inputText').value.trim();
@@ -115,21 +114,17 @@ async function parseInput() {
   document.getElementById('resultsContainer').innerHTML = '';
   document.getElementById('csvArea').style.display = 'none';
 
+  const prompt = '你是一個親子地點資料整理助手。請將以下文字整理成 JSON 格式。\n\n欄位定義：\n- name: 地點名稱（必填）\n- emoji: 最適合的 emoji（1個）\n- category: 只能是以下之一：景點、餐廳、購物、住宿、其他\n- tags: 只能從以下清單選，用逗號分隔：' + ALL_TAGS.join('、') + '\n  不在清單的特色放到 notes\n- area: 縣市或地區\n- address: 詳細地址\n- phone: 電話號碼\n- mapsUrl: Google Maps 連結（如有）\n- website: 官網或粉絲專頁（如有）\n- hours: 營業時間\n- image: 圖片網址（如有）\n- notes: 其他備注（價格、注意事項、不在標籤清單的特色）\n\n規則：\n1. 多個地點回傳陣列；單一地點也回傳只有1個元素的陣列\n2. 沒有的欄位填空字串 ""\n3. # 開頭的 hashtag 忽略\n4. tags 積極從文字內容判斷\n5. 只回傳 JSON，不要任何說明文字\n\n資料：\n' + text;
+
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(GEMINI_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: '你是一個親子地點資料整理助手。請將以下文字整理成 JSON 格式。\n\n欄位定義：\n- name: 地點名稱（必填）\n- emoji: 最適合的 emoji（1個）\n- category: 只能是以下之一：景點、餐廳、購物、住宿、其他\n- tags: 根據資訊內容，從以下清單中選出符合的標籤，用逗號分隔。只能從清單選，不能自創：\n  ' + ALL_TAGS.join('、') + '\n  不在清單內的特色請放到 notes\n- area: 縣市或地區（例如：台北市、台中、宜蘭）\n- address: 詳細地址\n- phone: 電話號碼\n- mapsUrl: Google Maps 連結（如果有）\n- website: 官網或粉絲專頁連結（如果有）\n- hours: 營業時間\n- image: 圖片網址（如果有）\n- notes: 其他備注（價格、注意事項、預約資訊、不在標籤清單的特色）\n\n規則：\n1. 多個地點回傳陣列；單一地點也回傳只有1個元素的陣列\n2. 沒有的欄位填空字串 ""\n3. # 開頭的 hashtag 忽略，不當作資料\n4. tags 請積極從文字內容判斷，例如：有遊戲區、有兒童座椅、有停車場等\n5. 只回傳 JSON，不要任何說明文字\n\n資料：\n' + text
-        }]
-      })
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
     const data = await res.json();
-    const raw = data.content[0].text.trim().replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
+    let raw = data.candidates[0].content.parts[0].text.trim();
+    raw = raw.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
     parsedResults = JSON.parse(raw);
     if (!Array.isArray(parsedResults)) parsedResults = [parsedResults];
 
@@ -139,7 +134,7 @@ async function parseInput() {
     if (parsedResults.length > 1) {
       const h = document.getElementById('multiHint');
       h.style.display = 'block';
-      h.textContent = 'AI 辨識到 ' + parsedResults.length + ' 個地點，分別整理如下';
+      h.textContent = 'AI 辨識到 ' + parsedResults.length + ' 個地點';
     }
     renderResults();
   } catch(e) {
@@ -167,10 +162,8 @@ function renderResults() {
     const fields = document.createElement('div');
     fields.className = 'fields';
 
-    // category select
     appendRow(fields, '類別', buildSelect(idx, CAT_OPTIONS, place.category));
 
-    // text fields（按照欄位順序）
     ['area','address','phone','mapsUrl','website','hours','image','notes'].forEach(key => {
       const input = document.createElement('input');
       input.className = 'field-edit';
@@ -184,16 +177,12 @@ function renderResults() {
       appendRow(fields, FIELD_LABELS[key], input);
     });
 
-    // tags chips（AI 預勾）
     const grid = document.createElement('div');
     grid.className = 'tags-grid';
-    const normalize = s => s.replace(/[／/]/g,'/').replace(/\s/g,'').toLowerCase();
-    const aiTags = (place.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-    const aiTagsNorm = aiTags.map(normalize);
+    const aiTagsN = (place.tags||'').split(',').map(t=>norm(t.trim())).filter(Boolean);
     ALL_TAGS.forEach(tag => {
-      const isSelected = aiTagsNorm.includes(normalize(tag));
       const chip = document.createElement('div');
-      chip.className = 'tag-chip' + (isSelected ? ' selected' : '');
+      chip.className = 'tag-chip' + (aiTagsN.includes(norm(tag)) ? ' selected' : '');
       chip.textContent = tag;
       chip.onclick = function() {
         chip.classList.toggle('selected');
@@ -236,7 +225,7 @@ function buildSelect(idx, options, current) {
 
 function updateCSV() {
   const rows = parsedResults.map(p =>
-    FIELDS.map(k => { const v=(p[k]||'').toString().replace(/"/g,'""'); return (v.includes(',')||v.includes('"')||v.includes('\n')) ? '"'+v+'"' : v; }).join(',')
+    FIELDS.map(k => { const v=(p[k]||'').toString().replace(/"/g,'""'); return (v.includes(',')||v.includes('"')||v.includes('\n'))?'"'+v+'"':v; }).join(',')
   );
   document.getElementById('csvOutput').value = FIELDS.join(',') + '\n' + rows.join('\n');
 }
@@ -245,11 +234,8 @@ function copyText(text, msg) {
   if (navigator.clipboard && location.protocol !== 'file:') {
     navigator.clipboard.writeText(text).then(()=>showToast(msg));
   } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
     showToast(msg);
   }
 }
