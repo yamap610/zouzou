@@ -1,264 +1,345 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>走走 👣 你的育兒好去處</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C98F8F">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="走走">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>走走 - 地點探險</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Serif TC', serif; background: #fdf8f3; color: #333; }
+        html, body { height: 100%; }
+        .app { display: flex; flex-direction: column; height: 100vh; }
+        .header { background: linear-gradient(135deg, #c9a97a 0%, #a07848 100%); color: white; padding: 16px 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: 700; }
+        .controls { padding: 12px 16px; background: white; display: flex; gap: 8px; border-bottom: 1px solid #e8dcc8; }
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; }
+        .btn-primary { background: #c9a97a; color: white; }
+        .btn-secondary { background: #f5ede2; color: #a07848; border: 1px solid #c9a97a; }
+        .toggle-btn { padding: 8px 12px; border: 1px solid #c9a97a; background: white; color: #a07848; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .toggle-btn.active { background: #c9a97a; color: white; }
+        .search-box { flex: 1; display: flex; align-items: center; background: #f5ede2; border-radius: 6px; padding: 0 12px; }
+        .search-box input { border: none; background: transparent; padding: 8px; outline: none; font-family: inherit; width: 100%; }
+        .content { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .card-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .place-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; }
+        .card-img { width: 100%; height: 120px; background: linear-gradient(135deg, #ede8e3, #f5ede2); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+        .card-body { padding: 12px; }
+        .card-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+        .card-region { font-size: 11px; color: #999; }
+        .card-cat { font-size: 10px; background: #f5ede2; color: #a07848; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 4px; }
+        .list-view { display: flex; flex-direction: column; gap: 8px; }
+        .list-item { background: white; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; }
+        .list-emoji { font-size: 32px; min-width: 40px; }
+        .list-info { flex: 1; }
+        .list-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .list-meta { font-size: 12px; color: #999; }
+        .list-fav { width: 32px; height: 32px; border: 1px solid #ddd; background: white; border-radius: 50%; cursor: pointer; font-size: 16px; }
+        .list-fav.on { background: #ffe4e4; }
+        .detail-page { display: none; position: fixed; inset: 0; background: #fdf8f3; z-index: 100; flex-direction: column; }
+        .detail-page.show { display: flex; }
+        .detail-header { background: linear-gradient(135deg, #c9a97a 0%, #a07848 100%); color: white; padding: 12px 16px; display: flex; justify-content: space-between; }
+        .detail-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .detail-img { width: 100%; height: 200px; background: linear-gradient(135deg, #ede8e3, #f5ede2); display: flex; align-items: center; justify-content: center; font-size: 80px; border-radius: 8px; margin-bottom: 16px; }
+        .detail-section { background: white; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .detail-label { font-size: 11px; color: #999; font-weight: 600; margin-bottom: 4px; }
+        .detail-value { font-size: 14px; color: #333; }
+        .detail-actions { display: flex; gap: 8px; padding: 12px 16px; background: white; border-top: 1px solid #e8dcc8; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 12px; padding: 20px; max-width: 90%; max-height: 80vh; overflow-y: auto; }
+        .form-group { margin-bottom: 12px; }
+        .form-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; }
+        .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 14px; }
+        .detail-textarea { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px; font-family: inherit; font-size: 14px; min-height: 80px; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+        .modal-actions .btn { flex: 1; }
+        .empty { text-align: center; padding: 40px 20px; }
+        .setup-card { background: #FFF5E8; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .setup-title { font-weight: 600; color: #a07848; margin-bottom: 8px; }
+        .setup-text { font-size: 13px; color: #666; line-height: 1.6; }
+        .setup-text a { color: #c9a97a; text-decoration: none; }
+    </style>
 </head>
 <body>
-<div id="app">
-
-<!-- HOME -->
-<div class="page active" id="page-home">
-  <div class="scroll-area">
-    <div class="hhb">
-      <button class="add-btn-home" onclick="openAddModal()">➕</button>
-      <span class="hb">🎒</span>
-      <div class="ht">走走，今天去哪裡？</div>
-      <div class="hs">抽一個育兒好去處 ✨</div>
-      <button class="dmb" onclick="startDraw()">🎲 Let's GO ٩(*•̀ᴗ•́*)و</button>
-    </div>
-
-    <div class="sa">
-      <div class="sd" id="slot-drum">
-        <div class="sft"></div><div class="shl"></div><div class="sfb"></div>
-        <div class="si" id="slot-inner"></div>
-      </div>
-      <div class="rcw" id="rcw">
-        <div class="rcard" onclick="openDetailFromResult()">
-          <div class="rcb" id="rcb"></div>
-          <div class="rcc">
-            <div class="rcbg" id="rcbg"></div>
-            <div class="rcn" id="rcn"></div>
-            <div class="rcy" id="rcy"></div>
-            <div class="rctg" id="rctg"></div>
-            <div class="rca">
-              <button class="rcbtn rcbtn-map" id="rcmap">🗺️ 導航</button>
-              <button class="rcbtn rcbtn-more">📖 查看詳情</button>
+    <div class="app">
+        <div class="header">
+            <h1>🗺️ 走走</h1>
+            <p>發現親子好去處</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="window.appState?.openAddModal?.()">➕ 新增</button>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜尋..." oninput="window.appState?.filterPlaces?.()">
             </div>
-          </div>
+            <div style="display: flex; gap: 4px;">
+                <button class="toggle-btn active" onclick="window.appState?.switchView?.('card')">🎴</button>
+                <button class="toggle-btn" onclick="window.appState?.switchView?.('list')">📋</button>
+            </div>
+            <button class="btn btn-secondary" onclick="window.appState?.openSettings?.()">⚙️</button>
         </div>
-      </div>
-      <div class="daw" id="daw">
-        <button class="dab" onclick="startDraw()">🔀 再抽一次</button>
-      </div>
+        
+        <div class="content" id="content">
+            <div class="empty">
+                <div class="empty-icon">📍</div>
+                <div class="empty-text">載入中...</div>
+            </div>
+        </div>
     </div>
-
-    <div id="home-pre-content">
-      <div class="home-tip">
-        <div class="tip-icon">💡</div>
-        <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！</div>
-      </div>
-      <div class="home-sec">
-        <div class="home-sec-title">⭐ 今日精選</div>
-        <div class="home-sec-more" onclick="goPage('attractions')">更多 →</div>
-      </div>
-      <div class="home-hscroll" id="home-featured"></div>
-      <div class="home-sec">
-        <div class="home-sec-title">❤️ 我的收藏</div>
-        <div class="home-sec-more" onclick="goPage('favorites')">全部 →</div>
-      </div>
-      <div class="fav-preview-wrap" id="home-fav-preview"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ATTRACTIONS -->
-<div class="page" id="page-attractions">
-  <div class="ph"><div style="font-size:24px">🏞️</div><h1>景點</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-attractions" oninput="filterList('attractions')"></div></div>
-  <div class="fr" id="fr-attractions"></div>
-  <div class="scroll-area" id="list-attractions"></div>
-</div>
-
-<!-- RESTAURANTS -->
-<div class="page" id="page-restaurants">
-  <div class="ph"><div style="font-size:24px">🍽️</div><h1>餐廳</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
-  <div class="fr" id="fr-restaurants"></div>
-  <div class="scroll-area" id="list-restaurants"></div>
-</div>
-
-<!-- SHOPPING -->
-<div class="page" id="page-shopping">
-  <div class="ph"><div style="font-size:24px">🛍️</div><h1>購物</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-shopping" oninput="filterList('shopping')"></div></div>
-  <div class="fr" id="fr-shopping"></div>
-  <div class="scroll-area" id="list-shopping"></div>
-</div>
-
-<!-- ACCOMMODATION -->
-<div class="page" id="page-accommodation">
-  <div class="ph"><div style="font-size:24px">🏨</div><h1>住宿</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
-  <div class="fr" id="fr-accommodation"></div>
-  <div class="scroll-area" id="list-accommodation"></div>
-</div>
-
-<!-- FAVORITES -->
-<div class="page" id="page-favorites">
-  <div class="ph"><div style="font-size:24px">❤️</div><h1>我的收藏</h1></div>
-  <div class="scroll-area" id="list-favorites"></div>
-</div>
-
-<!-- BOTTOM NAV -->
-<nav id="nav">
-  <div class="nav-item active" data-page="home" onclick="goPage('home')"><div class="ni">🏠</div><div class="nl">首頁</div></div>
-  <div class="nav-item" data-page="attractions" onclick="goPage('attractions')"><div class="ni">🏞️</div><div class="nl">景點</div></div>
-  <div class="nav-item" data-page="restaurants" onclick="goPage('restaurants')"><div class="ni">🍽️</div><div class="nl">餐廳</div></div>
-  <div class="nav-item" data-page="shopping" onclick="goPage('shopping')"><div class="ni">🛍️</div><div class="nl">購物</div></div>
-  <div class="nav-item" data-page="accommodation" onclick="goPage('accommodation')"><div class="ni">🏨</div><div class="nl">住宿</div></div>
-  <div class="nav-item" data-page="favorites" onclick="goPage('favorites')"><div class="ni">❤️</div><div class="nl">收藏</div></div>
-</nav>
-
-<!-- FILTER MODAL -->
-<div class="mo" id="fmo" onclick="if(event.target.id==='fmo')applyFilters()">
-  <div class="ms">
-    <div class="mh"></div>
-    <div class="mhd">
-      <div class="mt" id="fmo-title">篩選</div>
-      <div class="cb" id="fcb">找到 0 個</div>
-    </div>
-    <div class="mb" id="fmo-body"></div>
-    <div class="mf">
-      <button class="btn btn-outline" onclick="clearFilters()">清除全部</button>
-      <button class="btn btn-coral" onclick="applyFilters()">確認篩選 ✓</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADD PLACE MODAL -->
-<div class="add-modal" id="add-modal">
-  <div class="add-modal-content">
-    <div class="add-modal-title">🆕 新增地點</div>
     
-    <!-- Step 1 -->
-    <div class="add-step active" id="add-step-type">
-      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:12px;">選擇地點類型</label>
-      <div class="add-type-grid">
-        <div class="add-type-btn selected" onclick="selectAddType('attractions')">
-          <div class="add-type-btn-icon">🏞️</div>
-          <div class="add-type-btn-label">景點</div>
+    <div class="detail-page" id="detailPage">
+        <div class="detail-header">
+            <h2 id="detailName" style="flex: 1;"></h2>
+            <button class="btn" style="background: rgba(255,255,255,0.2); color: white; width: 32px; height: 32px; padding: 0;" onclick="window.appState?.closeDetail?.()">✕</button>
         </div>
-        <div class="add-type-btn" onclick="selectAddType('restaurants')">
-          <div class="add-type-btn-icon">🍽️</div>
-          <div class="add-type-btn-label">餐廳</div>
+        <div class="detail-content" id="detailContent"></div>
+        <div class="detail-actions">
+            <button class="btn btn-primary" style="flex: 1; padding: 6px 12px; font-size: 12px;" onclick="window.appState?.editPlace?.()">編輯</button>
+            <button class="btn btn-secondary" style="flex: 1; padding: 6px 12px; font-size: 12px;" onclick="window.appState?.deletePlace?.()">刪除</button>
         </div>
-        <div class="add-type-btn" onclick="selectAddType('shopping')">
-          <div class="add-type-btn-icon">🛍️</div>
-          <div class="add-type-btn-label">購物</div>
+    </div>
+    
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">⚙️ 設定</div>
+            <div class="setup-card">
+                <div class="setup-title">🔑 Claude API Key</div>
+                <div class="setup-text">需要 API Key 才能使用 AI 搜尋功能。<br><a href="https://console.anthropic.com" target="_blank">👉 打開 Claude 官網申請</a></div>
+                <div class="form-group" style="margin-top: 12px;">
+                    <input type="password" id="apiKeyInput" class="form-input" placeholder="貼上你的 API Key (sk-ant-...)" value="">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="window.appState?.closeSettings?.()">取消</button>
+                <button class="btn btn-primary" onclick="window.appState?.saveAPIKey?.()">保存</button>
+            </div>
         </div>
-        <div class="add-type-btn" onclick="selectAddType('accommodation')">
-          <div class="add-type-btn-icon">🏨</div>
-          <div class="add-type-btn-label">住宿</div>
+    </div>
+    
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">🆕 新增地點</div>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="window.appState?.closeAddModal?.()">取消</button>
+                <button class="btn btn-primary" id="searchBtn" onclick="window.appState?.searchPlace?.()">🔍 搜尋</button>
+            </div>
         </div>
-      </div>
-      <div class="add-actions">
-        <button class="add-btn-secondary" onclick="closeAddModal()">取消</button>
-        <button class="add-btn-primary" onclick="goAddStep(1)">下一步</button>
-      </div>
     </div>
 
-    <!-- Step 2 -->
-    <div class="add-step" id="add-step-input">
-      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:12px;">選擇輸入方式</label>
-      
-      <div class="add-input-method active" id="method-url">
-        <label><input type="radio" name="input-method" value="url" checked onchange="switchInputMethod('url')">🔗 Google Maps URL</label>
-        <input type="text" id="add-url-input" placeholder="貼上 Google Maps 連結...">
-      </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 
-      <div class="add-input-method" id="method-name">
-        <label><input type="radio" name="input-method" value="name" onchange="switchInputMethod('name')">📝 店名 + 地區</label>
-        <input type="text" id="add-name-input" placeholder="店名...">
-        <select id="add-region-input">
-          <option value="">選擇地區...</option>
-          <option value="台北市">台北市</option><option value="新北市">新北市</option>
-          <option value="基隆市">基隆市</option><option value="桃園市">桃園市</option>
-          <option value="新竹市">新竹市</option><option value="新竹縣">新竹縣</option>
-          <option value="苗栗縣">苗栗縣</option><option value="台中市">台中市</option>
-          <option value="彰化縣">彰化縣</option><option value="南投縣">南投縣</option>
-          <option value="雲林縣">雲林縣</option><option value="嘉義市">嘉義市</option>
-          <option value="嘉義縣">嘉義縣</option><option value="台南市">台南市</option>
-          <option value="高雄市">高雄市</option><option value="屏東縣">屏東縣</option>
-          <option value="宜蘭縣">宜蘭縣</option><option value="花蓮縣">花蓮縣</option>
-          <option value="台東縣">台東縣</option>
-        </select>
-      </div>
+    <script>
+        function startApp() {
+            if (!window.firebase) {
+                setTimeout(startApp, 100);
+                return;
+            }
 
-      <div class="add-actions">
-        <button class="add-btn-secondary" onclick="goAddStep(0)">上一步</button>
-        <button class="add-btn-secondary" onclick="clearAddInput()">清除</button>
-        <button class="add-btn-primary" onclick="startAddSearch()">🤖 AI 搜尋</button>
-      </div>
-    </div>
+            window.appState = {
+                places: [],
+                currentView: 'card',
+                currentDetailId: null,
+                currentEditId: null,
+                db: null,
+                claudeKey: localStorage.getItem('zou_claude_key') || '',
 
-    <!-- Step 3 -->
-    <div class="add-step" id="add-step-result">
-      <div class="add-search-status" id="add-search-loading" style="display:none;">
-        <div class="add-loading">
-          <div class="add-loading-spinner"></div>
-          <div>🤖 AI 正在搜尋...</div>
-        </div>
-      </div>
-      
-      <div class="add-search-result" id="add-search-error" style="display:none;">
-        <div style="padding:12px;background:#FFE8E8;border-radius:var(--r-lg);color:#8B5C5C;">
-          <div style="font-weight:600;margin-bottom:4px;">❌ 搜尋失敗</div>
-          <div style="font-size:13px;" id="add-error-msg"></div>
-        </div>
-        <div class="add-actions" style="margin-top:16px;">
-          <button class="add-btn-secondary" onclick="goAddStep(1)">返回修改</button>
-        </div>
-      </div>
+                async init() {
+                    const config = {
+                        apiKey: "AIzaSyBs6oqVmEvNv2TrekTY0QUlnDimdJipbOo",
+                        authDomain: "zouzou-letsgo.firebaseapp.com",
+                        projectId: "zouzou-letsgo",
+                        storageBucket: "zouzou-letsgo.firebasestorage.app",
+                        messagingSenderId: "789095916768",
+                        appId: "1:789095916768:web:14e11c7574849835cd5c85"
+                    };
+                    
+                    try {
+                        const app = window.firebase.initializeApp(config);
+                        this.db = window.firebase.firestore(app);
+                        await this.loadPlaces();
+                        this.renderPlaces();
+                    } catch (e) {
+                        console.error('Firebase init error:', e);
+                    }
+                },
 
-      <div class="add-search-result" id="add-search-success" style="display:none;">
-        <div style="color:#4CAF50;font-weight:600;margin-bottom:16px;">✅ 搜尋完成</div>
-        <div id="add-results-form"></div>
-        <div class="add-actions">
-          <button class="add-btn-secondary" onclick="goAddStep(1)">返回修改</button>
-          <button class="add-btn-primary" onclick="saveAddPlace()">✅ 保存</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                async loadPlaces() {
+                    const snapshot = await this.db.collection('place').get();
+                    this.places = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                    this.places.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                },
 
-<div id="toast"></div>
+                renderPlaces() {
+                    const filtered = this.getFiltered();
+                    const html = filtered.length ? (this.currentView === 'card' ? this.renderCard(filtered) : this.renderList(filtered)) : '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">沒有地點，點「新增」開始吧！</div></div>';
+                    document.getElementById('content').innerHTML = html;
+                },
 
-</div>
+                renderCard(items) {
+                    return '<div class="card-view">' + items.map(p => `<div class="place-card" onclick="window.appState.openDetail('${p.id}')"><div class="card-img">${p.imageUrl ? `<img src="${p.imageUrl}" onerror="this.style.display='none'">` : ''}<span style="${p.imageUrl ? 'display:none' : ''}">${p.emoji || '📍'}</span></div><div class="card-body"><div class="card-name">${p.name}</div><div class="card-region">${p.region || '-'}</div><div class="card-cat">${this.getCatLabel(p.category)}</div></div></div>`).join('') + '</div>';
+                },
 
-<!-- DETAIL PAGE -->
-<div id="dp" style="display:none;flex-direction:column;height:100%;width:100%;background:#FEFDF5;overflow:hidden;">
-  <div class="dhr" id="dhr">
-    <button class="dbk" onclick="closeDetail()">←</button>
-    <button class="dfv" id="dfv" onclick="toggleFavDetail()">🤍</button>
-    <span class="dhe" id="dhe"></span>
-  </div>
-  <div class="dbd" id="dbd"></div>
-  <div class="dbot">
-    <button class="btn btn-mint" onclick="openMap()">🗺️ 導航</button>
-    <button class="btn btn-outline" onclick="openWebsite()">🔗 官網</button>
-    <button class="btn btn-outline" onclick="copyAddr()">📋 複製</button>
-  </div>
-</div>
+                renderList(items) {
+                    return '<div class="list-view">' + items.map(p => `<div class="list-item" onclick="window.appState.openDetail('${p.id}')"><div class="list-emoji">${p.emoji || '📍'}</div><div class="list-info"><div class="list-name">${p.name}</div><div class="list-meta">${p.region || '-'} • ${this.getCatLabel(p.category)}</div></div><button class="list-fav ${p.favorite ? 'on' : ''}" onclick="event.stopPropagation(); window.appState.toggleFav('${p.id}')">${p.favorite ? '❤️' : '🤍'}</button></div>`).join('') + '</div>';
+                },
 
-<!-- SCRIPTS -->
-<script src="js/data.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/render.js"></script>
-<script src="js/add-place.js"></script>
-<script src="js/app.js"></script>
+                getFiltered() {
+                    const q = document.getElementById('searchInput').value.toLowerCase();
+                    return !q ? this.places : this.places.filter(p => p.name.toLowerCase().includes(q) || (p.region || '').toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.note || '').toLowerCase().includes(q));
+                },
 
+                filterPlaces() {
+                    this.renderPlaces();
+                },
+
+                switchView(v) {
+                    this.currentView = v;
+                    document.querySelectorAll('.toggle-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 && v === 'card') || (i === 1 && v === 'list')));
+                    this.renderPlaces();
+                },
+
+                getCatLabel(c) {
+                    const l = {attractions: '🏞️ 景點', restaurants: '🍽️ 餐廳', other: '✨ 其他'};
+                    return l[c] || c;
+                },
+
+                openDetail(id) {
+                    const p = this.places.find(x => x.id === id);
+                    if (!p) return;
+                    this.currentDetailId = id;
+                    document.getElementById('detailName').textContent = p.name;
+                    document.getElementById('detailContent').innerHTML = `<div class="detail-img">${p.imageUrl ? `<img src="${p.imageUrl}" onerror="this.style.display='none'">` : ''}<span style="${p.imageUrl ? 'display:none' : ''}">${p.emoji || '📍'}</span></div>${[{l:'分類',v:this.getCatLabel(p.category)},{l:'地區',v:p.region||'-'},{l:'地址',v:p.address||'-'},{l:'電話',v:p.phone?`<a href="tel:${p.phone}">${p.phone}</a>`:'-'},{l:'簡介',v:p.description||'-'},{l:'筆記',v:p.note||'(無)'}].map(s=>`<div class="detail-section"><div class="detail-label">${s.l}</div><div class="detail-value">${s.v}</div></div>`).join('')}`;
+                    document.getElementById('detailPage').classList.add('show');
+                },
+
+                closeDetail() {
+                    document.getElementById('detailPage').classList.remove('show');
+                    this.currentDetailId = null;
+                },
+
+                async toggleFav(id) {
+                    const p = this.places.find(x => x.id === id);
+                    p.favorite = !p.favorite;
+                    await this.db.collection('place').doc(id).update({favorite: p.favorite});
+                    this.renderPlaces();
+                },
+
+                openSettings() {
+                    document.getElementById('apiKeyInput').value = this.claudeKey;
+                    document.getElementById('settingsModal').classList.add('show');
+                },
+
+                closeSettings() {
+                    document.getElementById('settingsModal').classList.remove('show');
+                },
+
+                saveAPIKey() {
+                    const key = document.getElementById('apiKeyInput').value.trim();
+                    if (!key.startsWith('sk-ant-')) {
+                        alert('API Key 格式錯誤，應以 sk-ant- 開頭');
+                        return;
+                    }
+                    this.claudeKey = key;
+                    localStorage.setItem('zou_claude_key', key);
+                    alert('✅ 已保存');
+                    this.closeSettings();
+                },
+
+                openAddModal() {
+                    if (!this.claudeKey) {
+                        alert('請先設定 API Key（點右上角⚙️）');
+                        return;
+                    }
+                    this.currentEditId = null;
+                    document.getElementById('addModal').classList.add('show');
+                    document.getElementById('modalBody').innerHTML = `<div class="form-group"><label class="form-label">搜尋方式</label><select id="searchMethod" class="form-select" onchange="window.appState.updateSearchUI()"><option value="name">地點名稱</option><option value="url">Google Maps URL</option></select></div><div class="form-group" id="searchInput1"><label class="form-label">地點名稱</label><input type="text" id="placeName" class="form-input"></div><div class="form-group" id="searchInput2" style="display:none;"><label class="form-label">Google Maps URL</label><input type="text" id="placeUrl" class="form-input"></div><div id="searchResult"></div>`;
+                    document.getElementById('searchBtn').textContent = '🔍 搜尋';
+                },
+
+                closeAddModal() {
+                    document.getElementById('addModal').classList.remove('show');
+                },
+
+                updateSearchUI() {
+                    const m = document.getElementById('searchMethod').value;
+                    document.getElementById('searchInput1').style.display = m === 'name' ? 'block' : 'none';
+                    document.getElementById('searchInput2').style.display = m === 'url' ? 'block' : 'none';
+                },
+
+                async searchPlace() {
+                    const m = document.getElementById('searchMethod').value;
+                    const inp = m === 'name' ? document.getElementById('placeName').value : document.getElementById('placeUrl').value;
+                    if (!inp) { alert('請輸入'); return; }
+                    
+                    const rd = document.getElementById('searchResult');
+                    rd.innerHTML = '<div style="text-align:center;padding:20px;"><div style="width:30px;height:30px;border:3px solid #f5ede2;border-top-color:#c9a97a;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 8px;"></div>搜尋中...</div>';
+                    
+                    try {
+                        const p = m === 'url' ? `From URL: ${inp}` : `Search: ${inp}`;
+                        const r = await fetch('https://api.anthropic.com/v1/messages', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json', 'x-api-key': this.claudeKey, 'anthropic-version': '2023-06-01'},
+                            body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 500, messages: [{role: 'user', content: `${p}\nReturn JSON: {"name":"","region":"","address":"","phone":"","description":"","emoji":""}`}]})
+                        });
+                        const d = await r.json();
+                        let t = d.content[0].text.trim();
+                        if (t.startsWith('```')) t = t.replace(/^```json?\n?/, '').replace(/\n?```$/, '');
+                        const res = JSON.parse(t);
+                        rd.innerHTML = `<div style="margin-top:16px;"><div class="form-group"><label class="form-label">名稱</label><input type="text" id="resultName" class="form-input" value="${res.name || ''}"></div><div class="form-group"><label class="form-label">Emoji</label><input type="text" id="resultEmoji" class="form-input" value="${res.emoji || '📍'}"></div><div class="form-group"><label class="form-label">分類</label><select id="resultCat" class="form-select"><option value="attractions">🏞️ 景點</option><option value="restaurants">🍽️ 餐廳</option><option value="other">✨ 其他</option></select></div><div class="form-group"><label class="form-label">地區</label><input type="text" id="resultRegion" class="form-input" value="${res.region || ''}"></div><div class="form-group"><label class="form-label">地址</label><input type="text" id="resultAddress" class="form-input" value="${res.address || ''}"></div><div class="form-group"><label class="form-label">電話</label><input type="text" id="resultPhone" class="form-input" value="${res.phone || ''}"></div><div class="form-group"><label class="form-label">簡介</label><textarea id="resultDesc" class="detail-textarea">${res.description || ''}</textarea></div><div class="form-group"><label class="form-label">照片URL</label><input type="text" id="resultImg" class="form-input"></div><div class="form-group"><label class="form-label">筆記</label><textarea id="resultNote" class="detail-textarea"></textarea></div><button class="btn btn-primary" onclick="window.appState.saveResult()" style="width:100%; margin-top:12px;">保存</button></div>`;
+                    } catch (e) {
+                        rd.innerHTML = `<div style="color:red;padding:12px;">失敗: ${e.message}</div>`;
+                    }
+                },
+
+                async saveResult() {
+                    const n = document.getElementById('resultName').value;
+                    if (!n) { alert('需要名稱'); return; }
+                    const np = {name: n, emoji: document.getElementById('resultEmoji').value || '📍', category: document.getElementById('resultCat').value || 'other', region: document.getElementById('resultRegion').value || '', address: document.getElementById('resultAddress').value || '', phone: document.getElementById('resultPhone').value || '', description: document.getElementById('resultDesc').value || '', imageUrl: document.getElementById('resultImg').value || '', note: document.getElementById('resultNote').value || '', favorite: false, createdAt: new Date().toISOString()};
+                    await this.db.collection('place').add(np);
+                    await this.loadPlaces();
+                    this.renderPlaces();
+                    this.closeAddModal();
+                    alert('已新增！');
+                },
+
+                editPlace() {
+                    if (!this.currentDetailId) return;
+                    const p = this.places.find(x => x.id === this.currentDetailId);
+                    this.currentEditId = this.currentDetailId;
+                    this.closeDetail();
+                    document.getElementById('addModal').classList.add('show');
+                    document.getElementById('modalBody').innerHTML = `<div class="form-group"><label class="form-label">名稱</label><input type="text" id="editName" class="form-input" value="${p.name}"></div><div class="form-group"><label class="form-label">分類</label><select id="editCat" class="form-select"><option value="attractions" ${p.category==='attractions'?'selected':''}>🏞️ 景點</option><option value="restaurants" ${p.category==='restaurants'?'selected':''}>🍽️ 餐廳</option><option value="other" ${p.category==='other'?'selected':''}>✨ 其他</option></select></div><div class="form-group"><label class="form-label">地區</label><input type="text" id="editRegion" class="form-input" value="${p.region||''}"></div><div class="form-group"><label class="form-label">地址</label><input type="text" id="editAddress" class="form-input" value="${p.address||''}"></div><div class="form-group"><label class="form-label">電話</label><input type="text" id="editPhone" class="form-input" value="${p.phone||''}"></div><div class="form-group"><label class="form-label">簡介</label><textarea id="editDesc" class="detail-textarea">${p.description||''}</textarea></div><div class="form-group"><label class="form-label">照片URL</label><input type="text" id="editImg" class="form-input" value="${p.imageUrl||''}"></div><div class="form-group"><label class="form-label">筆記</label><textarea id="editNote" class="detail-textarea">${p.note||''}</textarea></div>`;
+                    document.getElementById('searchBtn').textContent = '保存';
+                    document.getElementById('searchBtn').onclick = () => this.saveEdit();
+                },
+
+                async saveEdit() {
+                    const d = {name: document.getElementById('editName').value, category: document.getElementById('editCat').value, region: document.getElementById('editRegion').value, address: document.getElementById('editAddress').value, phone: document.getElementById('editPhone').value, description: document.getElementById('editDesc').value, imageUrl: document.getElementById('editImg').value, note: document.getElementById('editNote').value};
+                    await this.db.collection('place').doc(this.currentEditId).update(d);
+                    await this.loadPlaces();
+                    this.renderPlaces();
+                    this.closeAddModal();
+                    this.currentEditId = null;
+                    document.getElementById('searchBtn').textContent = '🔍 搜尋';
+                },
+
+                async deletePlace() {
+                    if (!this.currentDetailId || !confirm('確定刪除？')) return;
+                    await this.db.collection('place').doc(this.currentDetailId).delete();
+                    await this.loadPlaces();
+                    this.renderPlaces();
+                    this.closeDetail();
+                }
+            };
+
+            window.appState.init();
+        }
+
+        startApp();
+    </script>
 </body>
 </html>
