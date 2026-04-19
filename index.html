@@ -148,6 +148,7 @@
             currentDetailId: null,
             currentEditId: null,
             claudeKey: '',
+            gasUrl: 'https://script.google.com/macros/s/AKfycbyjr3a1FWewoRm-3wx0SkyONGKUs-nM_gIyfefE5w1RDzagIKAwf0X73gguAzmFXwKB/exec',
 
             init() {
                 this.claudeKey = localStorage.getItem('zou_claude_key') || '';
@@ -314,10 +315,13 @@
                 
                 try {
                     const prompt = m === 'url' ? `From URL: ${inp}` : `Search: ${inp}`;
-                    const r = await fetch('https://api.anthropic.com/v1/messages', {
+                    const r = await fetch(this.gasUrl, {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json', 'x-api-key': this.claudeKey, 'anthropic-version': '2023-06-01'},
-                        body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 500, messages: [{role: 'user', content: `${prompt}\nReturn JSON: {"name":"","region":"","address":"","phone":"","description":"","emoji":""}`}]})
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            apiKey: this.claudeKey,
+                            prompt: `${prompt}\nReturn JSON: {"name":"","region":"","address":"","phone":"","description":"","emoji":""}`
+                        })
                     });
                     const d = await r.json();
                     let t = d.content[0].text.trim();
