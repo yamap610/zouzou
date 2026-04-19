@@ -11,11 +11,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="走走">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -27,7 +22,7 @@
 <div class="page active" id="page-home">
   <div class="scroll-area">
     <div class="hhb">
-      <button class="add-btn-home" onclick="openAddModal()" title="新增地點">➕</button>
+      <button class="add-btn-home" onclick="openAddModal()">➕</button>
       <span class="hb">🎒</span>
       <div class="ht">走走，今天去哪裡？</div>
       <div class="hs">抽一個育兒好去處 ✨</div>
@@ -60,9 +55,9 @@
     </div>
 
     <div id="home-pre-content">
-      <div class="home-tip" id="home-tip">
+      <div class="home-tip">
         <div class="tip-icon">💡</div>
-        <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！<br>也可以直接逛各分類 👇</div>
+        <div class="tip-text">不知道去哪？<b>點擊 Let's GO</b> 抽一張！</div>
       </div>
       <div class="home-sec">
         <div class="home-sec-title">⭐ 今日精選</div>
@@ -81,7 +76,7 @@
 <!-- ATTRACTIONS -->
 <div class="page" id="page-attractions">
   <div class="ph"><div style="font-size:24px">🏞️</div><h1>景點</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋景點名稱、標籤..." id="search-attractions" oninput="filterList('attractions')"></div></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-attractions" oninput="filterList('attractions')"></div></div>
   <div class="fr" id="fr-attractions"></div>
   <div class="scroll-area" id="list-attractions"></div>
 </div>
@@ -89,7 +84,7 @@
 <!-- RESTAURANTS -->
 <div class="page" id="page-restaurants">
   <div class="ph"><div style="font-size:24px">🍽️</div><h1>餐廳</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋餐廳名稱、特色..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-restaurants" oninput="filterList('restaurants')"></div></div>
   <div class="fr" id="fr-restaurants"></div>
   <div class="scroll-area" id="list-restaurants"></div>
 </div>
@@ -97,7 +92,7 @@
 <!-- SHOPPING -->
 <div class="page" id="page-shopping">
   <div class="ph"><div style="font-size:24px">🛍️</div><h1>購物</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋購物名稱..." id="search-shopping" oninput="filterList('shopping')"></div></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-shopping" oninput="filterList('shopping')"></div></div>
   <div class="fr" id="fr-shopping"></div>
   <div class="scroll-area" id="list-shopping"></div>
 </div>
@@ -105,7 +100,7 @@
 <!-- ACCOMMODATION -->
 <div class="page" id="page-accommodation">
   <div class="ph"><div style="font-size:24px">🏨</div><h1>住宿</h1><button class="ib" onclick="requestGPS()">📍</button></div>
-  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋住宿名稱..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
+  <div class="sw"><div class="sb"><span style="font-size:16px">🔎</span><input type="text" placeholder="搜尋..." id="search-accommodation" oninput="filterList('accommodation')"></div></div>
   <div class="fr" id="fr-accommodation"></div>
   <div class="scroll-area" id="list-accommodation"></div>
 </div>
@@ -127,7 +122,7 @@
 </nav>
 
 <!-- FILTER MODAL -->
-<div class="mo" id="fmo" onclick="handleOverlayClick(event)">
+<div class="mo" id="fmo" onclick="if(event.target.id==='fmo')applyFilters()">
   <div class="ms">
     <div class="mh"></div>
     <div class="mhd">
@@ -147,7 +142,7 @@
   <div class="add-modal-content">
     <div class="add-modal-title">🆕 新增地點</div>
     
-    <!-- Step 1: Select Type -->
+    <!-- Step 1 -->
     <div class="add-step active" id="add-step-type">
       <label style="display:block;font-size:13px;font-weight:600;margin-bottom:12px;">選擇地點類型</label>
       <div class="add-type-grid">
@@ -174,13 +169,13 @@
       </div>
     </div>
 
-    <!-- Step 2: Input Method -->
+    <!-- Step 2 -->
     <div class="add-step" id="add-step-input">
       <label style="display:block;font-size:13px;font-weight:600;margin-bottom:12px;">選擇輸入方式</label>
       
       <div class="add-input-method active" id="method-url">
         <label><input type="radio" name="input-method" value="url" checked onchange="switchInputMethod('url')">🔗 Google Maps URL</label>
-        <input type="text" id="add-url-input" placeholder="貼上 Google Maps 連結..." style="margin-top:8px;">
+        <input type="text" id="add-url-input" placeholder="貼上 Google Maps 連結...">
       </div>
 
       <div class="add-input-method" id="method-name">
@@ -208,7 +203,7 @@
       </div>
     </div>
 
-    <!-- Step 3: Search Results -->
+    <!-- Step 3 -->
     <div class="add-step" id="add-step-result">
       <div class="add-search-status" id="add-search-loading" style="display:none;">
         <div class="add-loading">
@@ -241,13 +236,13 @@
 
 <div id="toast"></div>
 
-</div><!-- /#app -->
+</div>
 
 <!-- DETAIL PAGE -->
 <div id="dp" style="display:none;flex-direction:column;height:100%;width:100%;background:#FEFDF5;overflow:hidden;">
   <div class="dhr" id="dhr">
-    <button class="dbk" onclick="closeDetail()">&#8592;</button>
-    <button class="dfv" id="dfv" onclick="toggleFavDetail()">&#x1F90D;</button>
+    <button class="dbk" onclick="closeDetail()">←</button>
+    <button class="dfv" id="dfv" onclick="toggleFavDetail()">🤍</button>
     <span class="dhe" id="dhe"></span>
   </div>
   <div class="dbd" id="dbd"></div>
@@ -258,11 +253,12 @@
   </div>
 </div>
 
-<!-- Scripts -->
+<!-- SCRIPTS -->
 <script src="js/data.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/render.js"></script>
 <script src="js/add-place.js"></script>
 <script src="js/app.js"></script>
+
 </body>
 </html>
