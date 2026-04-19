@@ -4,7 +4,6 @@
 function openAddModal(){
   // 檢查是否有 API Key
   if(!hasAPIKey()){
-    showToast('⚠️ 需要設定 Claude API Key');
     showAPIKeySetup();
     return;
   }
@@ -28,9 +27,9 @@ function closeAddModal(){
 function goAddStep(step){
   const steps = document.querySelectorAll('.add-step');
   steps.forEach(s => s.classList.remove('active'));
-  document.getElementById('add-step-type').classList.toggle('active', step===0);
-  document.getElementById('add-step-input').classList.toggle('active', step===1);
-  document.getElementById('add-step-result').classList.toggle('active', step===2);
+  if(step === 0) document.getElementById('add-step-type').classList.add('active');
+  else if(step === 1) document.getElementById('add-step-input').classList.add('active');
+  else if(step === 2) document.getElementById('add-step-result').classList.add('active');
 }
 
 function selectAddType(type){
@@ -63,17 +62,16 @@ function showAPIKeySetup(){
   content.innerHTML = `
     <div class="add-modal-title">🔑 設定 Claude API Key</div>
     
-    <div style="background:#FFF5E8;border-radius:var(--r-lg);padding:12px;margin-bottom:16px;">
-      <div style="font-size:13px;line-height:1.6;color:#333;">
-        <b>需要 Claude API Key 才能使用 AI 搜尋功能</b><br>
-        <br>
-        1. 打開 <a href="https://console.anthropic.com" target="_blank" style="color:#C9A97A;text-decoration:underline">Claude 官網</a><br>
-        2. 登入帳號<br>
-        3. 進入 API Keys 頁面<br>
-        4. 點「Create Key」<br>
-        5. 複製 Key（看起來像 sk-ant-...）<br>
-        6. 貼到下方欄位
-      </div>
+    <div style="background:#FFF5E8;border-radius:var(--r-lg);padding:12px;margin-bottom:16px;font-size:13px;line-height:1.6;">
+      <b>需要 Claude API Key 才能使用 AI 搜尋功能</b><br><br>
+      <strong>步驟：</strong><br>
+      1. 點下方藍色連結<br>
+      2. 登入你的 Claude 帳號<br>
+      3. 進入 API Keys 頁面<br>
+      4. 點「Create Key」<br>
+      5. 複製 Key（看起來像 sk-ant-...）<br>
+      6. 貼到下方欄位<br><br>
+      <a href="https://console.anthropic.com" target="_blank" style="color:#C9A97A;text-decoration:underline;font-weight:600;">👉 打開 Claude 官網申請 API Key</a>
     </div>
 
     <div style="margin-bottom:16px;">
@@ -82,9 +80,9 @@ function showAPIKeySetup(){
       <small style="color:var(--text-tertiary);margin-top:4px;display:block;">你的 Key 只會保存在這台裝置的本機儲存</small>
     </div>
 
-    <div style="display:flex;gap:8px;">
-      <button onclick="closeAddModal()" class="add-btn-secondary" style="flex:1">取消</button>
-      <button onclick="saveAPIKey()" class="add-btn-primary" style="flex:1">保存 Key</button>
+    <div style="display:flex;gap:8px;margin-top:20px;">
+      <button onclick="closeAddModal()" style="flex:1;padding:12px;border:none;border-radius:var(--r-lg);background:var(--divider);color:var(--text-primary);font-family:inherit;font-weight:600;cursor:pointer;">取消</button>
+      <button onclick="saveAPIKey()" style="flex:1;padding:12px;border:none;border-radius:var(--r-lg);background:var(--tan-dark);color:white;font-family:inherit;font-weight:600;cursor:pointer;">保存 Key</button>
     </div>
   `;
 }
@@ -115,7 +113,7 @@ async function startAddSearch(){
   try {
     // 檢查 API Key
     if(!hasAPIKey()){
-      alert('請先設定 API Key（點 ➕ 按鈕）');
+      alert('請先設定 API Key');
       return;
     }
 
