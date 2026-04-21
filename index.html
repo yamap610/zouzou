@@ -154,7 +154,7 @@
     position: sticky; top: 0; z-index: 10;
     padding: 12px 16px;
     background: var(--bg);
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; justify-content: space-between;
   }
   .detail-back button {
     background: none; border: none; cursor: pointer;
@@ -214,7 +214,33 @@
   }
   .btn-outline:hover { background: var(--primary-light); }
 
-  /* REGION DROPDOWN */
+  /* 收藏按鈕 */
+  .fav-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: none;
+    background: white; border: 1.5px solid var(--border);
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .fav-btn.active { background: var(--primary-light); border-color: var(--primary); }
+  .fav-btn:hover { border-color: var(--primary); }
+
+  /* 收藏頁 */
+  .fav-page { padding: 16px 16px 100px; display: none; }
+  .fav-page.show { display: block; }
+  .fav-page-title {
+    font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700;
+    margin-bottom: 16px; padding: 4px 4px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fav-empty { text-align: center; padding: 60px 20px; color: var(--text-xs); }
+  .fav-empty-emoji { font-size: 36px; margin-bottom: 10px; }
+
+  /* 列表卡片上的收藏心 */
+  .list-fav-heart {
+    font-size: 16px; flex-shrink: 0; cursor: pointer;
+    color: var(--border); transition: color 0.2s; padding: 4px;
+  }
+  .list-fav-heart.active { color: var(--primary); }
   .dropdown-wrap { position: relative; }
   .region-dropdown {
     position: absolute; top: calc(100% + 6px); right: 0;
@@ -446,6 +472,7 @@
 <div class="detail-page" id="detailPage">
   <div class="detail-back">
     <button onclick="closeDetail()">‹ 返回列表</button>
+    <button class="fav-btn" id="detailFavBtn" onclick="toggleFavFromDetail()">🤍</button>
   </div>
   <div class="detail-photo" id="detailPhoto">📍</div>
   <div class="detail-body">
@@ -462,6 +489,12 @@
     <div class="detail-info" id="detailInfo"></div>
     <div class="detail-actions" id="detailActions"></div>
   </div>
+</div>
+
+<!-- FAV PAGE -->
+<div class="fav-page" id="favPage">
+  <div class="fav-page-title">🤍 我的收藏</div>
+  <div id="favContent"></div>
 </div>
 
 <!-- SUBMIT MODAL -->
@@ -717,15 +750,85 @@ function openDetail(id) {
   if (p.website) actions += `<button class="btn-outline" onclick="window.open('${p.website}','_blank')">🔗 官網</button>`;
   document.getElementById('detailActions').innerHTML = actions;
 
+  document.getElementById('detailPage').dataset.from = 'list';
   document.getElementById('detailPage').classList.add('open');
   document.getElementById('detailPage').scrollTop = 0;
+  updateDetailFavBtn(isFav(id));
 }
 
 function closeDetail() {
+  const from = document.getElementById('detailPage').dataset.from;
   document.getElementById('detailPage').classList.remove('open');
+  if (from === 'fav') renderFavPage();
 }
 
-// ══ SUBMIT ═════════════════════════════════════════════════════════
+// ══ FAVOURITES ═════════════════════════════════════════════════════
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem('zouzou_favs') || '[]'); } catch { return []; }
+}
+function saveFavs(favs) {
+  localStorage.setItem('zouzou_favs', JSON.stringify(favs));
+}
+function isFav(id) { return getFavs().includes(id); }
+function toggleFav(id) {
+  let favs = getFavs();
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    showToast('已取消收藏');
+  } else {
+    favs.push(id);
+    showToast('✅ 已加入收藏！');
+  }
+  saveFavs(favs);
+  return favs.includes(id);
+}
+
+function toggleFavFromDetail() {
+  if (!currentDetail) return;
+  const isNowFav = toggleFav(currentDetail.id);
+  updateDetailFavBtn(isNowFav);
+  renderList(); // 更新列表上的心形
+}
+
+function updateDetailFavBtn(active) {
+  const btn = document.getElementById('detailFavBtn');
+  btn.textContent = active ? '❤️' : '🤍';
+  btn.classList.toggle('active', active);
+}
+
+function renderFavPage() {
+  const favIds = getFavs();
+  const el = document.getElementById('favContent');
+  if (favIds.length === 0) {
+    el.innerHTML = `<div class="fav-empty"><div class="fav-empty-emoji">🤍</div><div>還沒有收藏的地點</div><div style="font-size:11px;margin-top:6px;">在地點詳細頁點右上角的心形加入收藏</div></div>`;
+    return;
+  }
+  const favPlaces = favIds.map(id => allPlaces.find(p => p.id === id)).filter(Boolean);
+  el.innerHTML = `<div class="list-view">${favPlaces.map(p => `
+    <div class="list-item" onclick="openDetailFromFav(${p.id})">
+      <div class="list-emoji">${p.emoji}</div>
+      <div class="list-info">
+        <div class="list-name">${p.name}</div>
+        <div class="list-meta">
+          <span class="region-tag">${p.area}</span>
+          ${p.tags ? `<span class="type-tag">${p.tags.split(/[,，、]/)[0].trim()}</span>` : ''}
+        </div>
+      </div>
+      <span class="list-fav-heart active" onclick="removeFavFromList(event,${p.id})">❤️</span>
+    </div>`).join('')}</div>`;
+}
+
+function openDetailFromFav(id) {
+  openDetail(id);
+  // 返回後回到收藏頁
+  document.getElementById('detailPage').dataset.from = 'fav';
+}
+
+function removeFavFromList(e, id) {
+  e.stopPropagation();
+  toggleFav(id);
+  renderFavPage();
+}
 function openSubmit() {
   if (!SUBMIT_FORM_URL) {
     showToast('⚙️ 投稿功能設定中，敬請期待！');
@@ -782,17 +885,45 @@ function showAbout() {
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('searchBar').style.display = 'none';
   document.getElementById('viewBar').style.display = 'none';
-  document.getElementById('catScroll').style.display = 'none'; // 隱藏類別 tabs
+  document.getElementById('catScroll').style.display = 'none';
+  document.getElementById('favPage').classList.remove('show');
   document.getElementById('aboutPage').classList.add('show');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelector('[data-tab="about"]').classList.add('active');
 }
+function setTab(tab, el) {
+  if (tab === 'home') {
+    showHome();
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  } else if (tab === 'about') {
+    showAbout();
+  } else if (tab === 'fav') {
+    showFavPage();
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  } else {
+    showToast('🚧 功能開發中');
+  }
+}
+
+function showFavPage() {
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('searchBar').style.display = 'none';
+  document.getElementById('viewBar').style.display = 'none';
+  document.getElementById('catScroll').style.display = 'none';
+  document.getElementById('aboutPage').classList.remove('show');
+  document.getElementById('favPage').classList.add('show');
+  renderFavPage();
+}
+
 function showHome() {
   document.getElementById('mainContent').style.display = '';
   document.getElementById('searchBar').style.display = '';
   document.getElementById('viewBar').style.display = '';
-  document.getElementById('catScroll').style.display = ''; // 還原類別 tabs
+  document.getElementById('catScroll').style.display = '';
   document.getElementById('aboutPage').classList.remove('show');
+  document.getElementById('favPage').classList.remove('show');
 }
 function setTab(tab, el) {
   if (tab === 'home') {
