@@ -925,17 +925,6 @@ function showHome() {
   document.getElementById('aboutPage').classList.remove('show');
   document.getElementById('favPage').classList.remove('show');
 }
-function setTab(tab, el) {
-  if (tab === 'home') {
-    showHome();
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-  } else if (tab === 'about') {
-    showAbout();
-  } else {
-    showToast('🚧 功能開發中');
-  }
-}
 
 // Toast
 function showToast(msg) {
