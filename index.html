@@ -1,419 +1,766 @@
 <!DOCTYPE html>
-
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>走走 - 地點探險</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Noto Serif TC', serif; background: #fdf8f3; color: #333; }
-        html, body { height: 100%; }
-        .app { display: flex; flex-direction: column; height: 100vh; }
-        .header { background: linear-gradient(135deg, #c9a97a 0%, #a07848 100%); color: white; padding: 16px 20px; text-align: center; }
-        .header h1 { font-size: 24px; font-weight: 700; }
-        .header p { font-size: 12px; opacity: 0.9; }
-        .controls { padding: 12px 16px; background: white; display: flex; gap: 8px; border-bottom: 1px solid #e8dcc8; flex-wrap: wrap; }
-        .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; }
-        .btn-primary { background: #c9a97a; color: white; }
-        .btn-secondary { background: #f5ede2; color: #a07848; border: 1px solid #c9a97a; }
-        .toggle-btn { padding: 8px 12px; border: 1px solid #c9a97a; background: white; color: #a07848; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .toggle-btn.active { background: #c9a97a; color: white; }
-        .search-box { flex: 1; display: flex; align-items: center; background: #f5ede2; border-radius: 6px; padding: 0 12px; min-width: 150px; }
-        .search-box input { border: none; background: transparent; padding: 8px; outline: none; font-family: inherit; width: 100%; }
-        .content { flex: 1; overflow-y: auto; padding: 12px 16px; }
-        .card-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-        .place-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; }
-        .card-img { width: 100%; height: 120px; background: linear-gradient(135deg, #ede8e3, #f5ede2); display: flex; align-items: center; justify-content: center; font-size: 48px; }
-        .card-img img { width: 100%; height: 100%; object-fit: cover; }
-        .card-body { padding: 12px; }
-        .card-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-        .card-region { font-size: 11px; color: #999; }
-        .card-cat { font-size: 10px; background: #f5ede2; color: #a07848; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-top: 4px; }
-        .list-view { display: flex; flex-direction: column; gap: 8px; }
-        .list-item { background: white; border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; }
-        .list-emoji { font-size: 32px; min-width: 40px; }
-        .list-info { flex: 1; }
-        .list-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-        .list-meta { font-size: 12px; color: #999; }
-        .list-fav { width: 32px; height: 32px; border: 1px solid #ddd; background: white; border-radius: 50%; cursor: pointer; font-size: 16px; }
-        .list-fav.on { background: #ffe4e4; }
-        .detail-page { display: none; position: fixed; inset: 0; background: #fdf8f3; z-index: 100; flex-direction: column; }
-        .detail-page.show { display: flex; }
-        .detail-header { background: linear-gradient(135deg, #c9a97a 0%, #a07848 100%); color: white; padding: 12px 16px; display: flex; justify-content: space-between; }
-        .detail-content { flex: 1; overflow-y: auto; padding: 16px; }
-        .detail-img { width: 100%; height: 200px; background: linear-gradient(135deg, #ede8e3, #f5ede2); display: flex; align-items: center; justify-content: center; font-size: 80px; border-radius: 8px; margin-bottom: 16px; }
-        .detail-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-        .detail-section { background: white; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-        .detail-label { font-size: 11px; color: #999; font-weight: 600; margin-bottom: 4px; }
-        .detail-value { font-size: 14px; color: #333; }
-        .detail-actions { display: flex; gap: 8px; padding: 12px 16px; background: white; border-top: 1px solid #e8dcc8; }
-        .detail-actions .btn { flex: 1; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
-        .modal.show { display: flex; }
-        .modal-content { background: white; border-radius: 12px; padding: 20px; max-width: 90%; max-height: 80vh; overflow-y: auto; width: 100%; }
-        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-        .form-group { margin-bottom: 12px; }
-        .form-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; }
-        .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 14px; }
-        .detail-textarea { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 8px; font-family: inherit; font-size: 14px; min-height: 80px; }
-        .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
-        .modal-actions .btn { flex: 1; }
-        .empty { text-align: center; padding: 40px 20px; }
-        .loading { text-align: center; padding: 20px; }
-        .spinner { width: 30px; height: 30px; border: 3px solid #f5ede2; border-top-color: #c9a97a; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) {
-            .card-view { grid-template-columns: repeat(2, 1fr); }
-            .header h1 { font-size: 20px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>走走 ZOUZOU</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFBF0;
+    --card: #FFFFFF;
+    --primary: #E4B6B6;
+    --primary-dark: #C99090;
+    --primary-light: #F5DEDE;
+    --text: #4A4644;
+    --text-light: #8A7F7D;
+    --text-xs: #B0A6A4;
+    --border: #F0E8E8;
+    --shadow: 0 2px 12px rgba(180,140,140,0.10);
+    --shadow-hover: 0 6px 24px rgba(180,140,140,0.18);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; max-width: 430px; margin: 0 auto;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bg); padding: 16px 20px 10px;
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .logo { display: flex; align-items: baseline; gap: 6px; }
+  .logo-zh { font-family: 'Noto Serif TC', serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+  .logo-en { font-size: 11px; font-weight: 300; color: var(--text-light); letter-spacing: 3px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: none;
+    background: var(--primary-light); color: var(--primary-dark);
+    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .icon-btn:hover { background: var(--primary); }
+  .cat-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .cat-scroll::-webkit-scrollbar { display: none; }
+  .cat-tab {
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: transparent;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px;
+    color: var(--text-light); cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .cat-tab.active { background: var(--primary); border-color: var(--primary); color: white; font-weight: 500; }
+  .cat-tab:hover:not(.active) { border-color: var(--primary); color: var(--primary-dark); }
+
+  /* SEARCH */
+  .search-bar { display: flex; gap: 8px; padding: 10px 20px; align-items: center; }
+  .search-wrap { flex: 1; position: relative; }
+  .search-wrap input {
+    width: 100%; padding: 9px 36px 9px 14px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: white; font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; color: var(--text); outline: none; transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--primary); }
+  .search-wrap input::placeholder { color: var(--text-xs); }
+  .search-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-xs); font-size: 15px; pointer-events: none; }
+  .region-btn {
+    flex-shrink: 0; padding: 9px 13px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: white;
+    font-size: 13px; color: var(--text-light); cursor: pointer; white-space: nowrap;
+    font-family: 'Noto Sans TC', sans-serif; transition: all 0.2s;
+  }
+  .region-btn:hover, .region-btn.selected { border-color: var(--primary); color: var(--primary-dark); }
+
+  /* VIEW TOGGLE */
+  .view-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 20px 10px; }
+  .result-count { font-size: 12px; color: var(--text-xs); }
+  .toggle-btns { display: flex; background: var(--primary-light); border-radius: 8px; padding: 3px; gap: 2px; }
+  .toggle-btn { padding: 4px 10px; border-radius: 6px; border: none; background: transparent; font-size: 14px; cursor: pointer; color: var(--primary-dark); transition: all 0.2s; }
+  .toggle-btn.active { background: white; box-shadow: 0 1px 4px rgba(180,140,140,0.15); }
+
+  /* CONTENT */
+  .content { padding: 0 16px 100px; }
+
+  /* LIST MODE */
+  .list-view { display: flex; flex-direction: column; gap: 10px; }
+  .list-item {
+    display: flex; align-items: center; gap: 12px;
+    background: white; border-radius: var(--radius);
+    padding: 14px 16px; box-shadow: var(--shadow);
+    cursor: pointer; transition: box-shadow 0.2s, transform 0.15s;
+    animation: fadeUp 0.3s ease both;
+  }
+  .list-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .list-emoji { width: 48px; height: 48px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .list-info { flex: 1; min-width: 0; }
+  .list-name { font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .region-tag { font-size: 11px; color: var(--primary-dark); background: var(--primary-light); padding: 2px 8px; border-radius: 20px; }
+  .type-tag { font-size: 11px; color: var(--text-light); }
+  .list-arrow { color: var(--text-xs); font-size: 18px; flex-shrink: 0; }
+
+  /* CARD MODE */
+  .card-view { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card-item {
+    background: white; border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow); cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+    animation: fadeUp 0.3s ease both;
+  }
+  .card-item:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+  .card-img-wrap {
+    width: 100%; aspect-ratio: 4/3; background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; overflow: hidden;
+  }
+  .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-body { padding: 10px 12px 12px; }
+  .card-name { font-family: 'Noto Serif TC', serif; font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+  .card-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .card-region-tag { font-size: 10px; color: var(--primary-dark); background: var(--primary-light); padding: 2px 7px; border-radius: 10px; }
+  .card-tag { font-size: 10px; color: var(--text-light); background: var(--bg); padding: 2px 7px; border-radius: 10px; }
+
+  /* DETAIL MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(74,70,68,0.4); backdrop-filter: blur(4px);
+    z-index: 200; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: white; border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 430px; max-height: 90vh;
+    overflow-y: auto; transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  /* 照片區：4:3，object-fit: contain，深色背景 */
+  .modal-photo {
+    width: 100%; aspect-ratio: 4/3;
+    background: #2a2220;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px;
+    border-radius: 24px 24px 0 0;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .modal-photo img {
+    width: 100%; height: 100%;
+    object-fit: contain; /* 完整顯示，不裁切 */
+    display: block;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+  .modal-body { padding: 16px 20px 32px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .modal-title { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 700; flex: 1; margin-right: 8px; }
+  .modal-region { font-size: 12px; color: var(--primary-dark); background: var(--primary-light); padding: 4px 10px; border-radius: 20px; flex-shrink: 0; margin-top: 4px; white-space: nowrap; }
+  .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .modal-tag { font-size: 12px; color: var(--text-light); background: var(--bg); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); }
+  .modal-desc { font-size: 14px; line-height: 1.8; color: var(--text-light); margin-bottom: 14px; }
+  .modal-note {
+    background: #FFF8F0; border-left: 3px solid var(--primary);
+    padding: 10px 14px; border-radius: 0 8px 8px 0;
+    font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 16px;
+  }
+  .modal-note-label { font-weight: 500; color: var(--primary-dark); margin-bottom: 3px; font-size: 12px; }
+  .modal-info { margin-bottom: 16px; }
+  .modal-info-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .modal-info-row:last-child { border-bottom: none; }
+  .modal-info-icon { color: var(--primary); flex-shrink: 0; width: 18px; text-align: center; }
+  .modal-info-text { color: var(--text-light); line-height: 1.6; word-break: break-all; }
+  .modal-info-text a { color: var(--primary-dark); text-decoration: none; }
+  .modal-actions { display: flex; gap: 8px; }
+  .btn-nav {
+    flex: 1; padding: 13px; background: var(--primary); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-nav:hover { background: var(--primary-dark); }
+  .btn-outline {
+    padding: 13px 16px; background: white; color: var(--primary-dark);
+    border: 1.5px solid var(--primary-light); border-radius: var(--radius-sm);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 14px;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-outline:hover { background: var(--primary-light); }
+
+  /* REGION DROPDOWN */
+  .dropdown-wrap { position: relative; }
+  .region-dropdown {
+    position: absolute; top: calc(100% + 6px); right: 0;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow-hover); padding: 12px;
+    display: none; grid-template-columns: repeat(3,1fr); gap: 6px;
+    z-index: 300; width: 220px;
+  }
+  .region-dropdown.open { display: grid; }
+  .region-option {
+    padding: 7px 4px; border-radius: 8px; border: none;
+    background: var(--bg); font-size: 13px; color: var(--text);
+    cursor: pointer; text-align: center; transition: all 0.15s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .region-option:hover, .region-option.active { background: var(--primary-light); color: var(--primary-dark); }
+  .region-option.all-opt { grid-column: span 3; background: var(--primary-light); color: var(--primary-dark); font-weight: 500; }
+
+  /* SUBMIT MODAL */
+  .submit-overlay {
+    position: fixed; inset: 0; background: rgba(74,70,68,0.4); backdrop-filter: blur(4px);
+    z-index: 400; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .submit-overlay.open { opacity: 1; pointer-events: all; }
+  .submit-modal {
+    background: white; border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 430px; padding: 0 20px 40px;
+    transform: translateY(100%); transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    max-height: 85vh; overflow-y: auto;
+  }
+  .submit-overlay.open .submit-modal { transform: translateY(0); }
+  .submit-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 16px; }
+  .submit-title { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .submit-subtitle { font-size: 12px; color: var(--text-light); margin-bottom: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: var(--text-light); margin-bottom: 5px; display: block; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-hint { font-size: 11px; color: var(--text-xs); margin-top: 4px; }
+  .btn-submit {
+    width: 100%; padding: 13px; background: var(--primary); color: white; border: none;
+    border-radius: var(--radius-sm); font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 6px;
+  }
+  .btn-submit:hover { background: var(--primary-dark); }
+  .btn-submit:disabled { background: var(--text-xs); cursor: not-allowed; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 60px 20px; color: var(--text-xs); }
+  .loading-spinner { font-size: 32px; animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text-xs); }
+  .empty-emoji { font-size: 40px; margin-bottom: 10px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; background: white;
+    border-top: 1px solid var(--border);
+    display: flex; padding: 8px 0 env(safe-area-inset-bottom, 8px); z-index: 150;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 4px 0; cursor: pointer; border: none; background: transparent;
+    color: var(--text-xs); font-size: 10px; font-family: 'Noto Sans TC', sans-serif;
+    transition: color 0.2s;
+  }
+  .nav-item.active { color: var(--primary-dark); }
+  .nav-icon { font-size: 20px; line-height: 1; }
+  .nav-item.submit-nav .nav-icon {
+    background: var(--primary); color: white;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 300;
+    box-shadow: 0 3px 10px rgba(228,182,182,0.55);
+    margin-top: -10px;
+  }
+  .nav-item.submit-nav { color: var(--primary-dark); }
+
+  /* ABOUT PAGE */
+  .about-page { padding: 24px 20px 100px; display: none; }
+  .about-page.show { display: block; }
+  .about-logo { text-align: center; margin-bottom: 24px; }
+  .about-logo .big-logo { font-family: 'Noto Serif TC', serif; font-size: 36px; font-weight: 700; letter-spacing: 4px; }
+  .about-logo .big-en { font-size: 13px; letter-spacing: 5px; color: var(--text-light); margin-top: 2px; }
+  .about-version { display: inline-block; background: var(--primary-light); color: var(--primary-dark); font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-top: 8px; }
+  .about-section { background: white; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .about-section-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--text); }
+  .about-section p { font-size: 13px; color: var(--text-light); line-height: 1.8; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .list-item:nth-child(1){animation-delay:.03s}.list-item:nth-child(2){animation-delay:.07s}
+  .list-item:nth-child(3){animation-delay:.11s}.list-item:nth-child(4){animation-delay:.15s}
+  .list-item:nth-child(5){animation-delay:.19s}.list-item:nth-child(6){animation-delay:.23s}
+  .card-item:nth-child(1){animation-delay:.03s}.card-item:nth-child(2){animation-delay:.07s}
+  .card-item:nth-child(3){animation-delay:.11s}.card-item:nth-child(4){animation-delay:.15s}
+  .card-item:nth-child(5){animation-delay:.19s}.card-item:nth-child(6){animation-delay:.23s}
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: white; padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; z-index: 500; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
-            <h1>🗺️ 走走</h1>
-            <p>發現親子好去處</p>
-        </div>
 
-```
-    <div class="controls">
-        <button class="btn btn-primary" onclick="app.openAddModal()">➕ 新增</button>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="搜尋..." oninput="app.filterPlaces()">
-        </div>
-        <div style="display: flex; gap: 4px;">
-            <button class="toggle-btn active" onclick="app.switchView('card')">🎴</button>
-            <button class="toggle-btn" onclick="app.switchView('list')">📋</button>
-        </div>
-        <button class="btn btn-secondary" onclick="app.openSettings()">⚙️</button>
+<!-- ══ CONFIG ══════════════════════════════════════════════════════ -->
+<script>
+  // ★ 請填入你的設定
+  const SHEET_ID = '1aKIQ0zshgJr3PQObU6ulKaSjX-NdwerYacrzs6Ku3LY';
+  const SHEET_NAME = '走走_親子友善地標清單';  // 正式資料分頁名稱
+
+  // ★ Google Forms 投稿表單網址（建好後貼在這裡）
+  const SUBMIT_FORM_URL = 'https://docs.google.com/forms/d/1eM3H_EOUjevBcKBK2BinA1ZXA5YjCwEfK7uqXCeTvVE/viewform';
+</script>
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="logo">
+      <span class="logo-zh">走走</span>
+      <span class="logo-en">ZOUZOU</span>
     </div>
-    
-    <div class="content" id="content">
-        <div class="empty">
-            <div style="font-size: 48px; margin-bottom: 12px;">📍</div>
-            <div style="font-size: 14px; color: #999;">沒有地點，點「新增」開始吧！</div>
-        </div>
+
+  </div>
+  <div class="cat-scroll" id="catScroll">
+    <button class="cat-tab active" data-cat="全部">🗺️ 全部</button>
+    <button class="cat-tab" data-cat="景點">🎡 景點</button>
+    <button class="cat-tab" data-cat="餐廳">🍽️ 餐廳</button>
+    <button class="cat-tab" data-cat="購物">🛍️ 購物</button>
+    <button class="cat-tab" data-cat="住宿">🏨 住宿</button>
+  </div>
+</header>
+
+<!-- SEARCH BAR -->
+<div class="search-bar" id="searchBar">
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="搜尋地點名稱…">
+    <span class="search-icon">🔍</span>
+  </div>
+  <div class="dropdown-wrap">
+    <button class="region-btn" id="regionBtn">📍 地區 ▾</button>
+    <div class="region-dropdown" id="regionDropdown">
+      <button class="region-option all-opt" data-region="全部">全部地區</button>
+      <button class="region-option" data-region="台北">台北</button>
+      <button class="region-option" data-region="新北">新北</button>
+      <button class="region-option" data-region="基隆">基隆</button>
+      <button class="region-option" data-region="桃園">桃園</button>
+      <button class="region-option" data-region="新竹">新竹</button>
+      <button class="region-option" data-region="苗栗">苗栗</button>
+      <button class="region-option" data-region="台中">台中</button>
+      <button class="region-option" data-region="彰化">彰化</button>
+      <button class="region-option" data-region="南投">南投</button>
+      <button class="region-option" data-region="雲林">雲林</button>
+      <button class="region-option" data-region="嘉義">嘉義</button>
+      <button class="region-option" data-region="台南">台南</button>
+      <button class="region-option" data-region="高雄">高雄</button>
+      <button class="region-option" data-region="屏東">屏東</button>
+      <button class="region-option" data-region="台東">台東</button>
+      <button class="region-option" data-region="花蓮">花蓮</button>
+      <button class="region-option" data-region="宜蘭">宜蘭</button>
     </div>
+  </div>
 </div>
 
-<div class="detail-page" id="detailPage">
-    <div class="detail-header">
-        <h2 id="detailName" style="flex: 1;"></h2>
-        <button class="btn" style="background: rgba(255,255,255,0.2); color: white; width: 32px; height: 32px; padding: 0; border-radius: 50%;" onclick="app.closeDetail()">✕</button>
-    </div>
-    <div class="detail-content" id="detailContent"></div>
-    <div class="detail-actions">
-        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="app.editPlace()">編輯</button>
-        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="app.deletePlace()">刪除</button>
-    </div>
+<!-- VIEW TOGGLE -->
+<div class="view-bar" id="viewBar">
+  <span class="result-count" id="resultCount">載入中…</span>
+  <div class="toggle-btns">
+    <button class="toggle-btn active" id="listToggle" onclick="setView('list')">☰</button>
+    <button class="toggle-btn" id="cardToggle" onclick="setView('card')">⊞</button>
+  </div>
 </div>
 
-<div class="modal" id="settingsModal">
-    <div class="modal-content">
-        <div class="modal-title">⚙️ 設定</div>
-        <div style="background: #FFF5E8; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-            <div style="font-size: 13px; color: #666; line-height: 1.6;">
-                <b>🔑 Claude API Key</b><br>
-                需要 API Key 才能使用 AI 搜尋功能。<br><br>
-                <a href="https://console.anthropic.com" target="_blank" style="color: #c9a97a; text-decoration: none;">👉 打開 Claude 官網申請</a>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">API Key</label>
-            <input type="password" id="apiKeyInput" class="form-input" placeholder="sk-ant-...">
-        </div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="app.closeSettings()">取消</button>
-            <button class="btn btn-primary" onclick="app.saveAPIKey()">保存</button>
-        </div>
-    </div>
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+  <div class="content" id="content">
+    <div class="loading"><div class="loading-spinner">🌸</div><div style="margin-top:12px;font-size:13px;">資料載入中…</div></div>
+  </div>
 </div>
 
-<div class="modal" id="addModal">
-    <div class="modal-content">
-        <div class="modal-title">🆕 新增地點</div>
-        <div id="modalBody"></div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="app.closeAddModal()">取消</button>
-            <button class="btn btn-primary" id="searchBtn" onclick="app.searchPlace()">🔍 搜尋</button>
-        </div>
-    </div>
+<!-- ABOUT PAGE -->
+<div class="about-page" id="aboutPage">
+  <div class="about-logo">
+    <div class="big-logo">走走</div>
+    <div class="big-en">ZOUZOU</div>
+    <div class="about-version">v1.0 · 2026-04-21</div>
+  </div>
+  <div class="about-section">
+    <div class="about-section-title">📖 使用說明</div>
+    <p>上方可依「類別」或「地區」篩選地點，也可以直接輸入名稱搜尋。找到喜歡的地方，點進去就能看詳細資訊，或一鍵開啟地圖導航 🧭</p>
+    <p style="margin-top:8px;">右上角的 ☰ 和 ⊞ 可以切換列表或卡片的顯示方式，依個人喜好選擇就好！</p>
+  </div>
+  <div class="about-section">
+    <div class="about-section-title">📊 資料來源</div>
+    <p>本系統由 Yui 手動維護，資料連動自 Google Sheets，持續更新中。</p>
+  </div>
+  <div class="about-section">
+    <div class="about-section-title">✏️ 投稿地點</div>
+    <p>去過什麼好地方想分享嗎？點下方「＋」按鈕，填寫基本資訊送出，Yui 審核後會盡快上架！</p>
+  </div>
 </div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailOverlay">
+  <div class="modal" id="detailModal">
+    <div class="modal-photo" id="modalPhoto">🏞️</div>
+    <div class="modal-handle"></div>
+    <div class="modal-body">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-region" id="modalRegion"></div>
+      </div>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-note" id="modalNote" style="display:none">
+        <div class="modal-note-label">⭐️ 私房提醒</div>
+        <div id="modalNoteText"></div>
+      </div>
+      <div class="modal-info" id="modalInfo"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div class="submit-overlay" id="submitOverlay">
+  <div class="submit-modal">
+    <div class="submit-handle"></div>
+    <div class="submit-title">✏️ 投稿地點</div>
+    <div class="submit-subtitle">發現好去處？分享給大家，Yui 審核後會上架 🙌</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">類別 *</label>
+        <select class="form-select" id="f_cat">
+          <option value="">請選擇</option>
+          <option>景點</option><option>餐廳</option><option>購物</option><option>住宿</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">地區 *</label>
+        <select class="form-select" id="f_region">
+          <option value="">請選擇</option>
+          <option>台北</option><option>新北</option><option>基隆</option><option>桃園</option>
+          <option>新竹</option><option>苗栗</option><option>台中</option><option>彰化</option>
+          <option>南投</option><option>雲林</option><option>嘉義</option><option>台南</option>
+          <option>高雄</option><option>屏東</option><option>台東</option><option>花蓮</option><option>宜蘭</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">地點名稱 *</label>
+      <input class="form-input" type="text" id="f_name" placeholder="請輸入地點正式名稱">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Google Maps 連結 *</label>
+      <input class="form-input" type="url" id="f_maps" placeholder="https://maps.app.goo.gl/…">
+      <div class="form-hint">在 Google Maps 找到地點後，點「分享」複製連結</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">簡介（選填）</label>
+      <textarea class="form-textarea" id="f_desc" placeholder="描述一下這個地方的特色，50字以內～"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">你的暱稱（選填）</label>
+      <input class="form-input" type="text" id="f_nick" placeholder="匿名也沒關係">
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="submitForm()">📨 送出投稿</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-tab="home" onclick="setTab('home', this)">
+    <span class="nav-icon">🏠</span>探索
+  </button>
+  <button class="nav-item" data-tab="fav" onclick="setTab('fav', this)">
+    <span class="nav-icon">🤍</span>收藏
+  </button>
+  <button class="nav-item submit-nav" onclick="openSubmit()">
+    <span class="nav-icon">＋</span>投稿
+  </button>
+  <button class="nav-item" data-tab="map" onclick="setTab('map', this)">
+    <span class="nav-icon">🗺️</span>地圖
+  </button>
+  <button class="nav-item" data-tab="about" onclick="showAbout()">
+    <span class="nav-icon">👤</span>關於
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-    const app = {
-        places: [],
-        currentView: 'card',
-        currentDetailId: null,
-        currentEditId: null,
-        claudeKey: '',
+// ══ STATE ══════════════════════════════════════════════════════════
+let allPlaces = [];
+let currentView = 'list';
+let currentCat = '全部';
+let currentRegion = '全部';
+let currentDetail = null;
 
-        init() {
-            this.claudeKey = localStorage.getItem('zou_claude_key') || '';
-            this.places = JSON.parse(localStorage.getItem('zou_places') || '[]');
-            this.render();
-        },
+// ══ DATA FETCH FROM GOOGLE SHEETS ══════════════════════════════════
+async function loadData() {
+  try {
+    const encodedSheet = encodeURIComponent(SHEET_NAME);
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodedSheet}`;
+    const res = await fetch(url);
+    const text = await res.text();
+    // Google 回傳的格式是 /*O_o*/ google.visualization.Query.setResponse({...})
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    const rows = json.table.rows;
+    const cols = json.table.cols.map(c => c.label);
 
-        save() {
-            localStorage.setItem('zou_places', JSON.stringify(this.places));
-        },
+    allPlaces = rows.map((row, i) => {
+      const get = (label) => {
+        const idx = cols.indexOf(label);
+        return idx >= 0 && row.c[idx] ? String(row.c[idx].v || '').trim() : '';
+      };
+      return {
+        id: i,
+        name: get('name'),
+        emoji: get('emoji') || '📍',
+        category: get('category'),
+        tags: get('tags'),
+        area: get('area'),
+        address: get('address'),
+        phone: get('phone'),
+        mapsUrl: get('mapsUrl'),
+        website: get('website'),
+        hours: get('hours'),
+        image: get('image'),
+        notes: get('notes'),
+      };
+    }).filter(p => p.name); // 過濾空行
 
-        render() {
-            const filtered = this.getFiltered();
-            const html = filtered.length ? 
-                (this.currentView === 'card' ? this.renderCard(filtered) : this.renderList(filtered)) :
-                '<div class="empty"><div style="font-size: 48px; margin-bottom: 12px;">🔍</div><div style="color: #999;">沒有找到相符的地點</div></div>';
-            document.getElementById('content').innerHTML = html;
-        },
+    renderList();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('content').innerHTML = `
+      <div class="empty">
+        <div class="empty-emoji">🌸</div>
+        <div>資料準備中，請稍後再試</div>
+      </div>`;
+  }
+}
 
-        renderCard(items) {
-            return '<div class="card-view">' + items.map(p => `
-                <div class="place-card" onclick="app.openDetail('${p.id}')">
-                    <div class="card-img">${p.imageUrl ? `<img src="${p.imageUrl}" onerror="this.style.display='none'">` : ''}<span style="${p.imageUrl ? 'display:none' : ''}">${p.emoji || '📍'}</span></div>
-                    <div class="card-body">
-                        <div class="card-name">${p.name}</div>
-                        <div class="card-region">${p.region || '-'}</div>
-                        <div class="card-cat">${this.getCatLabel(p.category)}</div>
-                    </div>
-                </div>
-            `).join('') + '</div>';
-        },
+// ══ FILTER & RENDER ════════════════════════════════════════════════
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  return allPlaces.filter(p => {
+    if (currentCat !== '全部' && p.category !== currentCat) return false;
+    if (currentRegion !== '全部' && p.area !== currentRegion) return false;
+    if (q && !p.name.toLowerCase().includes(q) && !p.tags.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
 
-        renderList(items) {
-            return '<div class="list-view">' + items.map(p => `
-                <div class="list-item" onclick="app.openDetail('${p.id}')">
-                    <div class="list-emoji">${p.emoji || '📍'}</div>
-                    <div class="list-info">
-                        <div class="list-name">${p.name}</div>
-                        <div class="list-meta">${p.region || '-'} • ${this.getCatLabel(p.category)}</div>
-                    </div>
-                    <button class="list-fav ${p.favorite ? 'on' : ''}" onclick="event.stopPropagation(); app.toggleFav('${p.id}')">${p.favorite ? '❤️' : '🤍'}</button>
-                </div>
-            `).join('') + '</div>';
-        },
+function renderList() {
+  const filtered = getFiltered();
+  document.getElementById('resultCount').textContent = `共 ${filtered.length} 筆`;
+  const el = document.getElementById('content');
 
-        getFiltered() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            if (!q) return this.places;
-            return this.places.filter(p => 
-                p.name.toLowerCase().includes(q) || 
-                (p.region || '').toLowerCase().includes(q) || 
-                (p.description || '').toLowerCase().includes(q) || 
-                (p.note || '').toLowerCase().includes(q)
-            );
-        },
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-emoji">🔍</div><div>找不到符合的地點</div></div>`;
+    return;
+  }
 
-        filterPlaces() {
-            this.render();
-        },
+  if (currentView === 'list') {
+    el.innerHTML = `<div class="list-view">${filtered.map(p => `
+      <div class="list-item" onclick="openDetail(${p.id})">
+        <div class="list-emoji">${p.emoji}</div>
+        <div class="list-info">
+          <div class="list-name">${p.name}</div>
+          <div class="list-meta">
+            <span class="region-tag">${p.area}</span>
+            ${p.tags ? `<span class="type-tag">${p.tags.split('，')[0].split(',')[0].trim()}</span>` : ''}
+          </div>
+        </div>
+        <div class="list-arrow">›</div>
+      </div>`).join('')}</div>`;
+  } else {
+    el.innerHTML = `<div class="card-view">${filtered.map(p => `
+      <div class="card-item" onclick="openDetail(${p.id})">
+        <div class="card-img-wrap">
+          ${p.image
+            ? `<img src="${p.image}" alt="${p.name}" onerror="this.parentElement.innerHTML='${p.emoji}'">`
+            : p.emoji}
+        </div>
+        <div class="card-body">
+          <div class="card-name">${p.name}</div>
+          <div class="card-tags">
+            <span class="card-region-tag">${p.area}</span>
+            ${p.category ? `<span class="card-tag">${p.category}</span>` : ''}
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+}
 
-        switchView(v) {
-            this.currentView = v;
-            document.querySelectorAll('.toggle-btn').forEach((b, i) => 
-                b.classList.toggle('active', (i === 0 && v === 'card') || (i === 1 && v === 'list'))
-            );
-            this.render();
-        },
+// ══ DETAIL MODAL ═══════════════════════════════════════════════════
+function openDetail(id) {
+  const p = allPlaces.find(x => x.id === id);
+  if (!p) return;
+  currentDetail = p;
 
-        getCatLabel(c) {
-            const l = {attractions: '🏞️ 景點', restaurants: '🍽️ 餐廳', other: '✨ 其他'};
-            return l[c] || c;
-        },
+  // 照片：4:3 contain，無照片顯示 emoji
+  const photo = document.getElementById('modalPhoto');
+  if (p.image) {
+    photo.innerHTML = `<img src="${p.image}" alt="${p.name}" onerror="this.parentElement.innerHTML='${p.emoji}'">`;
+  } else {
+    photo.innerHTML = p.emoji;
+  }
 
-        openDetail(id) {
-            const p = this.places.find(x => x.id === id);
-            if (!p) return;
-            this.currentDetailId = id;
-            document.getElementById('detailName').textContent = p.name;
-            document.getElementById('detailContent').innerHTML = `
-                <div class="detail-img">${p.imageUrl ? `<img src="${p.imageUrl}" onerror="this.style.display='none'">` : ''}<span style="${p.imageUrl ? 'display:none' : ''}">${p.emoji || '📍'}</span></div>
-                ${[{l:'分類',v:this.getCatLabel(p.category)},{l:'地區',v:p.region||'-'},{l:'地址',v:p.address||'-'},{l:'電話',v:p.phone?`<a href="tel:${p.phone}">${p.phone}</a>`:'-'},{l:'簡介',v:p.description||'-'},{l:'筆記',v:p.note||'(無)'}].map(s=>`<div class="detail-section"><div class="detail-label">${s.l}</div><div class="detail-value">${s.v}</div></div>`).join('')}
-            `;
-            document.getElementById('detailPage').classList.add('show');
-        },
+  document.getElementById('modalTitle').textContent = p.name;
+  document.getElementById('modalRegion').textContent = p.area;
 
-        closeDetail() {
-            document.getElementById('detailPage').classList.remove('show');
-            this.currentDetailId = null;
-        },
+  // 標籤
+  const tagsEl = document.getElementById('modalTags');
+  if (p.tags) {
+    const tagList = p.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean);
+    tagsEl.innerHTML = tagList.map(t => `<span class="modal-tag">${t}</span>`).join('');
+  } else {
+    tagsEl.innerHTML = '';
+  }
 
-        toggleFav(id) {
-            const p = this.places.find(x => x.id === id);
-            p.favorite = !p.favorite;
-            this.save();
-            this.render();
-        },
+  // 簡介（notes 欄）
+  document.getElementById('modalDesc').textContent = '';
 
-        openSettings() {
-            document.getElementById('apiKeyInput').value = this.claudeKey;
-            document.getElementById('settingsModal').classList.add('show');
-        },
+  // 備註
+  if (p.notes) {
+    document.getElementById('modalNote').style.display = '';
+    document.getElementById('modalNoteText').textContent = p.notes;
+  } else {
+    document.getElementById('modalNote').style.display = 'none';
+  }
 
-        closeSettings() {
-            document.getElementById('settingsModal').classList.remove('show');
-        },
+  // 資訊列
+  let info = '';
+  if (p.address) info += `<div class="modal-info-row"><span class="modal-info-icon">📍</span><span class="modal-info-text">${p.address}</span></div>`;
+  if (p.phone)   info += `<div class="modal-info-row"><span class="modal-info-icon">📞</span><span class="modal-info-text"><a href="tel:${p.phone}">${p.phone}</a></span></div>`;
+  if (p.hours)   info += `<div class="modal-info-row"><span class="modal-info-icon">🕐</span><span class="modal-info-text">${p.hours}</span></div>`;
+  document.getElementById('modalInfo').innerHTML = info;
 
-        saveAPIKey() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if (!key.startsWith('sk-ant-')) {
-                alert('API Key 格式錯誤（應以 sk-ant- 開頭）');
-                return;
-            }
-            this.claudeKey = key;
-            localStorage.setItem('zou_claude_key', key);
-            alert('✅ 已保存');
-            this.closeSettings();
-        },
+  // 按鈕
+  let actions = '';
+  if (p.mapsUrl) actions += `<button class="btn-nav" onclick="window.open('${p.mapsUrl}','_blank')">🧭 導航前往</button>`;
+  if (p.website) actions += `<button class="btn-outline" onclick="window.open('${p.website}','_blank')">🔗 官網</button>`;
+  document.getElementById('modalActions').innerHTML = actions;
 
-        openAddModal() {
-            if (!this.claudeKey) {
-                alert('請先設定 API Key（點⚙️）');
-                return;
-            }
-            this.currentEditId = null;
-            document.getElementById('addModal').classList.add('show');
-            document.getElementById('modalBody').innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">搜尋方式</label>
-                    <select id="searchMethod" class="form-select" onchange="app.updateSearchUI()">
-                        <option value="name">地點名稱</option>
-                        <option value="url">Google Maps URL</option>
-                    </select>
-                </div>
-                <div class="form-group" id="searchInput1">
-                    <label class="form-label">地點名稱</label>
-                    <input type="text" id="placeName" class="form-input">
-                </div>
-                <div class="form-group" id="searchInput2" style="display:none;">
-                    <label class="form-label">Google Maps URL</label>
-                    <input type="text" id="placeUrl" class="form-input">
-                </div>
-                <div id="searchResult"></div>
-            `;
-            document.getElementById('searchBtn').textContent = '🔍 搜尋';
-        },
+  document.getElementById('detailOverlay').classList.add('open');
+}
 
-        closeAddModal() {
-            document.getElementById('addModal').classList.remove('show');
-        },
+document.getElementById('detailOverlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
 
-        updateSearchUI() {
-            const m = document.getElementById('searchMethod').value;
-            document.getElementById('searchInput1').style.display = m === 'name' ? 'block' : 'none';
-            document.getElementById('searchInput2').style.display = m === 'url' ? 'block' : 'none';
-        },
+// ══ SUBMIT ═════════════════════════════════════════════════════════
+function openSubmit() {
+  if (!SUBMIT_FORM_URL) {
+    showToast('⚙️ 投稿功能設定中，敬請期待！');
+    return;
+  }
+  window.open(SUBMIT_FORM_URL, '_blank');
+}
 
-        async searchPlace() {
-            const m = document.getElementById('searchMethod').value;
-            const inp = m === 'name' ? document.getElementById('placeName').value : document.getElementById('placeUrl').value;
-            if (!inp) { alert('請輸入'); return; }
-            
-            const rd = document.getElementById('searchResult');
-            rd.innerHTML = '<div class="loading"><div class="spinner"></div>搜尋中...</div>';
-            
-            try {
-                const prompt = m === 'url' ? `From URL: ${inp}` : `Search: ${inp}`;
-                
-                const r = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': this.claudeKey,
-                        'anthropic-version': '2023-06-01'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 500,
-                        messages: [{role: 'user', content: `${prompt}\nReturn JSON: {"name":"","region":"","address":"","phone":"","description":"","emoji":""}`}]
-                    })
-                });
-                
-                const d = await r.json();
-                let t = d.content[0].text.trim();
-                if (t.startsWith('```')) t = t.replace(/^```json?\n?/, '').replace(/\n?```$/, '');
-                const res = JSON.parse(t);
-                rd.innerHTML = `<div style="margin-top:16px;"><div class="form-group"><label class="form-label">名稱</label><input type="text" id="resultName" class="form-input" value="${res.name || ''}"></div><div class="form-group"><label class="form-label">Emoji</label><input type="text" id="resultEmoji" class="form-input" value="${res.emoji || '📍'}"></div><div class="form-group"><label class="form-label">分類</label><select id="resultCat" class="form-select"><option value="attractions">🏞️ 景點</option><option value="restaurants">🍽️ 餐廳</option><option value="other">✨ 其他</option></select></div><div class="form-group"><label class="form-label">地區</label><input type="text" id="resultRegion" class="form-input" value="${res.region || ''}"></div><div class="form-group"><label class="form-label">地址</label><input type="text" id="resultAddress" class="form-input" value="${res.address || ''}"></div><div class="form-group"><label class="form-label">電話</label><input type="text" id="resultPhone" class="form-input" value="${res.phone || ''}"></div><div class="form-group"><label class="form-label">簡介</label><textarea id="resultDesc" class="detail-textarea">${res.description || ''}</textarea></div><div class="form-group"><label class="form-label">照片URL</label><input type="text" id="resultImg" class="form-input"></div><div class="form-group"><label class="form-label">筆記</label><textarea id="resultNote" class="detail-textarea"></textarea></div><button class="btn btn-primary" onclick="app.saveResult()" style="width:100%; margin-top:12px;">保存</button></div>`;
-            } catch (e) {
-                rd.innerHTML = `<div style="color:red;padding:12px;">失敗: ${e.message}</div>`;
-            }
-        },
 
-        saveResult() {
-            const n = document.getElementById('resultName').value;
-            if (!n) { alert('需要名稱'); return; }
-            const np = {
-                id: Date.now().toString(),
-                name: n,
-                emoji: document.getElementById('resultEmoji').value || '📍',
-                category: document.getElementById('resultCat').value || 'other',
-                region: document.getElementById('resultRegion').value || '',
-                address: document.getElementById('resultAddress').value || '',
-                phone: document.getElementById('resultPhone').value || '',
-                description: document.getElementById('resultDesc').value || '',
-                imageUrl: document.getElementById('resultImg').value || '',
-                note: document.getElementById('resultNote').value || '',
-                favorite: false,
-                createdAt: new Date().toISOString()
-            };
-            this.places.unshift(np);
-            this.save();
-            this.render();
-            this.closeAddModal();
-            alert('已新增！');
-        },
+// ══ UI CONTROLS ════════════════════════════════════════════════════
+function setView(v) {
+  currentView = v;
+  document.getElementById('listToggle').classList.toggle('active', v === 'list');
+  document.getElementById('cardToggle').classList.toggle('active', v === 'card');
+  renderList();
+}
 
-        editPlace() {
-            if (!this.currentDetailId) return;
-            const p = this.places.find(x => x.id === this.currentDetailId);
-            this.currentEditId = this.currentDetailId;
-            this.closeDetail();
-            document.getElementById('addModal').classList.add('show');
-            document.getElementById('modalBody').innerHTML = `
-                <div class="form-group"><label class="form-label">名稱</label><input type="text" id="editName" class="form-input" value="${p.name}"></div>
-                <div class="form-group"><label class="form-label">分類</label><select id="editCat" class="form-select"><option value="attractions" ${p.category==='attractions'?'selected':''}>🏞️ 景點</option><option value="restaurants" ${p.category==='restaurants'?'selected':''}>🍽️ 餐廳</option><option value="other" ${p.category==='other'?'selected':''}>✨ 其他</option></select></div>
-                <div class="form-group"><label class="form-label">地區</label><input type="text" id="editRegion" class="form-input" value="${p.region||''}"></div>
-                <div class="form-group"><label class="form-label">地址</label><input type="text" id="editAddress" class="form-input" value="${p.address||''}"></div>
-                <div class="form-group"><label class="form-label">電話</label><input type="text" id="editPhone" class="form-input" value="${p.phone||''}"></div>
-                <div class="form-group"><label class="form-label">簡介</label><textarea id="editDesc" class="detail-textarea">${p.description||''}</textarea></div>
-                <div class="form-group"><label class="form-label">照片URL</label><input type="text" id="editImg" class="form-input" value="${p.imageUrl||''}"></div>
-                <div class="form-group"><label class="form-label">筆記</label><textarea id="editNote" class="detail-textarea">${p.note||''}</textarea></div>
-            `;
-            document.getElementById('searchBtn').textContent = '保存';
-            document.getElementById('searchBtn').onclick = () => this.saveEdit();
-        },
+// 類別 tabs
+document.getElementById('catScroll').addEventListener('click', e => {
+  const tab = e.target.closest('.cat-tab');
+  if (!tab) return;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentCat = tab.dataset.cat;
+  renderList();
+});
 
-        saveEdit() {
-            const p = this.places.find(x => x.id === this.currentEditId);
-            p.name = document.getElementById('editName').value;
-            p.category = document.getElementById('editCat').value;
-            p.region = document.getElementById('editRegion').value;
-            p.address = document.getElementById('editAddress').value;
-            p.phone = document.getElementById('editPhone').value;
-            p.description = document.getElementById('editDesc').value;
-            p.imageUrl = document.getElementById('editImg').value;
-            p.note = document.getElementById('editNote').value;
-            this.save();
-            this.render();
-            this.closeAddModal();
-            this.currentEditId = null;
-            document.getElementById('searchBtn').textContent = '🔍 搜尋';
-        },
+// 搜尋
+document.getElementById('searchInput').addEventListener('input', renderList);
 
-        deletePlace() {
-            if (!this.currentDetailId || !confirm('確定刪除？')) return;
-            this.places = this.places.filter(p => p.id !== this.currentDetailId);
-            this.save();
-            this.render();
-            this.closeDetail();
-        }
-    };
+// 地區 dropdown
+document.getElementById('regionBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('regionDropdown').classList.toggle('open');
+});
+document.getElementById('regionDropdown').addEventListener('click', e => {
+  const opt = e.target.closest('.region-option');
+  if (!opt) return;
+  currentRegion = opt.dataset.region;
+  const btn = document.getElementById('regionBtn');
+  btn.textContent = currentRegion === '全部' ? '📍 地區 ▾' : `📍 ${currentRegion} ▾`;
+  btn.classList.toggle('selected', currentRegion !== '全部');
+  document.querySelectorAll('.region-option').forEach(o => o.classList.remove('active'));
+  opt.classList.add('active');
+  document.getElementById('regionDropdown').classList.remove('open');
+  renderList();
+});
+document.addEventListener('click', () => {
+  document.getElementById('regionDropdown').classList.remove('open');
+});
 
-    app.init();
+// About / 頁面切換
+function showAbout() {
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('searchBar').style.display = 'none';
+  document.getElementById('viewBar').style.display = 'none';
+  document.getElementById('aboutPage').classList.add('show');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('[data-tab="about"]').classList.add('active');
+}
+function showHome() {
+  document.getElementById('mainContent').style.display = '';
+  document.getElementById('searchBar').style.display = '';
+  document.getElementById('viewBar').style.display = '';
+  document.getElementById('aboutPage').classList.remove('show');
+}
+function setTab(tab, el) {
+  if (tab === 'home') {
+    showHome();
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  } else if (tab === 'about') {
+    showAbout();
+  } else {
+    showToast('🚧 功能開發中');
+  }
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══ INIT ═══════════════════════════════════════════════════════════
+loadData();
 </script>
-```
 
 </body>
 </html>
