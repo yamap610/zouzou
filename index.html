@@ -676,7 +676,14 @@ function openDetail(id) {
   let info = '';
   if (p.address) info += `<div class="detail-info-row"><span class="detail-info-icon">📍</span><span class="detail-info-text">${p.address}</span></div>`;
   if (p.phone)   info += `<div class="detail-info-row"><span class="detail-info-icon">📞</span><span class="detail-info-text"><a href="tel:${p.phone}">${p.phone}</a></span></div>`;
-  if (p.hours)   info += `<div class="detail-info-row"><span class="detail-info-icon">🕐</span><span class="detail-info-text">${p.hours}</span></div>`;
+  if (p.hours) {
+    // 支援試算表內 Enter 換行，以及空格+週/（ 自動斷行
+    const hoursHtml = p.hours
+      .replace(/\n/g, '<br>')
+      .replace(/\s+(週|（|\()/g, '<br>$1')
+      .replace(/\s{2,}/g, '<br>');
+    info += `<div class="detail-info-row"><span class="detail-info-icon">🕐</span><span class="detail-info-text">${hoursHtml}</span></div>`;
+  }
   document.getElementById('detailInfo').innerHTML = info;
 
   // 按鈕
