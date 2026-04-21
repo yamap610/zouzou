@@ -156,7 +156,7 @@
   .detail-photo {
     width: 100%; aspect-ratio: 4/3;
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden; background: #2a2220;
+    overflow: hidden; background: var(--bg);
     font-size: 64px;
   }
   .detail-photo.no-image {
@@ -409,12 +409,11 @@
     <p style="margin-top:8px;">右上角的 ☰ 和 ⊞ 可以切換列表或卡片的顯示方式，依個人喜好選擇就好！</p>
   </div>
   <div class="about-section">
-    <div class="about-section-title">📊 資料來源</div>
-    <p>本系統由 Yui 手動維護，資料連動自 Google Sheets，持續更新中。</p>
-  </div>
-  <div class="about-section">
     <div class="about-section-title">✏️ 投稿地點</div>
-    <p>去過什麼好地方想分享嗎？點下方「＋」按鈕，填寫基本資訊送出，Yui 審核後會盡快上架！</p>
+    <p>去過什麼好地方想分享嗎？點下方「＋」按鈕，填寫基本資訊送出，審核後會盡快上架！</p>
+  </div>
+  <div style="text-align:center; padding: 16px 0 0; font-size: 12px; color: var(--text-xs);">
+    持續更新中 · v1.0 · 2026-04-21
   </div>
 </div>
 
