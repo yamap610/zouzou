@@ -436,11 +436,13 @@ font-size: 13px; z-index: 500; opacity: 0; transition: all 0.3s; pointer-events:
 <!-- VIEW BAR -->
 
 <div class="view-bar" id="viewBar">
-  <div style="display:flex; align-items:center; gap:8px;">
+  <div style="display:flex; align-items:center; gap:6px;">
     <span class="result-count" id="resultCount">載入中…</span>
+    <span style="font-size:11px;color:var(--text-xs);">排序：</span>
     <div class="sort-btns">
       <button class="sort-btn active" id="sortTime" onclick="setSort('time')">最新</button>
-      <button class="sort-btn" id="sortName" onclick="setSort('name')">名稱</button>
+      <button class="sort-btn" id="sortNameAZ" onclick="setSort('nameAZ')">A→Z</button>
+      <button class="sort-btn" id="sortNameZA" onclick="setSort('nameZA')">Z→A</button>
     </div>
   </div>
   <div class="toggle-btns">
@@ -670,14 +672,14 @@ function getFiltered() {
     if (q && !p.name.toLowerCase().includes(q) && !p.tags.toLowerCase().includes(q)) return false;
     return true;
   });
-  if (currentSort === 'name') {
+  if (currentSort === 'nameAZ') {
     result = [...result].sort((a, b) => a.name.localeCompare(b.name, 'zh-TW'));
-  }
-  if (currentSort === 'time') {
+  } else if (currentSort === 'nameZA') {
+    result = [...result].sort((a, b) => b.name.localeCompare(a.name, 'zh-TW'));
+  } else if (currentSort === 'time') {
     result = [...result].sort((a, b) => {
       const parseDate = (str) => {
         if (!str) return new Date(0);
-        // 處理 Google Sheets 中文格式：2026/4/23 下午 7:00:00
         const s = str
           .replace('上午', 'AM').replace('下午', 'PM')
           .replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3');
@@ -895,7 +897,8 @@ function openSubmit() {
 function setSort(s) {
   currentSort = s;
   document.getElementById('sortTime').classList.toggle('active', s === 'time');
-  document.getElementById('sortName').classList.toggle('active', s === 'name');
+  document.getElementById('sortNameAZ').classList.toggle('active', s === 'nameAZ');
+  document.getElementById('sortNameZA').classList.toggle('active', s === 'nameZA');
   renderList();
 }
 
