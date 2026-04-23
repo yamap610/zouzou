@@ -675,9 +675,16 @@ function getFiltered() {
   }
   if (currentSort === 'time') {
     result = [...result].sort((a, b) => {
-      const ta = a.createdAt ? new Date(a.createdAt) : new Date(0);
-      const tb = b.createdAt ? new Date(b.createdAt) : new Date(0);
-      return tb - ta; // 最新在前
+      const parseDate = (str) => {
+        if (!str) return new Date(0);
+        // 處理 Google Sheets 中文格式：2026/4/23 下午 7:00:00
+        const s = str
+          .replace('上午', 'AM').replace('下午', 'PM')
+          .replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3');
+        const d = new Date(s);
+        return isNaN(d) ? new Date(0) : d;
+      };
+      return parseDate(b.createdAt) - parseDate(a.createdAt);
     });
   }
   return result;
