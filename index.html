@@ -433,7 +433,8 @@
     <span class="result-count" id="resultCount">載入中…</span>
     <span style="font-size:11px;color:var(--text-xs);">排序：</span>
     <div class="sort-btns">
-      <button class="sort-btn active" id="sortTime" onclick="setSort('time')">最新</button>
+      <button class="sort-btn active" id="sortNew" onclick="setSort('new')">新→舊</button>
+      <button class="sort-btn" id="sortOld" onclick="setSort('old')">舊→新</button>
       <button class="sort-btn" id="sortNameAZ" onclick="setSort('nameAZ')">A→Z</button>
       <button class="sort-btn" id="sortNameZA" onclick="setSort('nameZA')">Z→A</button>
     </div>
@@ -587,7 +588,7 @@ let allPlaces = [];
 let currentView = 'list';
 let currentCat = '全部';
 let currentRegion = '全部';
-let currentSort = 'time';
+let currentSort = 'new';
 let currentDetail = null;
 
 // ══ DATA FETCH FROM GOOGLE SHEETS ══════════════════════════════════
@@ -655,22 +656,14 @@ function getFiltered() {
     if (q && !p.name.toLowerCase().includes(q) && !p.tags.toLowerCase().includes(q)) return false;
     return true;
   });
-  if (currentSort === 'nameAZ') {
+  if (currentSort === 'new') {
+    result = [...result].reverse(); // id 越大 = 越下面 = 越新
+  } else if (currentSort === 'old') {
+    // 保持原始順序（id 由小到大）
+  } else if (currentSort === 'nameAZ') {
     result = [...result].sort((a, b) => a.name.localeCompare(b.name, 'zh-TW'));
   } else if (currentSort === 'nameZA') {
     result = [...result].sort((a, b) => b.name.localeCompare(a.name, 'zh-TW'));
-  } else if (currentSort === 'time') {
-    result = [...result].sort((a, b) => {
-      const parseDate = (str) => {
-        if (!str) return new Date(0);
-        const s = str
-          .replace('上午', 'AM').replace('下午', 'PM')
-          .replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3');
-        const d = new Date(s);
-        return isNaN(d) ? new Date(0) : d;
-      };
-      return parseDate(b.createdAt) - parseDate(a.createdAt);
-    });
   }
   return result;
 }
@@ -879,7 +872,8 @@ function openSubmit() {
 // ══ UI CONTROLS ════════════════════════════════════════════════════
 function setSort(s) {
   currentSort = s;
-  document.getElementById('sortTime').classList.toggle('active', s === 'time');
+  document.getElementById('sortNew').classList.toggle('active', s === 'new');
+  document.getElementById('sortOld').classList.toggle('active', s === 'old');
   document.getElementById('sortNameAZ').classList.toggle('active', s === 'nameAZ');
   document.getElementById('sortNameZA').classList.toggle('active', s === 'nameZA');
   renderList();
