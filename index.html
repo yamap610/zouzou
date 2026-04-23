@@ -629,6 +629,7 @@ async function loadData() {
       hours:    getByName(row, 'hours', '營業時間'),
       image:    getByName(row, 'image', '圖片網址'),
       notes:    getByName(row, 'notes', '備註'),
+      bookingUrl: getByName(row, 'bookingurl', 'bookingUrl', '訂位連結', '線上訂位'),
     })).filter(p => p.name);
 
     renderList();
@@ -752,19 +753,26 @@ function openDetail(id) {
   if (p.address) info += `<div class="detail-info-row"><span class="detail-info-icon">📍</span><span class="detail-info-text">${p.address}</span></div>`;
   if (p.phone)   info += `<div class="detail-info-row"><span class="detail-info-icon">📞</span><span class="detail-info-text"><a href="tel:${p.phone}">${p.phone}</a></span></div>`;
   if (p.hours) {
-    // 支援試算表內 Enter 換行，以及空格+週/（ 自動斷行
     const hoursHtml = p.hours
       .replace(/\n/g, '<br>')
       .replace(/\s+(週|（|\()/g, '<br>$1')
       .replace(/\s{2,}/g, '<br>');
     info += `<div class="detail-info-row"><span class="detail-info-icon">🕐</span><span class="detail-info-text">${hoursHtml}</span></div>`;
   }
+  // notes 移到資訊列最下面，支援換行
+  if (p.notes) {
+    const notesHtml = p.notes.replace(/\n/g, '<br>');
+    info += `<div class="detail-info-row"><span class="detail-info-icon">⭐️</span><span class="detail-info-text" style="color:var(--text)">${notesHtml}</span></div>`;
+  }
   document.getElementById('detailInfo').innerHTML = info;
+  // 原本的 detailNote 區塊隱藏（改到資訊列了）
+  document.getElementById('detailNote').style.display = 'none';
 
   // 按鈕
   let actions = '';
-  if (p.mapsUrl) actions += `<button class="btn-nav" onclick="window.open('${p.mapsUrl}','_blank')">🧭 導航前往</button>`;
-  if (p.website) actions += `<button class="btn-outline" onclick="window.open('${p.website}','_blank')">🔗 官網</button>`;
+  if (p.mapsUrl)     actions += `<button class="btn-nav" onclick="window.open('${p.mapsUrl}','_blank')">🧭 導航前往</button>`;
+  if (p.bookingUrl)  actions += `<button class="btn-outline" onclick="window.open('${p.bookingUrl}','_blank')">📅 線上訂位</button>`;
+  if (p.website)     actions += `<button class="btn-outline" onclick="window.open('${p.website}','_blank')">🔗 官網</button>`;
   document.getElementById('detailActions').innerHTML = actions;
 
   document.getElementById('detailPage').dataset.from = 'list';
